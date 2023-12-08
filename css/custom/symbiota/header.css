@@ -142,8 +142,8 @@ ul.menu {
 .menu a {
   display: block;
   color: var(--header-font-color);
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.8rem;
+  font-weight: 500;
   letter-spacing: 1px;
   text-align: center;
 }

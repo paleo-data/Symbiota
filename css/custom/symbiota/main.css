@@ -38,7 +38,7 @@ body {
   color: var(--body-text-color);
   margin: 0;
   -webkit-text-size-adjust: 100%;
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   font-weight: 400;
   font-family: var(--body-font-family);
 }
