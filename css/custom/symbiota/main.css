@@ -49,7 +49,7 @@ h3,
 h4 {
   color: var(--darkest-color);
   font-weight: 700;
-  font-family: var(--heading-font-family);
+  font-family: var(--title-font-family);
 }
 
 h1 {

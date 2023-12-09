@@ -10,13 +10,13 @@
 /* Variables
    ========================================================================== */
 :root {
-  --header-bg-image: url('../../../images/layout/jonathan-borba-Ui73wdp0wok-unsplash.jpg');
-  --header-bg-color: #07095650; /** Transparent color if adding header bg-image **/
+  --header-bg-image: url('../../../images/layout/pdp-header1.jpg');
+  --header-bg-color: #07095625; /** Transparent color if adding header bg-image **/
   --header-font-color: #fff;
-  --brand-font-size: 2rem;
+  --brand-font-size: 3rem;
   --title-font-family: 'Arial', sans-serif;
-  --logo-width: 200px;
-  --menu-top-bg-color: #07095650;
+  --logo-width: 150px;
+  --menu-top-bg-color: #07095660;
   --body-bg-color: #fafafa;
   --body-text-color: #000000;
   --body-font-size: 4.0rem;
@@ -27,6 +27,6 @@
   --darkest-color: #040637;
   --medium-color: #054fb9;
   --light-color: #8babf1;
-  --bright-color: #b51963;
+  --bright-color: #e6308a;
   --max-innertext-width: 1024px;
 }
