@@ -60,7 +60,6 @@ header {
 .brand-name h1 {
   font-family: 'Courier New', serif;
   font-size: var(--brand-font-size);
-  text-align: center;
 }
 
 .brand-name h2 {
