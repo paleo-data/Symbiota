@@ -18,7 +18,8 @@
 
 /* Fonts imports
   ========================================================================== */
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Rubik Mono One&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Open Sans&display=swap');
 
 /* Global variables and components
    ========================================================================== */
@@ -81,6 +82,7 @@ a {
 a:hover {
   color: var(--bright-color);
   cursor: pointer;
+  text-decoration: none;
 }
 
 button {

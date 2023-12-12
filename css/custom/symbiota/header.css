@@ -58,12 +58,13 @@ header {
 }
 
 .brand-name h1 {
-  font-family: 'Courier New', serif;
+  font-family: 'Rubik Mono One', monospace;
   font-size: var(--brand-font-size);
 }
 
 .brand-name h2 {
-  font-size: calc(var(--brand-font-size) * 0.7);
+  font-family: 'Open Sans', sans-serif;
+  font-size: calc(var(--brand-font-size) * 0.6);
 }
 
 header a {

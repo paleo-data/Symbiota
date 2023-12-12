@@ -13,7 +13,7 @@ span[class='link'] {
 
 span[class='link']:hover {
   color: black;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /*  navpath styles */
