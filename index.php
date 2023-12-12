@@ -40,8 +40,9 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 			?>
 			<div>
 				<h1>Welcome</h1>
-				<p>This data portal has been established to promote collaborative... Replace with introductory text in English.
-				If the portal is not meant to be multilingual, remove the unneeded language sections</p>
+				<h3>👷🏗️ This data portal is under construction. Check back soon for updates! 🚧 </h3>
+				<p>Prospective data contributors are encouraged to <a href="https://forms.gle/9Hr2a9gQTELu7q8Y6">complete this form</a>.
+					<br><br>More to come... </p>
 			</div>
 			<?php
 		}
