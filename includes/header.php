@@ -41,7 +41,7 @@ else include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 				</a>
 				<div class="brand-name">
 					<h1>Paleo Data Portal</h1>
-					<h2>A Symbiota Community for Fossil Collections</h2>
+					<h2>A Community of Practice for Fossil Collections</h2>
 				</div>
 			</div>
 		</div>
