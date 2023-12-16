@@ -11,6 +11,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 	include_once($SERVER_ROOT . '/includes/head.php');
 	include_once($SERVER_ROOT . '/includes/googleanalytics.php');
 	?>
+	 <link rel="icon" type="image/x-icon" href="/images/icons/trilofavicon.ico">
 </head>
 <body>
 	<?php
