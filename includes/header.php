@@ -40,8 +40,8 @@ else include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 					<img src="<?php echo $CLIENT_ROOT; ?>/images/layout/logo_placeholder.png" alt="PDWG logo" width="100%">
 				</a>
 				<div class="brand-name">
-					<h1>Paleo Data Portal</h1>
-					<h2>A Community of Practice for Fossil Collections</h2>
+					<h1><strong>PALEO DATA PORTAL</strong></h1>
+					<h2>A Data Portal Community for Fossil Collections</h2>
 				</div>
 			</div>
 		</div>
