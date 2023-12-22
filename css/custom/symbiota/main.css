@@ -249,7 +249,7 @@ hr {
 }
 
 .button-tertiary:hover > a {
-  color: var(--link-color);
+  color: var(--light-color);
 }
 
 .button-primary > a {
