@@ -7,7 +7,7 @@ $serverHost = UtilityFunctions::getDomain();
 <html>
 
 <head>
-	<title><?php echo $DEFAULT_TITLE; ?> Data Usage Guidelines</title>
+	<title><?php echo $DEFAULT_TITLE; ?>Data Usage Guidelines</title>
 	<?php
 
 	include_once($SERVER_ROOT . '/includes/head.php');
@@ -21,7 +21,7 @@ $serverHost = UtilityFunctions::getDomain();
 	?>
 	<div class="navpath">
 		<a href="<?php echo $CLIENT_ROOT; ?>/index.php">Home</a> &gt;&gt;
-		<b>Community Guidelines</b>
+		<b><?php echo (isset($LANG['H_DATA_USAGE'])?$LANG['H_DATA_USAGE']:'Community Guidelines'); ?></b>
 	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">
