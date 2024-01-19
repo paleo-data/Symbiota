@@ -7,7 +7,7 @@ $serverHost = UtilityFunctions::getDomain();
 <html>
 
 <head>
-	<title><?php echo $DEFAULT_TITLE; ?> Data Usage Guidelines</title>
+	<title><?php echo $DEFAULT_TITLE; ?>Data Usage Guidelines</title>
 	<?php
 
 	include_once($SERVER_ROOT . '/includes/head.php');
@@ -21,42 +21,61 @@ $serverHost = UtilityFunctions::getDomain();
 	?>
 	<div class="navpath">
 		<a href="<?php echo $CLIENT_ROOT; ?>/index.php">Home</a> &gt;&gt;
-		<b>Data Usage Guidelines</b>
+		<b><?php echo (isset($LANG['H_DATA_USAGE'])?$LANG['H_DATA_USAGE']:'Community Guidelines'); ?></b>
 	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">
-		<h1>Guidelines for Acceptable Use of Data</h1>
-		<h2>Recommended Citation Formats</h2>
-		<p>Use one of the following formats to cite data retrieved from the <?php echo $DEFAULT_TITLE; ?> network:</p>
-		<h3>General Citation</h3>
-		<blockquote>
-			<?php
-			if (file_exists($SERVER_ROOT . '/includes/citationportal.php')) {
-				include($SERVER_ROOT . '/includes/citationportal.php');
-			}
-			else {
-				echo 'Biodiversity occurrence data published by: ';
-				if ($DEFAULT_TITLE) {
-					echo $DEFAULT_TITLE;
-				}
-				else {
-					echo 'Name of people or institutional reponsible for maintaining the portal';
-				};
-				echo ' (accessed through the ';
-				if ($DEFAULT_TITLE) {
-					echo $DEFAULT_TITLE;
-				}
-				else {
-					echo 'Name of people or institutional reponsible for maintaining the portal';
-				};
-				echo ' Portal, ' . $serverHost . $CLIENT_ROOT . ', ' . date('Y-m-d') . ').';
-			};
-			?>
-		</blockquote>
+		<h1>Community Guidelines</h1>
+		<p>
+		By using this data portal, you are agreeing to abide by the guidelines outlined on this page. Please contact the portal's <a href="<?php echo $CLIENT_ROOT; ?>/misc/contacts.php">Steering Committee</a> if you have questions or concerns about any of the guidance provided herein.
+		</p>
+		<p><strong>Contents</strong>
+		<br><a rel="noopener" target="blank" href="#providers">For Data Providers</a>
+		| <a rel="noopener" target="blank" href="#users">For Data Users</a>
+		| <a rel="noopener" target="blank" href="#citations">Data Citations & Attribution</a>
+		| <a rel="noopener" target="blank" href="#collecting">Statement on Responsible Fossil Collecting</a>
+		</p>
+		
+		<h2 id="providers">For Data Providers</h2>
+		<p>By providing data to this portal, you are agreeing to:</p>
+		<ul>
+			<li>Only share data to which your institution maintains legal rights.</li>
+			<li>Share data under one of the following <a href="https://creativecommons.org/share-your-work/cclicenses/" target="_blank" rel="noopener noreferrer">Creative Commons licenses</a>: CC0, CC-BY, or CC-BY-NC.</li>
+		</ul>
+		<h3>Additional Considerations</h3>
+		<ul>
+			<li>If all or parts of your collection require locality redaction, please carefully review the documentation on <a href="https://biokic.github.io/symbiota-docs/coll_manager/data_publishing/redaction/" target="_blank" rel="noopener noreferrer">data redaction in Symbiota portals</a>.</li>
+			<li>This data portal resides on servers at Arizona State University (ASU) that are actively maintained by the Symbiota Support Hub. While maintaining your data on this infrastructure is one benefit of using an ASU-hosted Symbiota portal, data providers are urged to regularly <a href="https://biokic.github.io/symbiota-docs/coll_manager/download/" target="_blank" rel="noopener noreferrer">download data backups</a>. Please review the Symbiota Support Hub's <a href="https://symbiota.org/cybersecurity/" target="_blank" rel="noopener noreferrer">Statement on Cybersecurity</a> for more information on this topic.</li>
+			<li>Thanks to support from the US National Science Foundation, contributing specimen occurrence data to this Symbiota portal will be free of charge through 2026, and possibly longer (NSF Awards <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324688" target="_blank" rel="noopener noreferrer">2324688</a>, <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324689" target="_blank" rel="noopener noreferrer">2324689</a>, and <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324690" target="_blank" rel="noopener noreferrer">2324690</a>). Please review <a href="https://symbiota.org/sustaining-symbiota-services/" target="_blank" rel="noopener noreferrer">Sustaining Symbiota Services</a> for more information on the Symbiota Support Hub's sustainability planning initiatives.</li>
+			<li>Data contributors will be subscribed to <a href="https://symbiota.org/symbiota-communications/" target="_blank" rel="noopener noreferrer">Symbiota Communications</a> to ensure they receive  important technical notices about this portal and other related notifications.</li>
+		</ul>
 
-		<h3>Usage of occurrence data from specific institutions</h3>
-		<p>Access each collection profile page to find the available citation formats.</p>
-		<h4>Example</h4>
+		<h2 id="users">For Data Users</h2>
+		<p>By using data in this portal, you are agreeing to give attribution to data providers according to the licenses and usage rights specified on the collection profile(s) in this portal. When in doubt, reach out to the relevant <a href="https://biokic.github.io/symbiota-docs/user/contact/" target="_blank" rel="noopener noreferrer">listed contact(s)</a> for more information. Additionally:</p>
+			<ul>
+			<li> It is incumbent upon data users to use the information available in this portal responsibly. The Symbiota Support Hub, the portal's Steering Committee members, and their affiliated institutions cannot assume responsibility for damages resulting from misuse or misinterpretation of data made available in this portal, or from errors or omissions that may exist in the data.</li>
+			<li>Images and other multimedia available within this portal have been contributed to promote research and education. The original data contributors retain full copyright to these media records unless indicated otherwise on their respective portal profiles. When in doubt, contact the appropriate data provider(s) before reusing any imagery or other media found in this portal.</li>
+			<li>Data users are asked not to redistribute data obtained from this site without written permission from the data's respective owner(s). However, links or references to the portal may be freely posted.</li> 
+			<li>Requests to view redacted data must be directed to the appropriate <a href="https://biokic.github.io/symbiota-docs/user/contact/" target="_blank" rel="noopener noreferrer">listed contacts</a>. Please do not contact the portal Steering Committee or the Symbiota Support Hub for access to redacted information in this portal.</li>
+			<li> Many records available in this data portal are actively being curated, cleaned, and managed, and, as such, they are made available "as is". Any errors in the data should be directed to the appropriate <a href="https://biokic.github.io/symbiota-docs/user/contact/" target="_blank" rel="noopener noreferrer">listed contact(s)</a>. You may also leave <a href="https://biokic.github.io/symbiota-docs/user/comment/" target="_blank" rel="noopener noreferrer">comments</a> on individual occurrence records of concern. </li>
+		</ul>
+		
+		<h2 id="citations">Data Citations & Attribution</h2>
+		<p>
+		It is considered a matter of professional ethics to cite and acknowledge the contributions of others that have resulted in subsequent works. Likewise, proper citation of collections data is critical to sustaining these resources and the reproducibility of your research. If you use data acquired from this portal in any forthcoming products, the following citation formats are strongly suggested for giving attribution to the data providers. While formatting may vary by citation style, <strong>at minimum</strong>, you should specify the <strong>URL</strong> to the original data source in your citation, be it for citing the portal, a specific collection, an occurrence record, a checklist, a dataset, or otherwise. Data users are also strongly encouraged to <a href="https://biokic.github.io/symbiota-docs/user/contact/" target="_blank" rel="noopener noreferrer">contact the original investigator</a> responsible for the data that they are accessing.
+		</p>
+	
+	<h2>How to cite...</h2>
+		
+	<h3>This portal:</h3>
+		<blockquote>
+		Symbiota Paleo Data Portal. Year. https://paleodata.biokic.asu.edu. Accessed on YYYY-MM-DD.
+		</blockquote>
+		
+	<h3>Occurrence data from specific institutions:</h3>
+		<blockquote>Refer to individual collection profile pages to find the available citation formats.</blockquote>
+		
+		<h4>Example:</h4>
 		<blockquote>
 			<?php
 			$collData['collectionname'] = 'Name of Institution or Collection';
@@ -64,59 +83,29 @@ $serverHost = UtilityFunctions::getDomain();
 			if (file_exists($SERVER_ROOT . '/includes/citationcollection.php')) {
 				include($SERVER_ROOT . '/includes/citationcollection.php');
 			} else {
-				echo 'Name of Institution or Collection. Occurrence dataset ' . 'http://gh.local/Symbiota/portal/content/dwca/' . 'accessed via the' . 'Fresh Symbiota Install' . 'Portal, ' . 'http://gh.local/Symbiota' . ', 2022-07-25.';
+				echo 'Name of Institution or Collection. Occurrence dataset ' . 'http://gh.local/Symbiota/portal/content/dwca/' . 'accessed via the ' . 'Symbiota Paleo Data ' . 'Portal, ' . 'https://paleodata.biokic.asu.edu' . ', 2022-07-25.';
 			}
 			?>
 		</blockquote>
 
-		<h2>Occurrence Record Use Policy</h2>
-		<div>
-			<ul>
-				<li>
-					While <?php echo $DEFAULT_TITLE; ?> will make every effort possible to control and document the quality
-					of the data it publishes, the data are made available "as is". Any report of errors in the data should be
-					directed to the appropriate curators and/or collections managers.
-				</li>
-				<li>
-					<?php echo $DEFAULT_TITLE; ?> cannot assume responsibility for damages resulting from mis-use or
-					mis-interpretation of datasets or from errors or omissions that may exist in the data.
-				</li>
-				<li>
-					It is considered a matter of professional ethics to cite and acknowledge the work of other scientists that
-					has resulted in data used in subsequent research. We encourages users to
-					contact the original investigator responsible for the data that they are accessing.
-				</li>
-				<li>
-					<?php echo $DEFAULT_TITLE; ?> asks that users not redistribute data obtained from this site without permission for data owners.
-					However, links or references to this site may be freely posted.
-				</li>
-			</ul>
-		</div>
+		<h3>Collections published to GBIF:</h3>
+		<blockquote>Refer to <a href="https://www.gbif.org/citation-guidelines" target="_blank" rel="noopener noreferrer">GBIF's guidance</a> and include the GBIF-minted DOI in the citation. If a collection in this portal has also been published to GBIF, a <a href="https://biokic.github.io/symbiota-docs/images/citation_widget.png" target="_blank" rel="noopener noreferrer">green widget</a> will be present on the relevant profile page, as will a URL to the corresponding GBIF dataset.</blockquote>
 
-		<h2>Images</h2>
-		<p>Images within this website have been generously contributed by their owners to promote education and research. These contributors retain the full copyright for their images.
-		Unless stated otherwise, images are made available under the Creative Commons Attribution-ShareAlike
-		(<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA</a>).
-		Users are allowed to copy, transmit, reuse, and/or adapt content, as long as attribution regarding the source of the content is made. If the content is altered, transformed,
-		or enhanced, it may be re-distributed only under the same or similar license by which it was acquired.
+		<h1 id="collecting">Statement on Responsible Fossil Collecting</h1>
+		<p>
+		The data available in this portal have been derived from specimens that have been carefully collected, documented, prepared, and curated for scientific research. Collecting fossils requires permission from the applicable landowner(s), regardless of whether the specimen(s) originated on private or public lands. Moreover, scientific collecting efforts should be coordinated with an accredited institution that maintains a publicly accessible research collection. The <a href="https://www.paleosoc.org/code-of-fossil-collecting" target="_blank" rel="noopener noreferrer">Paleontological Society's Code of Fossil Collecting</a>, the <a href="https://vertpaleo.org/code-of-conduct/" target="_blank" rel="noopener noreferrer">Society of Vertebrate Paleontology's Code of Ethics</a>, and the Geological Society of America's statement on <a href="https://paleo.memberclicks.net/assets/docs/Pos28_Fieldwork.pdf" target="_blank" rel="noopener noreferrer">Responsible Geologic Fieldwork Practices</a> provides additional guidance on responsible and ethical fossil collecting practices.
 		</p>
 
-		<h2>Notes on Specimen Records and Images</h2>
-		<p>Specimens are used for scientific research and because of skilled preparation and careful use they may last for hundreds of years. Some collections have specimens that were
-		collected over 100 years ago that are no longer occur within the area. By making these specimens available on the web as images, their availability and value improves without
-		an increase in inadvertent damage caused by use. Note that if you are considering making specimens, remember collecting normally requires permission of the landowner and,
-		in the case of rare and endangered plants, additional permits may be required. It is best to coordinate such efforts with a regional institution that manages a publically
-		accessible collection.
+		<h1 id="credits">Acknowledgments</h1>
+		<p>
+		This portal's header image is from the Smithsonian Institution Archives, Record Unit 95, Box 62B, Folder 21, Image No. <a href="https://www.si.edu/object/louisiana-purchase-exposition-st-louis-missouri-1904:siris_arc_400893" target="_blank" rel="noopener noreferrer">SIA_000095_B62B_F21_006</a> (CC0).
+		<br><br>
+		The “trilocorn” image included in the portal's footer and favicon was created by <a href="https://orcid.org/0000-0003-1568-4858" target="_blank" rel="noopener noreferrer">Molly Phillips</a>. The trilocorn is <a href="https://paleo-data.github.io/about#what-is-your-logo" target="_blank" rel="noopener noreferrer">PDWG's mascot</a>.
 		</p>
-
-		<p><b>Disclaimer:</b> This data portal may contain specimens and historical records that are culturally sensitive. The collections include specimens dating back over 200 years
-		collected from all around the world. Some records may also include offensive language. These records do not reflect the portal community's current viewpoint but rather the
-		social attitudes and circumstances of the time period when specimens were collected or cataloged.
-		</p>
+	
 	</div>
 	<?php
 	include($SERVER_ROOT . '/includes/footer.php');
 	?>
 </body>
-
 </html>

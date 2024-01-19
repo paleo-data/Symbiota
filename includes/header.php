@@ -36,12 +36,10 @@ else include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 				?>
 			</nav>
 			<div class="top-brand">
-				<a href="https://symbiota.org">
-					<img src="<?php echo $CLIENT_ROOT; ?>/images/layout/logo_symbiota.png" alt="Symbiota logo" width="100%">
-				</a>
+				<!-- Top brand logo removed - refer to template to re-add -->
 				<div class="brand-name">
-					<h1>Symbiota Brand New Portal</h1>
-					<h2>Redesigned by the Symbiota Support Hub</h2>
+					<h1><strong>PALEO DATA PORTAL</strong></h1>
+					<h2>A Digitization Community for Fossil Collections</h2>
 				</div>
 			</div>
 		</div>
@@ -79,7 +77,12 @@ else include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 					</li>
 					<li>
 						<a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php">
-							<?php echo (isset($LANG['H_DATA_USAGE'])?$LANG['H_DATA_USAGE']:'Data Use'); ?>
+							<?php echo (isset($LANG['H_DATA_USAGE'])?$LANG['H_DATA_USAGE']:'Community Guidelines'); ?>
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo $CLIENT_ROOT; ?>/misc/contacts.php">
+							<?php echo (isset($LANG['H_CONTACTS'])?$LANG['H_CONTACTS']:'Contacts'); ?>
 						</a>
 					</li>
 					<li>
