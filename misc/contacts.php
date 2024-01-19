@@ -29,12 +29,14 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 			A Steering Committee for the Paleo Data Portal was established in 2023 to provide direction and guidance for portal development and community growth. All committee members are also active participants in the <a href="https://paleo-data.github.io/about">Paleo Data Working Group (PDWG)</a>. 
 			</p>
 			<h2>Steering Committee Members</h2>
-			<li><a href="https://orcid.org/0000-0001-6514-963X">Talia Karim</a>, University of Colorado Museum of Natural History</li>
-			<li><a href="https://orcid.org/0000-0003-3192-0080">Erica Krimmel</a>, Independent Informatics Consultant</li>
-			<li><a href="https://orcid.org/0000-0001-7909-4166">Holly Little</a>, Smithsonian National Museum of Natural History</li>
-			<li><a href="https://orcid.org/0000-0002-8679-4774">Amanda Millhouse</a>, Smithsonian National Museum of Natural History</li>
-			<li><a href="https://orcid.org/0000-0001-6770-0181">Jacob Van Veldhuizen</a>, University of Colorado Museum of Natural History</li>
-			<li><a href="https://orcid.org/0000-0002-2162-6593">Lindsay Walker</a>, Symbiota Support Hub, Arizona State University</li>
+			<ul>
+				<li><a href="https://orcid.org/0000-0001-6514-963X">Talia Karim</a>, University of Colorado Museum of Natural History</li>
+				<li><a href="https://orcid.org/0000-0003-3192-0080">Erica Krimmel</a>, Independent Informatics Consultant</li>
+				<li><a href="https://orcid.org/0000-0001-7909-4166">Holly Little</a>, Smithsonian National Museum of Natural History</li>
+				<li><a href="https://orcid.org/0000-0002-8679-4774">Amanda Millhouse</a>, Smithsonian National Museum of Natural History</li>
+				<li><a href="https://orcid.org/0000-0001-6770-0181">Jacob Van Veldhuizen</a>, University of Colorado Museum of Natural History</li>
+				<li><a href="https://orcid.org/0000-0002-2162-6593">Lindsay Walker</a>, Symbiota Support Hub, Arizona State University</li>
+			</ul>
 			<p>
 				General inquiries for the Steering Committee should be sent to <a href="mailto:paleoinformatics@gmail.com">paleoinformatics@gmail.com</a>. Technical and portal-related questions should be directed to the Symbiota Support Hub's <a href="https://symbiota.org/contact-the-support-hub/">Help Desk</a>.
 			</p>
