@@ -41,7 +41,6 @@ $serverHost = UtilityFunctions::getDomain();
 		<ul>
 			<li>Only share data to which your institution maintains legal rights.</li>
 			<li>Share data under one of the following <a href="https://creativecommons.org/share-your-work/cclicenses/" target="_blank" rel="noopener noreferrer">Creative Commons licenses</a>: CC0, CC-BY, or CC-BY-NC.</li>
-			<li>Only share data that represent physically vouchered specimen occurrences curated in a publicly accessible permanent repository, e.g. at a university collection or non-profit museum. Collections data from academic laboratories and similar entities may be considered if accompanied by 1) a formal repository agreement from a permanent collection and 2) written permission to contribute to this data portal from the repository.</li>
 		</ul>
 		<h3>Additional Considerations</h3>
 		<ul>
