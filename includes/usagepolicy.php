@@ -74,37 +74,7 @@ $serverHost = UtilityFunctions::getDomain();
 		Symbiota Paleo Data Portal. Year. https://paleodata.biokic.asu.edu. Accessed on YYYY-MM-DD.
 		</blockquote>
 		
-	<h3>Specific collections:</h3>
-		<blockquote>
-			<?php
-			if (file_exists($SERVER_ROOT . '/includes/citationportal.php')) {
-				include($SERVER_ROOT . '/includes/citationportal.php');
-			}
-			else {
-				echo 'Biodiversity occurrence data published by: ';
-				if ($DEFAULT_TITLE) {
-					echo $DEFAULT_TITLE;
-				}
-				else {
-					echo 'Symbiota Paleo Data Portal';
-				};
-				echo ' (accessed through the ';
-				if ($DEFAULT_TITLE) {
-					echo $DEFAULT_TITLE;
-				}
-				else {
-					echo 'Name of people or institutional reponsible for maintaining the portal';
-				};
-				echo ' Portal, ' . $serverHost . $CLIENT_ROOT . ', ' . date('Y-m-d') . ').';
-			};
-			?>
-		</blockquote>
-		<h4>Example:</h4>
-		<blockquote>
-			Biodiversity occurrence data published by: Arizona State University, University of Colorado Museum of Natural History, and Smithsonian National Museum of Natural History (Accessed through the Symbiota Paleo Portal Data Portal, https://paleodata.biokic.asu.edu, 2023-12-06).
-		</blockquote>
-		
-		<h3>Occurrence data from specific institutions:</h3>
+	<h3>Occurrence data from specific institutions:</h3>
 		<blockquote>Refer to individual collection profile pages to find the available citation formats.</blockquote>
 		
 		<h4>Example:</h4>
@@ -120,7 +90,7 @@ $serverHost = UtilityFunctions::getDomain();
 			?>
 		</blockquote>
 
-		<h3>Collections publised to GBIF:</h3>
+		<h3>Collections published to GBIF:</h3>
 		<blockquote>Refer to <a href="https://www.gbif.org/citation-guidelines" target="_blank" rel="noopener noreferrer">GBIF's guidance</a> and include the GBIF-minted DOI in the citation. If a collection in this portal has also been published to GBIF, a <a href="https://biokic.github.io/symbiota-docs/images/citation_widget.png" target="_blank" rel="noopener noreferrer">green widget</a> will be present on the relevant profile page, as will a URL to the corresponding GBIF dataset.</blockquote>
 
 		<h1 id="collecting">Statement on Responsible Fossil Collecting</h1>
