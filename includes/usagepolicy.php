@@ -83,7 +83,7 @@ $serverHost = UtilityFunctions::getDomain();
 			if (file_exists($SERVER_ROOT . '/includes/citationcollection.php')) {
 				include($SERVER_ROOT . '/includes/citationcollection.php');
 			} else {
-				echo 'Name of Institution or Collection. Occurrence dataset ' . 'http://gh.local/Symbiota/portal/content/dwca/' . 'accessed via the ' . 'Symbiota Paleo Data ' . 'Portal, ' . 'https://paleodata.biokic.asu.edu' . ', 2022-07-25.';
+				echo 'Name of Institution or Collection. Occurrence dataset ' . 'https://paleodata.biokic.asu.edu/portal/content/dwca/ ' . 'accessed via the ' . 'Symbiota Paleo Data ' . 'Portal, ' . 'https://paleodata.biokic.asu.edu' . ', 2022-07-25.';
 			}
 			?>
 		</blockquote>
