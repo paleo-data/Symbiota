@@ -60,13 +60,13 @@ header {
 }
 
 .brand-name h1 {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Alata', sans-serif;
   font-size: var(--brand-font-size);
   align-items: center;
 }
 
 .brand-name h2 {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Alata', sans-serif;
   font-size: calc(var(--brand-font-size) * 0.6);
 }
 
@@ -98,6 +98,7 @@ header a:hover {
   left: 0;
   background-color: var(--menu-top-bg-color);
   overflow: hidden;
+  font-family: 'Alata', sans-serif;
 }
 
 /* Hamburger icon */

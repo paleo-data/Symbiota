@@ -41,6 +41,7 @@ $serverHost = UtilityFunctions::getDomain();
 		<ul>
 			<li>Only share data to which your institution maintains legal rights.</li>
 			<li>Share data under one of the following <a href="https://creativecommons.org/share-your-work/cclicenses/" target="_blank" rel="noopener noreferrer">Creative Commons licenses</a>: CC0, CC-BY, or CC-BY-NC.</li>
+			<li>Only share data that represent vouchered specimen occurrences curated in a publicly accessible permanent repository, e.g. at a university collection or non-profit museum. Collections data from academic laboratories and similar entities may be considered if accompanied by 1) a formal repository agreement from a permanent collection and 2) written permission to contribute to this data portal from the repository.</li>
 		</ul>
 		<h3>Additional Considerations</h3>
 		<ul>
@@ -83,7 +84,7 @@ $serverHost = UtilityFunctions::getDomain();
 			if (file_exists($SERVER_ROOT . '/includes/citationcollection.php')) {
 				include($SERVER_ROOT . '/includes/citationcollection.php');
 			} else {
-				echo 'Name of Institution or Collection. Occurrence dataset ' . 'http://gh.local/Symbiota/portal/content/dwca/' . 'accessed via the ' . 'Symbiota Paleo Data ' . 'Portal, ' . 'https://paleodata.biokic.asu.edu' . ', 2022-07-25.';
+				echo 'Name of Institution or Collection. Occurrence dataset ' . 'https://paleodata.biokic.asu.edu/portal/content/dwca/ ' . 'accessed via the ' . 'Symbiota Paleo Data ' . 'Portal, ' . 'https://paleodata.biokic.asu.edu' . ', 2022-07-25.';
 			}
 			?>
 		</blockquote>

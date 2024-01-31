@@ -38,7 +38,7 @@ else include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 			<div class="top-brand">
 				<!-- Top brand logo removed - refer to template to re-add -->
 				<div class="brand-name">
-					<h1><strong>PALEO DATA PORTAL</strong></h1>
+					<h1><strong>Paleo Data Portal</strong></h1>
 					<h2>A Digitization Community for Fossil Collections</h2>
 				</div>
 			</div>
@@ -61,6 +61,11 @@ else include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 						</a>
 					</li>
 					<li>
+						<a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php">
+							<?php echo (isset($LANG['H_DATA_USAGE'])?$LANG['H_DATA_USAGE']:'Community Guidelines'); ?>
+						</a>
+					</li>
+					<li>
 						<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank" rel="noopener noreferrer">
 							<?php echo (isset($LANG['H_MAP_SEARCH'])?$LANG['H_MAP_SEARCH']:'Map Search'); ?>
 						</a>
@@ -73,11 +78,6 @@ else include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 					<li>
 						<a href="<?php echo $CLIENT_ROOT; ?>/imagelib/search.php">
 							<?php echo (isset($LANG['H_IMAGES'])?$LANG['H_IMAGES']:'Images'); ?>
-						</a>
-					</li>
-					<li>
-						<a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php">
-							<?php echo (isset($LANG['H_DATA_USAGE'])?$LANG['H_DATA_USAGE']:'Community Guidelines'); ?>
 						</a>
 					</li>
 					<li>
