@@ -18,7 +18,7 @@
   --logo-width: 150px;
   --menu-top-bg-color: #07095670;
   --body-bg-color: #fafafa;
-  --body-text-color: #000000;
+  --body-text-color: #222;
   --body-font-size: 12pt;
   --body-font-family: 'Lato', sans-serif;
   --footer-bg-color: #04063715;
@@ -27,6 +27,6 @@
   --darkest-color: #040637;
   --medium-color: #054fb9;
   --light-color: #8babf1;
-  --bright-color: #e6308a;
+  --bright-color: #8babf1;
   --max-innertext-width: 1024px;
 }

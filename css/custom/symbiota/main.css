@@ -18,7 +18,7 @@
 
 /* Fonts imports
   ========================================================================== */
-@import url('https://fonts.googleapis.com/css?family=Rubik Mono One&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Alata&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
 
 
@@ -51,7 +51,7 @@ h3,
 h4 {
   color: var(--darkest-color);
   font-weight: 700;
-  font-family: var(--title-font-family);
+  font-family: 'Alata', sans-serif;
 }
 
 h1 {
