@@ -56,6 +56,11 @@ else include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 						</a>
 					</li>
 					<li>
+						<a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php">
+							<?php echo (isset($LANG['H_DATA_USAGE'])?$LANG['H_DATA_USAGE']:'Community Guidelines'); ?>
+						</a>
+					</li>
+					<li>
 						<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php">
 							<?php echo (isset($LANG['H_COLLECTIONS'])?$LANG['H_COLLECTIONS']:'Collections'); ?>
 						</a>
@@ -73,11 +78,6 @@ else include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 					<li>
 						<a href="<?php echo $CLIENT_ROOT; ?>/imagelib/search.php">
 							<?php echo (isset($LANG['H_IMAGES'])?$LANG['H_IMAGES']:'Images'); ?>
-						</a>
-					</li>
-					<li>
-						<a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php">
-							<?php echo (isset($LANG['H_DATA_USAGE'])?$LANG['H_DATA_USAGE']:'Community Guidelines'); ?>
 						</a>
 					</li>
 					<li>
