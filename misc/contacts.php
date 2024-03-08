@@ -26,7 +26,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 			<h1><?php echo (isset($LANG['CONTACTS'])?$LANG['CONTACTS']:'Contacts'); ?>:</h1>
 
 			<p>
-			A Steering Committee for the Paleo Data Portal was established in 2023 to provide direction and guidance for portal development and community growth. All committee members are also active participants in the <a href="https://paleo-data.github.io/about">Paleo Data Working Group (PDWG)</a>. 
+			A Steering Committee for the Paleo Data Portal was established in 2023 to provide governance with respect to portal development and community growth. All committee members are also active participants in the <a href="https://paleo-data.github.io/about">Paleo Data Working Group (PDWG)</a>. 
 			</p>
 			<h2>Steering Committee Members</h2>
 			<ul>
