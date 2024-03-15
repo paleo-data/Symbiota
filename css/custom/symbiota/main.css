@@ -40,7 +40,7 @@ body {
   color: var(--body-text-color);
   margin: 0;
   -webkit-text-size-adjust: 100%;
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   font-weight: 400;
   font-family: var(--body-font-family);
 }
@@ -71,12 +71,12 @@ h4 {
 }
 
 p {
-  font-size: 1.9rem;
+  font-size: 1.7rem;
 }
 
 li {
-  font-size: 1.8rem;
-  line-height: 1.5;
+  font-size: 1.7rem;
+  line-height: 1.4;
 }
 
 a {
@@ -91,7 +91,7 @@ strong {
 }
 
 blockquote {
-  font-size: 1.8rem;
+  font-size: 1.7rem;
   line-height: 1.5;
   color: slategrey;
 }
@@ -254,34 +254,37 @@ hr {
 }
 
 .button-primary:hover,
-.button-secondary:hover {
-  background-color: var(--medium-color);
+.button-secondary:hover,
+.button-tertiary:hover {
+  background-color: #851598;
 }
 
 .button-primary:hover > a,
 .button-secondary:hover > a {
-  color: var(--light-color);
+  color: #fff;
 }
 
 .button-tertiary:hover > a {
-  color: var(--light-color);
+  color: #fff;
 }
 
 .button-primary > a {
-  color: var(--light-color);
+  color: #fff;
 }
 
 .button-secondary {
-  background-color: var(--link-color);
+  background-color: var(--header-bg-color);
+  border: none;
+  padding: 0.5rem 0.9rem;
 }
 
 .button-secondary > a {
-  color: #380142;
+  color: #fff;
 }
 
 .button-tertiary {
-  background-color: none;
-  border: 2px solid var(--link-color);
+  background-color: var(--header-bg-color);
+  border: none;
   padding: 0.5rem 0.9rem;
 }
 
