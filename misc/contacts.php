@@ -38,7 +38,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 				<li><a href="https://orcid.org/0000-0002-2162-6593">Lindsay Walker</a>, Symbiota Support Hub, Arizona State University</li>
 			</ul>
 			<p>
-				General inquiries for the Steering Committee should be sent to <a href="mailto:paleoinformatics@gmail.com">paleoinformatics@gmail.com</a>. Technical and portal-related questions should be directed to the Symbiota Support Hub's <a href="https://symbiota.org/contact-the-support-hub/">Help Desk</a>.
+				General inquiries for the Steering Committee should be sent to <a href="mailto:paleoinformatics@gmail.com">paleoinformatics@gmail.com</a>. Technical questions should be directed to the Symbiota Support Hub's <a href="https://symbiota.org/contact-the-support-hub/">Help Desk</a>.
 			</p>
 
 		</div>
