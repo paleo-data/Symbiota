@@ -39,6 +39,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 			//Default Language
 			?>
 			<div>	
+			<h2>&#128736; &#127959; This Symbiota portal is under construction! &#128679; &#128736;</h2>
 			<h1>Welcome</h1>
 				<p>
 					Welcome to the Paleo Data Portal! This portal is under construction as part of the project, <em>Community-driven enhancement of information ecosystems for the discovery and use of paleontological specimen data</em> (NSF Awards <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324688" target="_blank" rel="noopener noreferrer">2324688</a>, <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324689" target="_blank" rel="noopener noreferrer">2324689</a>, and <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324690" target="_blank" rel="noopener noreferrer">2324690</a>). The Symbiota Support Hub (Arizona State University), the Smithsonian National Museum of Natural History, and the University of Colorado Museum of Natural History will be working to establish this new Symbiota portal community in 2023-2025.
