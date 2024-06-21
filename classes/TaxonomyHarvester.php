@@ -145,7 +145,8 @@ class TaxonomyHarvester extends Manager{
 		}
 		$sciName = $taxonArr['sciname'];
 		if($sciName){
-			$url = 'https://api.checklistbank.org/dataset/3/nameusage/search?content=SCIENTIFIC_NAME&q='.str_replace(' ','%20',$sciName).'&offset=0&limit=30';
+			// Catalog of life = 3, PBDB = 1174
+			$url = 'https://api.checklistbank.org/dataset/1174/nameusage/search?content=SCIENTIFIC_NAME&q='.str_replace(' ','%20',$sciName).'&offset=0&limit=30';
 			//echo $url.'<br/>';
 			$retArr = $this->getContentString($url);
 			if(isset($retArr['str']) && $retArr['str']){
