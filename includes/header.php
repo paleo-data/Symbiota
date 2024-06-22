@@ -62,11 +62,11 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 							<?php echo (isset($LANG['H_HOME'])?$LANG['H_HOME']:'Home'); ?>
 						</a>
 					</li>
-					<li>
-						<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php">
-							<?php echo (isset($LANG['H_COLLECTIONS'])?$LANG['H_COLLECTIONS']:'Collections'); ?>
-						</a>
-					</li>
+					 <li>
+                                                <a href="<?= $CLIENT_ROOT . $collectionSearchPage ?>">
+                                                        <?= (isset($LANG['H_SEARCH'])?$LANG['H_SEARCH']:'Search') ?>
+                                                </a>
+                                        </li>
 					<li>
 						<a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php">
 							<?php echo (isset($LANG['H_DATA_USAGE'])?$LANG['H_DATA_USAGE']:'Community Guidelines'); ?>
