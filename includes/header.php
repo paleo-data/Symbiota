@@ -46,7 +46,7 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 				<!-- Top brand logo removed - refer to template to re-add -->
 				<div class="brand-name">
 					<h1><strong>Paleo Data Portal</strong></h1>
-					<h2>A Digitization Community for Fossil Collections</h2>
+					<h2>A Symbiota Community for Fossil Collections</h2>
 				</div>
 			</div>
 		</div>
