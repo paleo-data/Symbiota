@@ -76,7 +76,7 @@ $searchVar = $collManager->getQueryTermStr();
 				</form>
 				<form action="download/index.php" method="post" style="float:left" onsubmit="targetPopup(this)">
 					<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>" aria-label="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
-						<img src="<?php echo $CLIENT_ROOT; ?>/images/download_FILL0_wght400_GRAD0_opsz24_white.svg" style="width:1.3em" alt="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>" />
+						<img src="<?php echo $CLIENT_ROOT; ?>/images/download-white.svg" style="width:1.3em" alt="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>" />
 					</button>
 					<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
 					<input name="dltype" type="hidden" value="specimen" />
