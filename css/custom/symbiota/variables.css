@@ -1,0 +1,33 @@
+/**
+* * Symbiota Redesign - variables.css
+* * Version: September 2022
+* * Author: Laura Rocha Prado
+* * Author URI: http://laura.rochaprado.com
+* * License: GNU General Public License v2 or later
+* * License URI: http://www.gnu.org/licenses/gpl-2.0.html 
+*/
+
+/* Variables
+   ========================================================================== */
+:root {
+  --header-bg-image: url('../../../images/layout/pdp-header1.jpg');
+  --header-bg-color: #07095665; /** Transparent color if adding header bg-image **/
+  --header-font-color: #fff;
+  --brand-font-size: 3rem;
+  --title-font-family: 'Lato', sans-serif;
+  --logo-width: 150px;
+  --menu-top-bg-color: #07095670;
+  --body-bg-color: #fafafa;
+  --body-text-color: #222;
+  --body-font-size: 12pt;
+  --body-font-family: 'Lato', sans-serif;
+  --footer-bg-color: #04063715;
+  --heading-font-family: 'Lato', sans-serif;
+  --link-color: #054fb9;
+  --darkest-color: #070956;
+  --medium-color: #054fb9;
+  --light-color: #8babf1;
+  --bright-color: #8babf1;
+  --danger-color: #b31b1b;
+  --max-innertext-width: 1024px;
+}
