@@ -14,15 +14,15 @@
   --header-bg-color: #07095665; /** Transparent color if adding header bg-image **/
   --header-font-color: #fff;
   --brand-font-size: 3rem;
-  --title-font-family: 'Lato', sans-serif;
+  --title-font-family: 'Alata', sans-serif;
   --logo-width: 150px;
   --menu-top-bg-color: #07095670;
   --body-bg-color: #fafafa;
   --body-text-color: #222;
   --body-font-size: 12pt;
-  --body-font-family: 'Lato', sans-serif;
+  --body-font-family: "Roboto", sans-serif;
   --footer-bg-color: #04063715;
-  --heading-font-family: 'Lato', sans-serif;
+  --heading-font-family: 'Alata', sans-serif;
   --link-color: #054fb9;
   --darkest-color: #070956;
   --medium-color: #054fb9;
