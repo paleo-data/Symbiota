@@ -14,7 +14,7 @@
 		</a>
 	</div>
 	<p>
-		<?= $LANG['F_NSF_AWARDS'] ?> <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324690" target="_blank">#2324690</a>.
+		<?= $LANG['F_NSF_AWARDS'] ?> <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324688" target="_blank">#2324688</a>, <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324689" target="_blank">#2324689</a>, & <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324690" target="_blank">#2324690</a>.
 	</p>
 	<p>
 		<?= $LANG['F_MORE_INFO'] ?>, <a href="https://symbiota.org/docs" target="_blank" rel="noopener noreferrer"><?= $LANG['F_READ_DOCS'] ?></a> <?= $LANG['F_CONTACT'] ?>
