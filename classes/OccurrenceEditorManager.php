@@ -49,8 +49,8 @@ class OccurrenceEditorManager {
 			'georeferenceremarks' => 's', 'minimumelevationinmeters' => 'n', 'maximumelevationinmeters' => 'n','verbatimelevation' => 's',
 			'minimumdepthinmeters' => 'n', 'maximumdepthinmeters' => 'n', 'verbatimdepth' => 's','disposition' => 's', 'language' => 's', 'duplicatequantity' => 'n',
 			'labelproject' => 's','processingstatus' => 's', 'recordenteredby' => 's', 'observeruid' => 'n', 'dateentered' => 'd');
-		$this->fieldArr['omoccurpaleo'] = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biota',
-			'biostratigraphy','lithogroup','formation','taxonenvironment','member','bed','lithology','stratremarks','element','slideproperties','geologicalcontextid');
+		$this->fieldArr['omoccurpaleo'] = array('earlyInterval','lateInterval','absoluteAge','storageAge','stage','localStage','biota',
+			'biostratigraphy','lithoGroup','formation','taxonEnvironment','member','bed','lithology','stratRemarks','element','slideProperties','geologicalContextID');
 		$this->fieldArr['omoccuridentifiers'] = array('idname','idvalue');
 		$this->fieldArr['omexsiccatiocclink'] = array('ometid','exstitle','exsnumber');
 	}
@@ -666,10 +666,12 @@ class OccurrenceEditorManager {
 		$localIndex = false;
 		$sqlFrag = '';
 		if($this->occid && !$this->direction){
+			$sqlFrag .= 'LEFT JOIN omoccurpaleo p ON p.occid = o.occid';
 			$sqlFrag .= 'WHERE (o.occid = '.$this->occid.')';
 		}
 		elseif($this->sqlWhere){
 			$this->addTableJoins($sqlFrag);
+			$sqlFrag .= 'LEFT JOIN omoccurpaleo p ON p.occid = o.occid ';
 			$sqlFrag .= $this->sqlWhere;
 			if($limit){
 				$this->setSqlOrderBy($sqlFrag);
@@ -688,7 +690,7 @@ class OccurrenceEditorManager {
 			}
 		}
 		if($sqlFrag){
-			$sql = 'SELECT DISTINCT o.occid, o.collid, o.'.implode(',o.',array_keys($this->fieldArr['omoccurrences'])).', datelastmodified FROM omoccurrences o '.$sqlFrag;
+			$sql = 'SELECT DISTINCT o.occid, o.collid, o.'.implode(',o.',array_keys($this->fieldArr['omoccurrences'])) . ',p.' . implode(',p.',($this->fieldArr['omoccurpaleo'])).', datelastmodified FROM omoccurrences o '.$sqlFrag;
 			$previousOccid = 0;
 			$rs = $this->conn->query($sql);
 			$rsCnt = 0;
@@ -1016,7 +1018,7 @@ class OccurrenceEditorManager {
 							if($postArr['host']) $sqlHost = 'UPDATE omoccurassociations SET verbatimsciname = "'.$postArr['host'].'" WHERE associd = '.$postArr['hostassocid'].' ';
 							else $sqlHost = 'DELETE FROM omoccurassociations WHERE associd = '.$postArr['hostassocid'].' ';
 						}
-						else $sqlHost = 'INSERT INTO omoccurassociations(occid,relationship,verbatimsciname) VALUES('.$this->occid.',"host","'.$postArr['host'].'")';
+						else $sqlHost = 'INSERT INTO omoccurassociations(occid,associationType,relationship,verbatimsciname) VALUES('.$this->occid.',"observational","host","'.$postArr['host'].'")';
 						$this->conn->query($sqlHost);
 					}
 					//Update occurrence record
@@ -1341,7 +1343,8 @@ class OccurrenceEditorManager {
 				}
 				//Deal with host data
 				if(array_key_exists('host',$postArr)){
-					$sql = 'INSERT INTO omoccurassociations(occid,relationship,verbatimsciname) VALUES('.$this->occid.',"host","'.$this->cleanInStr($postArr['host']).'")';
+					$sql = 'INSERT INTO omoccurassociations(occid, associationType, relationship, verbatimsciname) 
+						VALUES('.$this->occid.', "observational", "host", "'.$this->cleanInStr($postArr['host']).'")';
 					if(!$this->conn->query($sql)){
 						$status .= '(WARNING adding host: '.$this->conn->error.') ';
 					}
@@ -1551,7 +1554,7 @@ class OccurrenceEditorManager {
 				$archiveArr['dateDeleted'] = date('r').' by '.$USER_DISPLAY_NAME;
 				$archiveObj = json_encode($archiveArr);
 				$stage = 'Create Archive';
-				$sqlArchive = 'INSERT INTO omoccurarchive(archiveobj, occid, catalogNumber, occurrenceID, recordID) '.
+				$sqlArchive = 'REPLACE INTO omoccurarchive(archiveobj, occid, catalogNumber, occurrenceID, recordID) '.
 					'VALUES ("'.$this->cleanInStr($this->encodeStrTargeted($archiveObj,'utf8',$CHARSET)).'", '.$delOccid.','.
 					(isset($archiveArr['catalogNumber']) && $archiveArr['catalogNumber']?'"'.$this->cleanInStr($archiveArr['catalogNumber']).'"':'NULL').', '.
 					(isset($archiveArr['occurrenceID']) && $archiveArr['occurrenceID']?'"'.$this->cleanInStr($archiveArr['occurrenceID']).'"':'NULL').', '.
@@ -1620,10 +1623,14 @@ class OccurrenceEditorManager {
 				if($sourceOccid != $this->occid && !in_array($this->occid,$retArr)){
 					$retArr[$this->occid] = $this->occid;
 					if(isset($postArr['assocrelation']) && $postArr['assocrelation']){
-						$sql = 'INSERT INTO omoccurassociations(occid, occidAssociate, relationship,createdUid) '.
-							'values('.$this->occid.','.$sourceOccid.',"'.$postArr['assocrelation'].'",'.$GLOBALS['SYMB_UID'].') ';
-						if(!$this->conn->query($sql)){
-							$this->errorArr[] = $LANG['ERROR_ADDING_REL'].': '.$this->conn->error;
+						$sql = 'INSERT INTO omoccurassociations(occid, associationType, occidAssociate, relationship,createdUid) VALUES(?, "internalOccurrence", ?, ?, ?) ';
+						if($stmt = $this->conn->prepare($sql)){
+							$stmt->bind_param('iisi', $this->occid, $sourceOccid, $postArr['assocrelation'], $GLOBALS['SYMB_UID']);
+							$stmt->execute();
+							if($stmt->error){
+								$this->errorArr[] = $LANG['ERROR_ADDING_REL'].': '.$this->conn->error;
+							}
+							$stmt->close();
 						}
 					}
 					if(isset($postArr['carryoverimages']) && $postArr['carryoverimages']){
@@ -2721,14 +2728,14 @@ class OccurrenceEditorManager {
 	private function encodeStrTargeted($inStr, $inCharset, $outCharset){
 		if($inCharset == $outCharset) return $inStr;
 		$retStr = $inStr;
-		$retStr = mb_convert_encoding($retStr, $outCharset, mb_detect_encoding($retStr));
+		$retStr = mb_convert_encoding($retStr, $outCharset, mb_detect_encoding($retStr, 'UTF-8,ISO-8859-1,ISO-8859-15'));
 		return $retStr;
 	}
 
 	protected function encodeStr($inStr){
 		$retStr = $inStr;
 		if($inStr){
-			$retStr = mb_convert_encoding($retStr, $GLOBALS['CHARSET'], mb_detect_encoding($retStr));
+			$retStr = mb_convert_encoding($retStr, $GLOBALS['CHARSET'], mb_detect_encoding($retStr, 'UTF-8,ISO-8859-1,ISO-8859-15'));
  		}
 		return $retStr;
 	}
