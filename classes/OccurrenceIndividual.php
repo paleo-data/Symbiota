@@ -322,8 +322,8 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setPaleo(){
-		$sql = 'SELECT paleoid, eon, era, period, epoch, earlyinterval, lateinterval, absoluteage, storageage, stage, localstage, biota,
-			biostratigraphy, lithogroup, formation, taxonenvironment, member, bed, lithology, stratremarks, element, slideproperties, geologicalcontextid
+		$sql = 'SELECT paleoid, eon, era, period, epoch, earlyInterval, lateInterval, absoluteAge, storageAge, stage, localStage, biota,
+			biostratigraphy, lithogroup, formation, taxonEnvironment, member, bed, lithology, stratRemarks, element, slideProperties, geologicalContextID
 			FROM omoccurpaleo WHERE occid = ?';
 		if($stmt = $this->conn->prepare($sql)){
 			$stmt->bind_param('i', $this->occid);

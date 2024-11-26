@@ -183,11 +183,11 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 		<div id="earlyIntervalDiv">
 			<?php echo (defined('EARLYINTERVALLABEL')?EARLYINTERVALLABEL:'Early Interval'); ?>
 			<a href="#" onclick="return dwcDoc('earlyInterval')"><img class="docimg" src="../../images/qmark.png" /></a><br/>
-			<select name="earlyinterval" onchange="earlyIntervalChanged(this)">
+			<select name="earlyInterval" onchange="earlyIntervalChanged(this)">
 				<option value=""></option>
 				<?php
 				$earlyIntervalTerm = '';
-				if(isset($occArr['earlyinterval'])) $earlyIntervalTerm = $occArr['earlyinterval'];
+				if(isset($occArr['earlyInterval'])) $earlyIntervalTerm = $occArr['earlyInterval'];
 				if($earlyIntervalTerm && !array_key_exists($earlyIntervalTerm, $gtsTermArr)){
 					echo '<option value="'.$earlyIntervalTerm.'" SELECTED>'.$earlyIntervalTerm.' - mismatched term</option>';
 					echo '<option value="">---------------------------</option>';
@@ -201,11 +201,11 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 		<div id="lateIntervalDiv">
 			<?php echo (defined('LATEINTERVALLABEL')?LATEINTERVALLABEL:'Late Interval'); ?>
 			<a href="#" onclick="return dwcDoc('lateInterval')"><img class="docimg" src="../../images/qmark.png" /></a><br/>
-			<select name="lateinterval" onchange="lateIntervalChanged(this)">
+			<select name="lateInterval" onchange="lateIntervalChanged(this)">
 				<option value=""></option>
 				<?php
 				$lateIntervalTerm = '';
-				if(isset($occArr['lateinterval'])) $lateIntervalTerm = $occArr['lateinterval'];
+				if(isset($occArr['lateInterval'])) $lateIntervalTerm = $occArr['lateInterval'];
 				if($lateIntervalTerm && !array_key_exists($lateIntervalTerm, $gtsTermArr)){
 					echo '<option value="'.$lateIntervalTerm.'" SELECTED>'.$lateIntervalTerm.' - mismatched term</option>';
 					echo '<option value="">---------------------------</option>';
@@ -261,10 +261,10 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 		</div>
 	</div>
 	<div style="clear:both">
-		<div id="lithoGroupDiv">
+		<div id="lithogroupDiv">
 			<?php echo (defined('LITHOGROUPLABEL')?LITHOGROUPLABEL:'Group'); ?>
 			<a href="#" onclick="return dwcDoc('group')"><img class="docimg" src="../../images/qmark.png" /></a><br/>
-			<input type="text" name="lithoGroup" value="<?php echo isset($occArr['lithoGroup'])?$occArr['lithoGroup']:''; ?>" onchange="fieldChanged('lithoGroup');" />
+			<input type="text" name="lithogroup" value="<?php echo isset($occArr['lithogroup'])?$occArr['lithogroup']:''; ?>" onchange="fieldChanged('lithogroup');" />
 		</div>
 		<div id="formationDiv">
 			<?php echo (defined('FORMATIONLABEL')?FORMATIONLABEL:'Formation'); ?>
@@ -307,7 +307,7 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 			<a href="#" onclick="return dwcDoc('slideProperties')"><img class="docimg" src="../../images/qmark.png" /></a><br/>
 			<input type="text" name="slideProperties" value="<?php echo isset($occArr['slideProperties'])?$occArr['slideProperties']:''; ?>" onchange="fieldChanged('slideProperties');" />
 		</div>
-		<div id="geologicalContextIdDiv">
+		<div id="geologicalContextIDDiv">
 			<?php echo (defined('GEOLOGICALCONTEXTIDLABEL')?GEOLOGICALCONTEXTIDLABEL:'Context ID'); ?>
 			<a href="#" onclick="return dwcDoc('geologicalContextID')"><img class="docimg" src="../../images/qmark.png" /></a><br/>
 			<input type="text" name="geologicalContextID" value="<?php echo isset($occArr['geologicalContextID'])?$occArr['geologicalContextID']:''; ?>" onchange="fieldChanged('geologicalContextID');" />

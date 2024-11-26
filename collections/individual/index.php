@@ -932,7 +932,7 @@ $traitArr = $indManager->getTraitArr();
 							?>
 								<div>
 									<?php
-									if($occArr['slideproperties']) echo '<div class="bottom-breathing-room-rel-sm"><label>'.$LANG['SLIDE_PROPS'].':</label> '.$occArr['slideproperties'].'</div>';
+									if($occArr['slideProperties']) echo '<div class="bottom-breathing-room-rel-sm"><label>'.$LANG['SLIDE_PROPS'].':</label> '.$occArr['slideProperties'].'</div>';
 									if($occArr['element']) echo '<div class="bottom-breathing-room-rel-sm"><label>'.$LANG['ELEMENT'].':</label> '.$occArr['element'].'</div>';
 									?>
 								</div>
@@ -944,8 +944,8 @@ $traitArr = $indManager->getTraitArr();
 								if($occArr['period']) $paleoStr1 .= '; '.$occArr['period'];
 								if($occArr['epoch']) $paleoStr1 .= '; '.$occArr['epoch'];
 								if($occArr['stage']) $paleoStr1 .= '; '.$occArr['stage'];
-								if($occArr['earlyinterval']) $paleoStr1 .= '; '.$occArr['earlyinterval'];
-								if($occArr['lateinterval']) $paleoStr1 .= ' to '.$occArr['lateinterval'];
+								if($occArr['earlyInterval']) $paleoStr1 .= '; '.$occArr['earlyInterval'];
+								if($occArr['lateInterval']) $paleoStr1 .= ' to '.$occArr['lateInterval'];
 								if($paleoStr1)
 									echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>' . $LANG['GEOCHRONOLOGY'] . ': </label>' . trim($paleoStr1,'; ') . '</div>';
 								?>
@@ -959,16 +959,16 @@ $traitArr = $indManager->getTraitArr();
 									echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>' . $LANG['LITHOSTRAT'] . ': </label>' . trim($paleoStr2,'; ') . '</div>';
 								if($occArr['biostratigraphy']) echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>'.$LANG['BIO_STRAT'].':</label> '.$occArr['biostratigraphy'].'</div>';
 								$paleoStr3 = '';
-								$paleoStr3 .= ' <label>'.$LANG['LOCAL_STAGE'] . ': </label>' . $occArr['localstage'];
-								$paleoStr3 .= ' <label>'.$LANG['ABSOLUTE_AGE'] . ': </label>' . $occArr['absoluteage'];
+								$paleoStr3 .= ' <label>'.$LANG['LOCAL_STAGE'] . ': </label>' . $occArr['localStage'];
+								$paleoStr3 .= ' <label>'.$LANG['ABSOLUTE_AGE'] . ': </label>' . $occArr['absoluteAge'];
 								if($paleoStr3)
 									echo '<div class="paleofield-div bottom-breathing-room-rel-sm">' . trim($paleoStr3,'; ') . '</div>';
-								if($occArr['storageage']) echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>'.$LANG['STORAGE_AGE'].':</label> '.$occArr['storageage'].'</div>';
-								if($occArr['stratremarks']) echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>'.$LANG['STRAT_REMARKS'].':</label> '.$occArr['stratremarks'].'</div>';
+								if($occArr['storageAge']) echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>'.$LANG['STORAGE_AGE'].':</label> '.$occArr['storageAge'].'</div>';
+								if($occArr['stratRemarks']) echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>'.$LANG['STRAT_REMARKS'].':</label> '.$occArr['stratRemarks'].'</div>';
 								if($occArr['lithology']) echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>'.$LANG['LITHOLOGY'].':</label> '.$occArr['lithology'].'</div>';
 								if($occArr['biota']) echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>'.$LANG['BIOTA'].':</label> '.$occArr['biota'].'</div>';
-								if($occArr['taxonenvironment']) echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>'.$LANG['TAXON_ENVIR'].':</label> '.$occArr['taxonenvironment'].'</div>';
-								if($occArr['geologicalcontextid']) echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>'.$LANG['CONTEXT_ID'].':</label> '.$occArr['geologicalcontextid'].'</div>';
+								if($occArr['taxonEnvironment']) echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>'.$LANG['TAXON_ENVIR'].':</label> '.$occArr['taxonEnvironment'].'</div>';
+								if($occArr['geologicalContextID']) echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>'.$LANG['CONTEXT_ID'].':</label> '.$occArr['geologicalContextID'].'</div>';
 								?>
 							
 							<?php
