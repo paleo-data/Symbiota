@@ -50,7 +50,7 @@ class OccurrenceEditorManager {
 			'minimumdepthinmeters' => 'n', 'maximumdepthinmeters' => 'n', 'verbatimdepth' => 's','disposition' => 's', 'language' => 's', 'duplicatequantity' => 'n',
 			'labelproject' => 's','processingstatus' => 's', 'recordenteredby' => 's', 'observeruid' => 'n', 'dateentered' => 'd');
 		$this->fieldArr['omoccurpaleo'] = array('earlyInterval','lateInterval','absoluteAge','storageAge','stage','localStage','biota',
-			'biostratigraphy','lithoGroup','formation','taxonEnvironment','member','bed','lithology','stratRemarks','element','slideProperties','geologicalContextID');
+			'biostratigraphy','lithogroup','formation','taxonEnvironment','member','bed','lithology','stratRemarks','element','slideProperties','geologicalContextID');
 		$this->fieldArr['omoccuridentifiers'] = array('idname','idvalue');
 		$this->fieldArr['omexsiccatiocclink'] = array('ometid','exstitle','exsnumber');
 	}
@@ -2055,8 +2055,8 @@ class OccurrenceEditorManager {
 			'georeferencesources','georeferenceverificationstatus','georeferenceremarks',
 			'minimumelevationinmeters','maximumelevationinmeters','verbatimelevation','minimumdepthinmeters','maximumdepthinmeters','verbatimdepth',
 			'habitat','substrate','lifestage', 'sex', 'individualcount', 'samplingprotocol', 'preparations',
-			'associatedtaxa','basisofrecord','language','labelproject','eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biota',
-			'biostratigraphy','lithogroup','formation','taxonenvironment','member','bed','lithology','stratremarks','element');
+			'associatedtaxa','basisofrecord','language','labelproject','eon','era','period','epoch','earlyInterval','lateInterval','absoluteAge','storageAge','stage','localStage','biota',
+			'biostratigraphy','lithogroup','formation','taxonEnvironment','member','bed','lithology','stratRemarks','element');
 		$retArr = array_intersect_key($fArr,array_flip($locArr));
 		$this->cleanOutArr($retArr);
 		return $retArr;
