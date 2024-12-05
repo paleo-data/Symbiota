@@ -1,5 +1,6 @@
 INSERT INTO `schemaversion` (versionnumber) values ("3.2");
 
+
 ALTER TABLE `omoccurrences` 
   ADD FULLTEXT INDEX `FT_omoccurrence_locality` (`locality`),
   ADD FULLTEXT INDEX `FT_omoccurrence_recordedBy` (`recordedBy`),

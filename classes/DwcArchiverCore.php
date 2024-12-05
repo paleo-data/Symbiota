@@ -103,7 +103,6 @@ class DwcArchiverCore extends Manager{
 		$dwcOccurManager = new DwcArchiverOccurrence($this->conn);
 		$dwcOccurManager->setSchemaType($this->schemaType);
 		$dwcOccurManager->setExtended($this->extended);
-		//$dwcOccurManager->setIncludePaleo($this->hasPaleo);
 		if (!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr();
 		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields'], false);
 		$sql .= $this->getTableJoins() . $this->conditionSql;
@@ -1641,6 +1640,9 @@ class DwcArchiverCore extends Manager{
 		$dwcOccurManager->setExtended($this->extended);
 		$dwcOccurManager->setIncludeExsiccatae();
 		$dwcOccurManager->setIncludeAssociatedSequences();
+		if($this->isPublicDownload && !$this->hasPaleo){
+			if(!empty($GLOBALS['ACTIVATE_PALEO'])) $this->hasPaleo = 1;
+		}
 		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
 		if (!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
 		//Output records
@@ -1807,6 +1809,7 @@ class DwcArchiverCore extends Manager{
 				}
 				//$dwcOccurManager->appendUpperTaxonomy($r);
 				$dwcOccurManager->appendUpperTaxonomy2($r);
+				if($this->hasPaleo) $dwcOccurManager->appendPaleoTerms($r);
 				if ($rankStr = $dwcOccurManager->getTaxonRank($r['rankid'])) $r['t_taxonRank'] = $rankStr;
 				unset($r['rankid']);
 
