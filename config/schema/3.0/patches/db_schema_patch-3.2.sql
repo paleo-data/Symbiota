@@ -234,6 +234,12 @@ ALTER TABLE `omoccuraccess` ENGINE=InnoDB;
 ALTER TABLE `omoccuraccesslink` ENGINE=InnoDB;
 
 
+ALTER TABLE `omoccurpaleo` 
+  CHANGE COLUMN `biota` `biota` VARCHAR(100) NULL DEFAULT NULL COMMENT 'Flora or Fanua' ,
+  CHANGE COLUMN `lithology` `lithology` VARCHAR(700) NULL DEFAULT NULL ,
+  CHANGE COLUMN `stratRemarks` `stratRemarks` VARCHAR(1000) NULL DEFAULT NULL ,
+  CHANGE COLUMN `geologicalContextID` `geologicalContextID` VARCHAR(100) NULL DEFAULT NULL ;
+
 ALTER TABLE `omoccurpaleogts`
   ADD COLUMN `myaStart` FLOAT NULL DEFAULT NULL AFTER `rankname`,
   ADD COLUMN `myaEnd` FLOAT NULL DEFAULT NULL AFTER `myaStart`,
