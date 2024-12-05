@@ -353,8 +353,9 @@ class SpecUploadBase extends SpecUpload{
 			'generalnotes'=>'occurrenceremarks','plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','specimendescription'=>'verbatimattributes',
 			'phenology'=>'reproductivecondition','field:habitat'=>'habitat','habitatdescription'=>'habitat','sitedeschabitat'=>'habitat','captivecultivated'=>'cultivationstatus',
 			'ometid'=>'exsiccatiidentifier','exsiccataeidentifier'=>'exsiccatiidentifier','exsnumber'=>'exsiccatinumber','exsiccataenumber'=>'exsiccatinumber',
-			'group'=>'paleo-lithogroup',//'materialsample-materialsampleid'=>'materialsample-guid','preparationdetails'=>'materialsample-preparationprocess','materialsampletype'=>'materialsample-sampletype',
-			'lithostratigraphic'=>'paleo-lithology','imageurl'=>'associatedmedia','subject_references'=>'tempfield01',
+			'group'=>'paleo-lithogroup','lithostratigraphic'=>'paleo-lithology','lithostratigraphicterms'=>'paleo-lithology',
+			//'materialsample-materialsampleid'=>'materialsample-guid','preparationdetails'=>'materialsample-preparationprocess','materialsampletype'=>'materialsample-sampletype',
+			'imageurl'=>'associatedmedia','subject_references'=>'tempfield01',
 			'subject_recordid'=>'tempfield02'
 		);
 		$autoMapExclude = array('institutioncode','collectioncode');
@@ -1292,10 +1293,10 @@ class SpecUploadBase extends SpecUpload{
 	// }
 	private function setOtherCatalogNumbers(){
 		if($this->uploadType == $this->FILEUPLOAD || $this->uploadType == $this->SKELETAL){
-			$sql = 'INSERT IGNORE INTO omoccuridentifiers (occid, identifiername, identifiervalue, modifiedUid) 
-			SELECT o.occid, kv.key as identifiername, kv.value as identifiervalue, kv.upload_uid as modifiedUid 
-			FROM uploadKeyValueTemp kv 
-			INNER JOIN uploadspectemp u on u.dbpk = kv.dbpk 
+			$sql = 'INSERT IGNORE INTO omoccuridentifiers (occid, identifiername, identifiervalue, modifiedUid)
+			SELECT o.occid, kv.key as identifiername, kv.value as identifiervalue, kv.upload_uid as modifiedUid
+			FROM uploadKeyValueTemp kv
+			INNER JOIN uploadspectemp u on u.dbpk = kv.dbpk
 			INNER JOIN omoccurrences o on o.occid = u.occid
 			WHERE type = "omoccuridentifiers" AND kv.collid = ?';
 
@@ -1917,7 +1918,7 @@ class SpecUploadBase extends SpecUpload{
 					foreach ($parsedCatalogNumbers as $entry) {
 						mysqli_execute_query($this->conn, $sql, [$entry['key'], $entry['value'], $recMap['dbpk'], $GLOBALS['SYMB_UID']]);
 					}
-				} 
+				}
 			}
 
 		}
@@ -1926,7 +1927,7 @@ class SpecUploadBase extends SpecUpload{
 		$catalogNumbers = explode(';', str_replace(['|',','], ';', $otherCatalogNumbers));
 		$parsedCatalogNumbers = [];
 
-		for ($i = 0; $i < count($catalogNumbers); $i++) { 
+		for ($i = 0; $i < count($catalogNumbers); $i++) {
 			$key_value = explode(':', $catalogNumbers[$i]);
 
 			if(count($key_value) == 2) {
@@ -2394,12 +2395,14 @@ class SpecUploadBase extends SpecUpload{
 	private function getPaleoDwcTerms(){
 		$paleoTermArr = array('paleo-earliesteonorlowesteonothem','paleo-latesteonorhighesteonothem','paleo-earliesteraorlowesterathem',
 			'paleo-latesteraorhighesterathem','paleo-earliestperiodorlowestsystem','paleo-latestperiodorhighestsystem','paleo-earliestepochorlowestseries',
-			'paleo-latestepochorhighestseries','paleo-earliestageorloweststage','paleo-latestageorhigheststage','paleo-lowestbiostratigraphiczone','paleo-highestbiostratigraphiczone');
+			'paleo-latestepochorhighestseries','paleo-earliestageorloweststage','paleo-latestageorhigheststage','paleo-lowestbiostratigraphiczone','paleo-highestbiostratigraphiczone',
+			'paleo-geologicalcontextid','paleo-formation','paleo-member','paleo-bed','paleo-lithogroup'
+		);
 		return $paleoTermArr;
 	}
 
 	private function getPaleoSymbTerms(){
-		$paleoTermArr = array('paleo-geologicalContextID','paleo-lithogroup','paleo-formation','paleo-member','paleo-bed','paleo-eon','paleo-era','paleo-period','paleo-epoch',
+		$paleoTermArr = array('paleo-eon','paleo-era','paleo-period','paleo-epoch',
 			'paleo-earlyInterval','paleo-lateInterval','paleo-absoluteAge','paleo-storageAge','paleo-stage','paleo-localStage','paleo-biota','paleo-biostratigraphy',
 			'paleo-taxonEnvironment','paleo-lithology','paleo-stratRemarks','paleo-element','paleo-slideProperties');
 		return $paleoTermArr;
