@@ -46,7 +46,7 @@ class DwcArchiverCore extends Manager{
 	protected $includeAttributes = 0;
 	protected $includeMaterialSample = 0;
 	protected $includeIdentifiers = 0;
-	private $hasPaleo = false;
+	private $includePaleo = false;
 	private $redactLocalities = 1;
 	private $rareReaderArr = array();
 	private $charSetSource = '';
@@ -193,7 +193,7 @@ class DwcArchiverCore extends Manager{
 						if ($propArr = json_decode($r->dynamicproperties, true)) {
 							if (isset($propArr['editorProps']['modules-panel'])) {
 								foreach ($propArr['editorProps']['modules-panel'] as $k => $modArr) {
-									if (isset($modArr['paleo']['status'])) $this->hasPaleo = true;
+									if (isset($modArr['paleo']['status'])) $this->includePaleo = true;
 									elseif (isset($modArr['matSample']['status'])){
 										$this->collArr[$r->collid]['matSample'] = 1;
 									}
@@ -678,7 +678,7 @@ class DwcArchiverCore extends Manager{
 		$dwcOccurManager = new DwcArchiverOccurrence($this->conn);
 		$dwcOccurManager->setSchemaType($this->schemaType);
 		$dwcOccurManager->setExtended($this->extended);
-		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
+		$dwcOccurManager->setIncludePaleo($this->includePaleo);
 		if (!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
 		$this->applyConditions();
 		if (!$this->conditionSql) return false;
@@ -1640,10 +1640,10 @@ class DwcArchiverCore extends Manager{
 		$dwcOccurManager->setExtended($this->extended);
 		$dwcOccurManager->setIncludeExsiccatae();
 		$dwcOccurManager->setIncludeAssociatedSequences();
-		if($this->isPublicDownload && !$this->hasPaleo){
-			if(!empty($GLOBALS['ACTIVATE_PALEO'])) $this->hasPaleo = 1;
+		if($this->isPublicDownload && !$this->includePaleo){
+			if(!empty($GLOBALS['ACTIVATE_PALEO'])) $this->includePaleo = 1;
 		}
-		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
+		$dwcOccurManager->setIncludePaleo($this->includePaleo);
 		if (!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
 		//Output records
 		$this->applyConditions();
@@ -1656,6 +1656,7 @@ class DwcArchiverCore extends Manager{
 		if ($this->schemaType == 'dwc' || $this->schemaType == 'pensoft') {
 			unset($fieldArr['localitySecurity']);
 			unset($fieldArr['collID']);
+			unset($fieldArr['biota']);
 		} elseif ($this->schemaType == 'backup') unset($fieldArr['collID']);
 		$fieldOutArr = array();
 		if ($this->schemaType == 'coge') {
@@ -1809,7 +1810,14 @@ class DwcArchiverCore extends Manager{
 				}
 				//$dwcOccurManager->appendUpperTaxonomy($r);
 				$dwcOccurManager->appendUpperTaxonomy2($r);
-				if($this->hasPaleo) $dwcOccurManager->appendPaleoTerms($r);
+				if($this->includePaleo){
+					$dwcOccurManager->appendPaleoTerms($r);
+					if($this->schemaType == 'dwc'){
+						if(!empty($r['biota'])){
+							$r['locality'] .= ($r['locality'] ? '; ' : '') . 'Biota: ' . $r['biota'];
+						}
+					}
+				}
 				if ($rankStr = $dwcOccurManager->getTaxonRank($r['rankid'])) $r['t_taxonRank'] = $rankStr;
 				unset($r['rankid']);
 

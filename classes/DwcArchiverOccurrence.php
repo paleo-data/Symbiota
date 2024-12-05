@@ -260,8 +260,8 @@ class DwcArchiverOccurrence extends Manager{
 			$this->occurDefArr['fields']['biota'] = 'paleo.biota';
 			$this->occurDefArr['terms']['taxonEnvironment'] = 'https://symbiota.org/terms/paleo-taxonEnvironment';
 			$this->occurDefArr['fields']['taxonEnvironment'] = 'paleo.taxonEnvironment';
-			$this->occurDefArr['terms']['lithogroup'] = 'http://rs.tdwg.org/dwc/terms/group';
-			$this->occurDefArr['fields']['lithogroup'] = 'paleo.lithogroup AS `group`';
+			$this->occurDefArr['terms']['group'] = 'http://rs.tdwg.org/dwc/terms/group';
+			$this->occurDefArr['fields']['group'] = 'paleo.lithogroup';
 			$this->occurDefArr['terms']['formation'] = 'http://rs.tdwg.org/dwc/terms/formation';
 			$this->occurDefArr['fields']['formation'] = 'paleo.formation';
 			$this->occurDefArr['terms']['member'] = 'http://rs.tdwg.org/dwc/terms/member';
@@ -327,7 +327,7 @@ class DwcArchiverOccurrence extends Manager{
 					'localitySecurityReason','genericcolumn1','genericcolumn2','storageLocation','observerUid','processingStatus',
 					'duplicateQuantity','labelProject','dateEntered','dateLastModified','sourcePrimaryKey-dbpk');
 				if($this->includePaleo){
-					$trimArr = array_merge($trimArr, array('absoluteAge','storageAge','stage','localStage','biota','biostratigraphy','taxonEnvironment','stratRemarks','element','slideProperties'));
+					$trimArr = array_merge($trimArr, array('absoluteAge','storageAge','stage','localStage','biostratigraphy','taxonEnvironment','stratRemarks','element','slideProperties'));
 				}
 				$this->occurDefArr[$k] = array_diff_key($vArr,array_flip($trimArr));
 			}
@@ -335,6 +335,9 @@ class DwcArchiverOccurrence extends Manager{
 				$trimArr = array();
 				if(!$this->extended){
 					$trimArr = array('collectionID','rights','rightsHolder','accessRights','storageLocation','observerUid','processingStatus','duplicateQuantity','labelProject','dateEntered','dateLastModified');
+				}
+				if($this->includePaleo){
+					$trimArr = array_merge($trimArr, array('storageAge'));
 				}
 				$this->occurDefArr[$k] = array_diff_key($vArr,array_flip($trimArr));
 			}
