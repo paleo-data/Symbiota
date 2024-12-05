@@ -941,15 +941,15 @@ $traitArr = $indManager->getTraitArr();
 								<div class=" bottom-breathing-room-rel-sm"><label><?php echo $LANG['GEO_CONTEXT']; ?>: </label></div>
 								<?php
 								$paleoStr1 = '';
-								if($occArr['eon']) $paleoStr1 .= '; '.$occArr['eon'];
-								if($occArr['era']) $paleoStr1 .= '; '.$occArr['era'];
-								if($occArr['period']) $paleoStr1 .= '; '.$occArr['period'];
-								if($occArr['epoch']) $paleoStr1 .= '; '.$occArr['epoch'];
-								if($occArr['stage']) $paleoStr1 .= '; '.$occArr['stage'];
 								if($occArr['earlyInterval']) $paleoStr1 .= '; '.$occArr['earlyInterval'];
 								if($occArr['lateInterval']) $paleoStr1 .= ' to '.$occArr['lateInterval'];
 								if($paleoStr1)
-									echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>' . $LANG['GEOCHRONOLOGY'] . ': </label>' . trim($paleoStr1,'; ') . '</div>';
+									echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>' . $LANG['GEOCHRONOLOGY'] . ': </label>' . trim($paleoStr1,'; ');
+									if($occArr['earlyInterval'] && $occArr['earlyIntervalHieararchy'])
+										echo '<div class="paleofield-div top-breathing-room-rel-sm"><label>' . $LANG['EARLY_INT'] . ': </label>' . trim($occArr["earlyIntervalHieararchy"]) . '</div>';
+									if($occArr['lateInterval'] && $occArr['lateIntervalHieararchy'])
+										echo '<div class="paleofield-div top-breathing-room-rel-sm"><label>' . $LANG['LATE_INT'] . ': </label>' . trim($occArr["lateIntervalHieararchy"]) . '</div>';
+									echo '</div>';
 								?>
 								<?php
 								$paleoStr2 = '';
