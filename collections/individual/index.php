@@ -945,10 +945,10 @@ $traitArr = $indManager->getTraitArr();
 								if($occArr['lateInterval']) $paleoStr1 .= ' to '.$occArr['lateInterval'];
 								if($paleoStr1)
 									echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>' . $LANG['GEOCHRONOLOGY'] . ': </label>' . trim($paleoStr1,'; ');
-									if($occArr['earlyInterval'] && $occArr['earlyIntervalHieararchy'])
-										echo '<div class="paleofield-div top-breathing-room-rel-sm"><label>' . $LANG['EARLY_INT'] . ': </label>' . trim($occArr["earlyIntervalHieararchy"]) . '</div>';
 									if($occArr['lateInterval'] && $occArr['lateIntervalHieararchy'])
 										echo '<div class="paleofield-div top-breathing-room-rel-sm"><label>' . $LANG['LATE_INT'] . ': </label>' . trim($occArr["lateIntervalHieararchy"]) . '</div>';
+									if($occArr['earlyInterval'] && $occArr['earlyIntervalHieararchy'])
+										echo '<div class="paleofield-div top-breathing-room-rel-sm"><label>' . $LANG['EARLY_INT'] . ': </label>' . trim($occArr["earlyIntervalHieararchy"]) . '</div>';
 									echo '</div>';
 								?>
 								<?php
