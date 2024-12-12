@@ -461,8 +461,8 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			$this->displaySearchArr[] = $this->searchTermArr["lithogroup"];
 		}
 		if(array_key_exists('earlyInterval', $this->searchTermArr) || array_key_exists('lateInterval', $this->searchTermArr)) {
-			$sqlWhere .= 'AND ((early.myaStart <= search.searchEnd AND late.myaEnd >= search.searchStart) OR (early.myaStart > search.searchEnd AND late.myaEnd >= search.searchStart AND late.myaEnd <= search.searchEnd) ';
-			$sqlWhere .= 'OR (early.myaStart <= search.searchEnd AND early.myaStart >= search.searchStart AND late.myaEnd < search.searchStart) OR (early.myaStart > search.searchEnd AND late.myaEnd < search.searchStart)) ';
+			$sqlWhere .= 'AND ((early.myaStart >= search.searchEnd AND late.myaEnd <= search.searchStart) OR (early.myaStart > search.searchStart AND late.myaEnd >= search.searchEnd AND late.myaEnd <= search.searchStart) ';
+			$sqlWhere .= 'OR (early.myaStart <= search.searchStart AND early.myaStart >= search.searchEnd AND late.myaEnd < search.searchEnd) OR (early.myaStart > search.searchStart AND late.myaEnd < search.searchEnd)) ';
 		}
 
 		if($sqlWhere){
