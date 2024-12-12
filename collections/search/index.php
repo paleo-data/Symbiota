@@ -176,7 +176,7 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 									</label>
 								</div>
 							</div>
-<div>
+							<div>
 								<div class="input-text-container">
 									<label for="local" class="input-text--outlined">
 										<span class="screen-reader-only"><?php echo $LANG['LOCALITY_LOCALITIES'] ?></span>
@@ -581,6 +581,65 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 								<span class="ml-1"><?php echo $LANG['ASSOCIATIONS'] . '-' . $LANG['INCLUDE_SYNONYMS'] ?></span>
 							</label>
 						</div>
+					</div>
+				</section>
+
+				<!-- Geological Context -->
+				<section>
+					<!-- Accordion selector -->
+					<input type="checkbox" id="geocontext" class="accordion-selector" />
+
+					<!-- Accordion header -->
+					<label for="geocontext" class="accordion-header"><?php echo $LANG['GEO_CONTEXT'] ?></label>
+
+					<!-- Content -->
+					<div id="search-form-geocontext" class="content">
+					<div class="grid grid--half">
+						<div class="input-text-container">
+							<label for="earlyInterval" class="input-text--outlined">
+								<span class="screen-reader-only"><?php echo $LANG['EARLY_INT'] ?></span>
+								<input type="text" name="earlyInterval" id="earlyInterval" data-chip="<?php echo $LANG['EARLY_INT'] ?>" />
+								<span class="inset-input-label"><?php echo $LANG['EARLY_INT'] ?></span>
+							</label>
+						</div>
+						<div class="input-text-container">
+							<label for="lateInterval" class="input-text--outlined">
+								<span class="screen-reader-only"><?php echo $LANG['LATE_INT'] ?></span>
+								<input type="text" name="lateInterval" id="lateInterval" data-chip="<?php echo $LANG['LATE_INT'] ?>" />
+								<span class="inset-input-label"><?php echo $LANG['LATE_INT'] ?></span>
+							</label>
+						</div>
+					</div>
+					<div>
+						<div class="input-text-container">
+							<label for="lithogroup" class="input-text--outlined">
+								<span class="screen-reader-only"><?php echo $LANG['LITHOGROUP'] ?></span>
+									<input type="text" name="lithogroup" id="lithogroup" data-chip="<?php echo $LANG['LITHOGROUP'] ?>" />
+								<span class="inset-input-label"><?php echo $LANG['LITHOGROUP'] ?></span>
+							</label>
+						</div>
+						<div class="input-text-container">
+							<label for="formation" class="input-text--outlined">
+								<span class="screen-reader-only"><?php echo $LANG['FORMATION'] ?></span>
+									<input type="text" name="formation" id="formation" data-chip="<?php echo $LANG['FORMATION'] ?>" />
+								<span class="inset-input-label"><?php echo $LANG['FORMATION'] ?></span>
+							</label>
+						</div>
+						<div class="input-text-container">
+							<label for="member" class="input-text--outlined">
+								<span class="screen-reader-only"><?php echo $LANG['MEMBER'] ?></span>
+									<input type="text" name="member" id="member" data-chip="<?php echo $LANG['MEMBER'] ?>" />
+								<span class="inset-input-label"><?php echo $LANG['MEMBER'] ?></span>
+							</label>
+						</div>
+						<div class="input-text-container">
+							<label for="bed" class="input-text--outlined">
+								<span class="screen-reader-only"><?php echo $LANG['BED'] ?></span>
+									<input type="text" name="bed" id="bed" data-chip="<?php echo $LANG['BED'] ?>" />
+								<span class="inset-input-label"><?php echo $LANG['BED'] ?></span>
+							</label>
+						</div>
+					</div>
 					</div>
 				</section>
 

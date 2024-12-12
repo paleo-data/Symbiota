@@ -443,6 +443,28 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			$sqlWhere .= 'AND (o.decimalLatitude IS NOT NULL) ';
 			$this->displaySearchArr[] = $this->LANG['HAS_COORDINATES'];
 		}
+		// Geological Context
+		if(array_key_exists('formation', $this->searchTermArr)){
+			$sqlWhere .= 'AND paleo.formation = "' . $this->cleanInStr($this->searchTermArr["formation"]) . '" ';
+			$this->displaySearchArr[] = $this->searchTermArr["formation"];
+		}
+		if(array_key_exists('member', $this->searchTermArr)){
+			$sqlWhere .= 'AND paleo.member = "' . $this->cleanInStr($this->searchTermArr["member"]) . '" ';
+			$this->displaySearchArr[] = $this->searchTermArr["member"];
+		}
+		if(array_key_exists('bed', $this->searchTermArr)){
+			$sqlWhere .= 'AND paleo.bed = "' . $this->cleanInStr($this->searchTermArr["bed"]) . '" ';
+			$this->displaySearchArr[] = $this->searchTermArr["bed"];
+		}
+		if(array_key_exists('lithogroup', $this->searchTermArr)){
+			$sqlWhere .= 'AND paleo.lithogroup = "' . $this->cleanInStr($this->searchTermArr["lithogroup"]) . '" ';
+			$this->displaySearchArr[] = $this->searchTermArr["lithogroup"];
+		}
+		if(array_key_exists('earlyInterval', $this->searchTermArr) || array_key_exists('lateInterval', $this->searchTermArr)) {
+			$sqlWhere .= 'AND ((early.myaStart <= search.searchEnd AND late.myaEnd >= search.searchStart) OR (early.myaStart > search.searchEnd AND late.myaEnd >= search.searchStart AND late.myaEnd <= search.searchEnd) ';
+			$sqlWhere .= 'OR (early.myaStart <= search.searchEnd AND early.myaStart >= search.searchStart AND late.myaEnd < search.searchStart) OR (early.myaStart > search.searchEnd AND late.myaEnd < search.searchStart)) ';
+		}
+
 		if($sqlWhere){
 			if(!array_key_exists('includecult', $this->searchTermArr)){
 				$sqlWhere .= 'AND (o.cultivationStatus IS NULL OR o.cultivationStatus = 0) ';
@@ -542,6 +564,14 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			}
 			if(array_key_exists('polycoords',$this->searchTermArr) || strpos($sqlWhere,'p.point')){
 				$sqlJoin .= 'INNER JOIN omoccurpoints p ON o.occid = p.occid ';
+			}
+			if ($GLOBALS['ACTIVATE_PALEO']) {
+				$sqlJoin .= 'INNER JOIN omoccurpaleo paleo ON o.occid = paleo.occid ';
+				if (array_key_exists('earlyInterval',$this->searchTermArr) || array_key_exists('lateInterval',$this->searchTermArr)){
+					$sqlJoin .= 'JOIN omoccurpaleogts early ON paleo.earlyInterval = early.gtsterm ';
+					$sqlJoin .= 'JOIN omoccurpaleogts late ON paleo.lateInterval = late.gtsterm ';
+					$sqlJoin .= 'CROSS JOIN searchRange search ';
+				}
 			}
 			/*
 			if(array_key_exists('includeothercatnum',$this->searchTermArr)){
@@ -990,6 +1020,25 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		}
 		if(array_key_exists('footprintwkt',$_REQUEST) && $_REQUEST['footprintwkt']){
 			$this->searchTermArr['footprintwkt'] = $this->cleanInputStr($_REQUEST['footprintwkt']);
+		}
+
+		if(array_key_exists('earlyInterval',$_REQUEST)){
+			$this->searchTermArr['earlyInterval'] =  $this->cleanInputStr($_REQUEST['earlyInterval']);
+		}
+		if(array_key_exists('lateInterval',$_REQUEST)){
+			$this->searchTermArr['lateInterval'] =  $this->cleanInputStr($_REQUEST['lateInterval']);
+		}
+		if(array_key_exists('lithogroup',$_REQUEST)){
+			$this->searchTermArr['lithogroup'] =  $this->cleanInputStr($_REQUEST['lithogroup']);
+		}
+		if(array_key_exists('formation',$_REQUEST)){
+			$this->searchTermArr['formation'] =  $this->cleanInputStr($_REQUEST['formation']);
+		}
+		if(array_key_exists('member',$_REQUEST)){
+			$this->searchTermArr['member'] =  $this->cleanInputStr($_REQUEST['member']);
+		}
+		if(array_key_exists('bed',$_REQUEST)){
+			$this->searchTermArr['bed'] =  $this->cleanInputStr($_REQUEST['bed']);
 		}
 
 	}
