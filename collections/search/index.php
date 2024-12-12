@@ -23,6 +23,8 @@ $collIdsFromUrl = array_key_exists("db",$_GET) ? explode(",", $explodable) : '';
 $collManager = new OccurrenceManager();
 $collectionSource = $collManager->getQueryTermStr();
 
+$gtsTermArr = $collManager->getPaleoGtsTerms();
+
 $SHOULD_INCLUDE_CULTIVATED_AS_DEFAULT = $SHOULD_INCLUDE_CULTIVATED_AS_DEFAULT ?? false;
 $collData = new CollectionMetadata();
 $siteData = new DatasetsMetadata();
@@ -594,13 +596,42 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 
 					<!-- Content -->
 					<div id="search-form-geocontext" class="content">
-					<div class="grid grid--half">
-						<div class="input-text-container">
-							<label for="earlyInterval" class="input-text--outlined">
-								<span class="screen-reader-only"><?php echo $LANG['EARLY_INT'] ?></span>
-								<input type="text" name="earlyInterval" id="earlyInterval" data-chip="<?php echo $LANG['EARLY_INT'] ?>" />
-								<span class="inset-input-label"><?php echo $LANG['EARLY_INT'] ?></span>
-							</label>
+					<div>
+						<div class="select-container" style="position: relative; width: 40vw;">
+							<label for="earlyInterval" class="screen-reader-only"><?php echo $LANG['EARLY_INT'] ?></label>
+							<select name="earlyInterval" id="earlyInterval" style="margin-top:0;padding-top:0; margin-bottom: 0.5rem">
+								<option value=""></option>
+								<?php
+								$earlyIntervalTerm = '';
+								if(isset($occArr['earlyInterval'])) $earlyIntervalTerm = $occArr['earlyInterval'];
+								if($earlyIntervalTerm && !array_key_exists($earlyIntervalTerm, $gtsTermArr)){
+									echo '<option value="'.$earlyIntervalTerm.'" SELECTED>'.$earlyIntervalTerm.' - mismatched term</option>';
+									echo '<option value="">---------------------------</option>';
+								}
+								foreach($gtsTermArr as $term => $rankid){
+									echo '<option value="'.$term.'" '.($earlyIntervalTerm==$term?'SELECTED':'').'>'.$term.'</option>';
+								}
+								?>
+							</select>
+							<span class="inset-input-label"><?php echo $LANG['EARLY_INT'] ?></span>
+						</div>
+						<div class="select-container" style="position: relative; width: 40vw;">
+							<label for="lateInterval" class="screen-reader-only"><?php echo $LANG['LATE_INT'] ?></label>
+							<select name="lateInterval" id="lateInterval" style="margin-top:0;padding-top:0; margin-bottom: 0.5rem">
+								<option value=""></option>
+								<?php
+								$lateIntervalTerm = '';
+								if(isset($occArr['lateInterval'])) $lateIntervalTerm = $occArr['lateInterval'];
+								if($lateIntervalTerm && !array_key_exists($lateIntervalTerm, $gtsTermArr)){
+									echo '<option value="'.$lateIntervalTerm.'" SELECTED>'.$lateIntervalTerm.' - mismatched term</option>';
+									echo '<option value="">---------------------------</option>';
+								}
+								foreach($gtsTermArr as $term => $rankid){
+									echo '<option value="'.$term.'" '.($lateIntervalTerm==$term?'SELECTED':'').'>'.$term.'</option>';
+								}
+								?>
+							</select>
+							<span class="inset-input-label"><?php echo $LANG['LATE_INT'] ?></span>
 						</div>
 						<div class="input-text-container">
 							<label for="lateInterval" class="input-text--outlined">

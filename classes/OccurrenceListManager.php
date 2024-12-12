@@ -28,8 +28,8 @@ class OccurrenceListManager extends OccurrenceManager{
 		if(!$this->recordCount || $this->reset) $this->setRecordCnt($sqlWhere);
 		$sql = "";
 		if (array_key_exists("earlyInterval",$this->searchTermArr) || array_key_exists("lateInterval",$this->searchTermArr)) {
-			$sql .= "WITH searchRange AS (SELECT COALESCE((SELECT myaStart FROM omoccurpaleogts WHERE gtsterm = '"  . ($this->searchTermArr["lateInterval"] ?? '') . "'), 0) AS searchStart,
-					COALESCE((SELECT myaEnd FROM omoccurpaleogts WHERE gtsterm = '" . ($this->searchTermArr["earlyInterval"] ?? '') ."'), 5000) AS searchEnd)";
+			$sql .= "WITH searchRange AS (SELECT COALESCE((SELECT myaStart FROM omoccurpaleogts WHERE gtsterm = '"  . ($this->searchTermArr["earlyInterval"] ?? '') . "'), 0) AS searchStart,";
+			$sql .= "COALESCE((SELECT myaEnd FROM omoccurpaleogts WHERE gtsterm = '" . ($this->searchTermArr["lateInterval"] ?? '') ."'), 5000) AS searchEnd)";
 		}
 		$sql .= 'SELECT o.occid, c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.icon, o.institutioncode AS instcodeoverride, o.collectioncode AS collcodeoverride, '.
 			'o.catalognumber, o.family, o.sciname, o.scientificnameauthorship, o.tidinterpreted, o.recordedby, o.recordnumber, o.eventdate, '.
@@ -136,8 +136,8 @@ class OccurrenceListManager extends OccurrenceManager{
 		if($sqlWhere){
 			$sql = "";
 			if (array_key_exists("earlyInterval",$this->searchTermArr) || array_key_exists("lateInterval",$this->searchTermArr)) {
-				$sql .= "WITH searchRange AS (SELECT COALESCE((SELECT myaStart FROM omoccurpaleogts WHERE gtsterm = '"  . ($this->searchTermArr['lateInterval'] ?? '') . "'), 0) AS searchStart,";
-				$sql .= "COALESCE((SELECT myaEnd FROM omoccurpaleogts WHERE gtsterm = '" . ($this->searchTermArr['earlyInterval'] ?? '') . "'), 5000) AS searchEnd) ";
+				$sql .= "WITH searchRange AS (SELECT COALESCE((SELECT myaStart FROM omoccurpaleogts WHERE gtsterm = '"  . ($this->searchTermArr['earlyInterval'] ?? '') . "'), 0) AS searchStart,";
+				$sql .= "COALESCE((SELECT myaEnd FROM omoccurpaleogts WHERE gtsterm = '" . ($this->searchTermArr['lateInterval'] ?? '') . "'), 5000) AS searchEnd) ";
 			}
 			$sql .= "SELECT COUNT(DISTINCT o.occid) AS cnt FROM omoccurrences o ".$this->getTableJoins($sqlWhere).$sqlWhere;
 			// echo "<div>Count sql: ".$sql."</div>"; exit; // @TODO here

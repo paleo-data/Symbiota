@@ -582,6 +582,20 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		return $sqlJoin;
 	}
 
+	public function getPaleoGtsTerms(){
+		$retArr = array();
+		if($GLOBALS['ACTIVATE_PALEO']){
+			$sql = 'SELECT gtsterm, rankid FROM omoccurpaleogts ';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->gtsterm] = $r->rankid;
+			}
+			$rs->free();
+			ksort($retArr);
+		}
+		return $retArr;
+	}
+
 	public function getFullCollectionList($catId = ''){
 		if(!$this->searchSupportManager) $this->searchSupportManager = new OccurrenceSearchSupport($this->conn);
 		if(isset($this->searchTermArr['db'])) $this->searchSupportManager->setCollidStr($this->searchTermArr['db']);
