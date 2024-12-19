@@ -337,9 +337,9 @@ class OccurrenceIndividual extends Manager{
 			}
 			$stmt->close();
 		}
-		if ($this->occArr['earlyInterval'])
+		if (isset($this->occArr['earlyInterval']))
 			$this->occArr['earlyIntervalHieararchy'] = $this->getPaleoGtsParents($this->occArr['earlyInterval']);
-		if ($this->occArr['lateInterval'])
+		if (isset($this->occArr['lateInterval']))
 			$this->occArr['lateIntervalHieararchy'] = $this->getPaleoGtsParents($this->occArr['lateInterval']);
 	}
 
