@@ -566,7 +566,6 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				$sqlJoin .= 'INNER JOIN omoccurpoints p ON o.occid = p.occid ';
 			}
 			if ($GLOBALS['ACTIVATE_PALEO']) {
-				$sqlJoin .= 'INNER JOIN omoccurpaleo paleo ON o.occid = paleo.occid ';
 				if (array_key_exists('earlyInterval',$this->searchTermArr) || array_key_exists('lateInterval',$this->searchTermArr)){
 					$sqlJoin .= 'JOIN omoccurpaleogts early ON paleo.earlyInterval = early.gtsterm ';
 					$sqlJoin .= 'JOIN omoccurpaleogts late ON paleo.lateInterval = late.gtsterm ';
