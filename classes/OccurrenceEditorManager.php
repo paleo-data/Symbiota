@@ -1,8 +1,8 @@
 <?php
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDuplicate.php');
-include_once($SERVER_ROOT.'/classes/UuidFactory.php');
-include_once($SERVER_ROOT.'/utilities/SymbUtil.php');
+include_once($SERVER_ROOT.'/classes/utilities/UuidFactory.php');
+include_once($SERVER_ROOT. '/classes/utilities/QueryUtil.php');
 
 if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.'.$LANG_TAG.'.php');
 else include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.en.php');
@@ -49,8 +49,8 @@ class OccurrenceEditorManager {
 			'georeferenceremarks' => 's', 'minimumelevationinmeters' => 'n', 'maximumelevationinmeters' => 'n','verbatimelevation' => 's',
 			'minimumdepthinmeters' => 'n', 'maximumdepthinmeters' => 'n', 'verbatimdepth' => 's','disposition' => 's', 'language' => 's', 'duplicatequantity' => 'n',
 			'labelproject' => 's','processingstatus' => 's', 'recordenteredby' => 's', 'observeruid' => 'n', 'dateentered' => 'd');
-		$this->fieldArr['omoccurpaleo'] = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biota',
-			'biostratigraphy','lithogroup','formation','taxonenvironment','member','bed','lithology','stratremarks','element','slideproperties','geologicalcontextid');
+		$this->fieldArr['omoccurpaleo'] = array('earlyInterval','lateInterval','absoluteAge','storageAge','stage','localStage','biota',
+			'biostratigraphy','lithogroup','formation','taxonEnvironment','member','bed','lithology','stratRemarks','element','slideProperties','geologicalContextID');
 		$this->fieldArr['omoccuridentifiers'] = array('idname','idvalue');
 		$this->fieldArr['omexsiccatiocclink'] = array('ometid','exstitle','exsnumber');
 	}
@@ -376,13 +376,7 @@ class OccurrenceEditorManager {
 			}
 			elseif(substr($this->qryArr['rb'],0,1) == '%'){
 				$collStr = $this->cleanInStr(substr($this->qryArr['rb'],1));
-				if(strlen($collStr) < 4 || in_array(strtolower($collStr),array('best','little'))){
-					//Need to avoid FULLTEXT stopwords interfering with return
-					$sqlWhere .= 'AND (o.recordedby LIKE "%'.$collStr.'%") ';
-				}
-				else{
-					$sqlWhere .= 'AND (MATCH(f.recordedby) AGAINST("'.$collStr.'")) ';
-				}
+				$sqlWhere .= 'AND (MATCH(o.recordedby) AGAINST("'.$collStr.'") IN BOOLEAN MODE) ';
 			}
 			else{
 				$sqlWhere .= 'AND (o.recordedby LIKE "'.$this->cleanInStr($this->qryArr['rb']).'%") ';
@@ -666,11 +660,11 @@ class OccurrenceEditorManager {
 		$localIndex = false;
 		$sqlFrag = '';
 		if($this->occid && !$this->direction){
-			$sqlFrag .= 'WHERE (o.occid = '.$this->occid.')';
+			$sqlFrag .= 'LEFT JOIN omoccurpaleo paleo ON paleo.occid = o.occid WHERE (o.occid = '.$this->occid.')';
 		}
 		elseif($this->sqlWhere){
 			$this->addTableJoins($sqlFrag);
-			$sqlFrag .= $this->sqlWhere;
+			$sqlFrag .= 'LEFT JOIN omoccurpaleo paleo ON paleo.occid = o.occid ' . $this->sqlWhere;
 			if($limit){
 				$this->setSqlOrderBy($sqlFrag);
 				$sqlFrag .= 'LIMIT '.$start.','.$limit;
@@ -688,7 +682,7 @@ class OccurrenceEditorManager {
 			}
 		}
 		if($sqlFrag){
-			$sql = 'SELECT DISTINCT o.occid, o.collid, o.'.implode(',o.',array_keys($this->fieldArr['omoccurrences'])).', datelastmodified FROM omoccurrences o '.$sqlFrag;
+			$sql = 'SELECT DISTINCT o.occid, o.collid, o.'.implode(',o.',array_keys($this->fieldArr['omoccurrences'])) . ',paleo.' . implode(',paleo.',($this->fieldArr['omoccurpaleo'])).', datelastmodified FROM omoccurrences o '.$sqlFrag;
 			$previousOccid = 0;
 			$rs = $this->conn->query($sql);
 			$rsCnt = 0;
@@ -761,9 +755,6 @@ class OccurrenceEditorManager {
 		if(strpos($this->sqlWhere,'exn.ometid')){
 			$sql .= 'INNER JOIN omexsiccatiocclink exocc ON o.occid = exocc.occid INNER JOIN omexsiccatinumbers exn ON exocc.omenid = exn.omenid ';
 		}
-		if(strpos($this->sqlWhere,'MATCH(f.recordedby)') || strpos($this->sqlWhere,'MATCH(f.locality)')){
-			$sql.= 'INNER JOIN omoccurrencesfulltext f ON o.occid = f.occid ';
-		}
 		if($this->crowdSourceMode){
 			$sql .= 'INNER JOIN omcrowdsourcequeue q ON q.occid = o.occid ';
 		}
@@ -788,11 +779,14 @@ class OccurrenceEditorManager {
 						if($identUnit){
 							$tag = '';
 							$value = $identUnit;
-							if(preg_match('/^([A-Za-z\s]+[\s#:]+)(\d+)$/', $identUnit, $m)){
-								$tag = $m[1];
-								$value = $m[2];
+
+							if($matches = explode(':', $identUnit)) {
+								if(count($matches) === 2) {
+									$otherCatNumArr[trim($matches[1])] = trim($matches[0]);
+								} else if(count($matches) > 0) {
+									$otherCatNumArr[trim($matches[0])] = '';
+								}
 							}
-							$otherCatNumArr[$value] = $tag;
 						}
 					}
 				}
@@ -1016,7 +1010,7 @@ class OccurrenceEditorManager {
 							if($postArr['host']) $sqlHost = 'UPDATE omoccurassociations SET verbatimsciname = "'.$postArr['host'].'" WHERE associd = '.$postArr['hostassocid'].' ';
 							else $sqlHost = 'DELETE FROM omoccurassociations WHERE associd = '.$postArr['hostassocid'].' ';
 						}
-						else $sqlHost = 'INSERT INTO omoccurassociations(occid,relationship,verbatimsciname) VALUES('.$this->occid.',"host","'.$postArr['host'].'")';
+						else $sqlHost = 'INSERT INTO omoccurassociations(occid,associationType,relationship,verbatimsciname) VALUES('.$this->occid.',"observational","host","'.$postArr['host'].'")';
 						$this->conn->query($sqlHost);
 					}
 					//Update occurrence record
@@ -1186,10 +1180,10 @@ class OccurrenceEditorManager {
 		$sql_cnt = 'SELECT COUNT(*) AS cnt FROM omoccuridentifiers oi join omoccurrences o on o.occid = oi.occid WHERE o.occid = ?';
 		$sql_insert = 'INSERT INTO omoccuridentifiers(occid, identifierName, identifierValue, notes, modifiedUid) select occid,"legacyOtherCatalogNumber" as identifierName, otherCatalogNumbers as identifierValue, "Auto generated during record merge" as notes, ? as modifiedUid from omoccurrences where occid = ?';
 		try {
-			$result_cnt = SymbUtil::execute_query($this->conn,$sql_cnt, [$occid]);
+			$result_cnt = QueryUtil::executeQuery($this->conn,$sql_cnt, [$occid]);
 			$cnt = ($result_cnt->fetch_assoc())["cnt"];
 			if($cnt === 0) {
-				SymbUtil::execute_query($this->conn,$sql_insert,[$GLOBALS['SYMB_UID'], $occid]);
+				QueryUtil::executeQuery($this->conn,$sql_insert,[$GLOBALS['SYMB_UID'], $occid]);
 			}
 		} catch (mysqli_sql_exception $e) {
 			error_log('Error: Failed to add otherCatalogNumbers to omoccuridentifiers for occid '. $occid . ' :' . $e->getMessage());
@@ -1218,7 +1212,7 @@ class OccurrenceEditorManager {
 				INNER JOIN omoccurdeterminations od on od.occid = i.occid
 				SET tid = ? WHERE detid = ?;
 				SQL;
-				SymbUtil::execute_query($this->conn,$sql, [$taxonArr['tid'], $detId]);
+				QueryUtil::executeQuery($this->conn,$sql, [$taxonArr['tid'], $detId]);
 			}
 		}
 	}
@@ -1341,7 +1335,8 @@ class OccurrenceEditorManager {
 				}
 				//Deal with host data
 				if(array_key_exists('host',$postArr)){
-					$sql = 'INSERT INTO omoccurassociations(occid,relationship,verbatimsciname) VALUES('.$this->occid.',"host","'.$this->cleanInStr($postArr['host']).'")';
+					$sql = 'INSERT INTO omoccurassociations(occid, associationType, relationship, verbatimsciname) 
+						VALUES('.$this->occid.', "observational", "host", "'.$this->cleanInStr($postArr['host']).'")';
 					if(!$this->conn->query($sql)){
 						$status .= '(WARNING adding host: '.$this->conn->error.') ';
 					}
@@ -1551,7 +1546,7 @@ class OccurrenceEditorManager {
 				$archiveArr['dateDeleted'] = date('r').' by '.$USER_DISPLAY_NAME;
 				$archiveObj = json_encode($archiveArr);
 				$stage = 'Create Archive';
-				$sqlArchive = 'INSERT INTO omoccurarchive(archiveobj, occid, catalogNumber, occurrenceID, recordID) '.
+				$sqlArchive = 'REPLACE INTO omoccurarchive(archiveobj, occid, catalogNumber, occurrenceID, recordID) '.
 					'VALUES ("'.$this->cleanInStr($this->encodeStrTargeted($archiveObj,'utf8',$CHARSET)).'", '.$delOccid.','.
 					(isset($archiveArr['catalogNumber']) && $archiveArr['catalogNumber']?'"'.$this->cleanInStr($archiveArr['catalogNumber']).'"':'NULL').', '.
 					(isset($archiveArr['occurrenceID']) && $archiveArr['occurrenceID']?'"'.$this->cleanInStr($archiveArr['occurrenceID']).'"':'NULL').', '.
@@ -1574,13 +1569,13 @@ class OccurrenceEditorManager {
 				DELETE FROM omoccurrences WHERE occid = ?
 			SQL;
 			$stage = $LANG['ERROR_TRYING_TO_DELETE'];
-			SymbUtil::execute_query($this->conn, $sqlDel, [$delOccid]);
+			QueryUtil::executeQuery($this->conn, $sqlDel, [$delOccid]);
 
 			$sql = <<<SQL
 				UPDATE omcollectionstats SET recordcnt = recordcnt - 1 WHERE collid = ?
 			SQL;
 			$stage = $LANG['ERROR_TRYING_TO_UPDATE_COL_CNT'];
-			SymbUtil::execute_query($this->conn, $sql, [$this->collId]);
+			QueryUtil::executeQuery($this->conn, $sql, [$this->collId]);
 
 			return true;
 		} catch (\Throwable $th) {
@@ -1620,10 +1615,15 @@ class OccurrenceEditorManager {
 				if($sourceOccid != $this->occid && !in_array($this->occid,$retArr)){
 					$retArr[$this->occid] = $this->occid;
 					if(isset($postArr['assocrelation']) && $postArr['assocrelation']){
-						$sql = 'INSERT INTO omoccurassociations(occid, occidAssociate, relationship,createdUid) '.
-							'values('.$this->occid.','.$sourceOccid.',"'.$postArr['assocrelation'].'",'.$GLOBALS['SYMB_UID'].') ';
-						if(!$this->conn->query($sql)){
-							$this->errorArr[] = $LANG['ERROR_ADDING_REL'].': '.$this->conn->error;
+						$sql = 'INSERT INTO omoccurassociations(occid, associationType, occidAssociate, relationship, createdUid, RecordID) VALUES(?, "internalOccurrence", ?, ?, ?, ? ) ';
+						if($stmt = $this->conn->prepare($sql)){
+							$guid = UuidFactory::getUuidV4();
+							$stmt->bind_param('iisis', $this->occid, $sourceOccid, $postArr['assocrelation'], $GLOBALS['SYMB_UID'], $guid);
+							$stmt->execute();
+							if($stmt->error){
+								$this->errorArr[] = $LANG['ERROR_ADDING_REL'].': '.$this->conn->error;
+							}
+							$stmt->close();
 						}
 					}
 					if(isset($postArr['carryoverimages']) && $postArr['carryoverimages']){
@@ -1697,7 +1697,7 @@ class OccurrenceEditorManager {
 			if($sqlFrag){
 				$sqlIns = 'UPDATE IGNORE omoccurrences SET ' . substr($sqlFrag,1) . ' WHERE occid = ?';
 				$stage = $LANG['ABORT_DUE_TO_ERROR'];
-				SymbUtil::execute_query($this->conn, $sqlIns, [$targetOccid]);
+				QueryUtil::executeQuery($this->conn, $sqlIns, [$targetOccid]);
 			}
 
 			// Anon function for util of merging determinations
@@ -1705,7 +1705,7 @@ class OccurrenceEditorManager {
 				$sql =<<<'SQL'
 				SELECT detid FROM omoccurdeterminations where occid = ? and isCurrent = 1;
 				SQL;
-				$result = SymbUtil::execute_query($this->conn, $sql, [$occid]);
+				$result = QueryUtil::executeQuery($this->conn, $sql, [$occid]);
 				return array_map(fn($v) => $v[0], $result->fetch_all());
 			};
 
@@ -1725,7 +1725,7 @@ class OccurrenceEditorManager {
 				AND source.identifiedBy = target.identifiedBy
 			);
 			SQL;
-			SymbUtil::execute_query($this->conn, $sql, [
+			QueryUtil::executeQuery($this->conn, $sql, [
 				//Update To This Occid
 				$targetOccid,
 				//From Options of This Occid
@@ -1745,7 +1745,7 @@ class OccurrenceEditorManager {
 				SET isCurrent = 0
 				WHERE occid = ? AND isCurrent = 1 AND detid NOT IN ($parameters);
 				SQL;
-				SymbUtil::execute_query($this->conn, $sql, array_merge([$targetOccid], $currentDeterminations));
+				QueryUtil::executeQuery($this->conn, $sql, array_merge([$targetOccid], $currentDeterminations));
 			}
 
 			// Get New Current determination and updateBaseOccurrence to match
@@ -1759,7 +1759,7 @@ class OccurrenceEditorManager {
 			UPDATE images SET occid = ? WHERE occid = ?;
 			SQL;
 			$stage = $LANG['ERROR_REMAPPING_IMAGES'];
-			SymbUtil::execute_query($this->conn, $sql, [$targetOccid, $sourceOccid]);
+			QueryUtil::executeQuery($this->conn, $sql, [$targetOccid, $sourceOccid]);
 
 			//Remap paleo
 			if(isset($this->collMap['paleoActivated'])){
@@ -1767,7 +1767,7 @@ class OccurrenceEditorManager {
 				UPDATE IGNORE omoccurpaleo SET occid = ? WHERE occid = ?;
 				SQL;
 				$stage = $LANG['ERROR_REMAPPING_PALEOS'];
-				SymbUtil::execute_query($this->conn, $sql, [$targetOccid, $sourceOccid]);
+				QueryUtil::executeQuery($this->conn, $sql, [$targetOccid, $sourceOccid]);
 			}
 
 			//Delete source occurrence edits
@@ -1775,69 +1775,69 @@ class OccurrenceEditorManager {
 			DELETE FROM omoccuredits WHERE occid = ?
 			SQL;
 			$stage = $LANG['ERROR_REMAPPING_OCC_EDITS'];
-			SymbUtil::execute_query($this->conn, $sql, [$sourceOccid]);
+			QueryUtil::executeQuery($this->conn, $sql, [$sourceOccid]);
 
 			//Remap associations
 			$sql = <<<'SQL'
 			UPDATE IGNORE omoccurassociations SET occid = ? WHERE occid = ?
 			SQL;
 			$stage = $LANG['ERROR_REMAPPING_ASSOCS_1'];
-			SymbUtil::execute_query($this->conn, $sql, [$targetOccid, $sourceOccid]);
+			QueryUtil::executeQuery($this->conn, $sql, [$targetOccid, $sourceOccid]);
 
 			$sql = <<<'SQL'
 			UPDATE IGNORE omoccurassociations SET occidAssociate = ? WHERE occidAssociate = ?
 			SQL;
 			$stage = $LANG['ERROR_REMAPPING_ASSOCS_2'];
-			SymbUtil::execute_query($this->conn, $sql, [$targetOccid, $sourceOccid]);
+			QueryUtil::executeQuery($this->conn, $sql, [$targetOccid, $sourceOccid]);
 
 			//Remap comments
 			$sql = <<<'SQL'
 			UPDATE IGNORE omoccurcomments SET occid = ? WHERE occid = ?
 			SQL;
 			$stage = $LANG['ERROR_REMAPPING_COMMENTS'];
-			SymbUtil::execute_query($this->conn, $sql, [$targetOccid, $sourceOccid]);
+			QueryUtil::executeQuery($this->conn, $sql, [$targetOccid, $sourceOccid]);
 
 			//Remap genetic resources
 			$sql = <<<'SQL'
 			UPDATE IGNORE omoccurgenetic SET occid = ? WHERE occid = ?
 			SQL;
 			$stage = $LANG['ERROR_REMAPPING_GENETIC'];
-			SymbUtil::execute_query($this->conn, $sql, [$targetOccid, $sourceOccid]);
+			QueryUtil::executeQuery($this->conn, $sql, [$targetOccid, $sourceOccid]);
 
 			//Remap identifiers
 			$sql = <<<'SQL'
 			UPDATE IGNORE omoccuridentifiers SET occid = ? WHERE occid = ?
 			SQL;
 			$stage = $LANG['ERROR_REMAPPING_OCCIDS'];
-			SymbUtil::execute_query($this->conn, $sql, [$targetOccid, $sourceOccid]);
+			QueryUtil::executeQuery($this->conn, $sql, [$targetOccid, $sourceOccid]);
 
 			//Remap exsiccati
 			$sql = <<<'SQL'
 			UPDATE IGNORE omexsiccatiocclink SET occid = ? WHERE occid = ?
 			SQL;
 			$stage = $LANG['ERROR_REMAPPING_EXS'];
-			SymbUtil::execute_query($this->conn, $sql, [$targetOccid, $sourceOccid]);
+			QueryUtil::executeQuery($this->conn, $sql, [$targetOccid, $sourceOccid]);
 
 			//Remap occurrence dataset links
 			$sql = <<<'SQL'
 			UPDATE IGNORE omoccurdatasetlink SET occid = ? WHERE occid = ?
 			SQL;
 			$stage = $LANG['ERROR_REMAPPING_DATASET'];
-			SymbUtil::execute_query($this->conn, $sql, [$targetOccid, $sourceOccid]);
+			QueryUtil::executeQuery($this->conn, $sql, [$targetOccid, $sourceOccid]);
 
 			//Remap loans
 			$sql = <<<'SQL'
 			UPDATE IGNORE omoccurloanslink SET occid = ? WHERE occid = ?
 			SQL;
 			$stage = $LANG['ERROR_REMAPPING_LOANS'];
-			SymbUtil::execute_query($this->conn, $sql, [$targetOccid, $sourceOccid]);
+			QueryUtil::executeQuery($this->conn, $sql, [$targetOccid, $sourceOccid]);
 
 			//Remap checklists voucher links
 			$sql = <<<'SQL'
 			UPDATE IGNORE fmvouchers SET occid = ? WHERE occid = ?
 			SQL;
 			$stage = $LANG['ERROR_REMAPPING_VOUCHER'];
-			SymbUtil::execute_query($this->conn, $sql, [$targetOccid, $sourceOccid]);
+			QueryUtil::executeQuery($this->conn, $sql, [$targetOccid, $sourceOccid]);
 
 			if(!$this->deleteOccurrence($sourceOccid)){
 				error_log(
@@ -2050,8 +2050,8 @@ class OccurrenceEditorManager {
 			'georeferencesources','georeferenceverificationstatus','georeferenceremarks',
 			'minimumelevationinmeters','maximumelevationinmeters','verbatimelevation','minimumdepthinmeters','maximumdepthinmeters','verbatimdepth',
 			'habitat','substrate','lifestage', 'sex', 'individualcount', 'samplingprotocol', 'preparations',
-			'associatedtaxa','basisofrecord','language','labelproject','eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biota',
-			'biostratigraphy','lithogroup','formation','taxonenvironment','member','bed','lithology','stratremarks','element');
+			'associatedtaxa','basisofrecord','language','labelproject','eon','era','period','epoch','earlyInterval','lateInterval','absoluteAge','storageAge','stage','localStage','biota',
+			'biostratigraphy','lithogroup','formation','taxonEnvironment','member','bed','lithology','stratRemarks','element');
 		$retArr = array_intersect_key($fArr,array_flip($locArr));
 		$this->cleanOutArr($retArr);
 		return $retArr;
@@ -2721,14 +2721,14 @@ class OccurrenceEditorManager {
 	private function encodeStrTargeted($inStr, $inCharset, $outCharset){
 		if($inCharset == $outCharset) return $inStr;
 		$retStr = $inStr;
-		$retStr = mb_convert_encoding($retStr, $outCharset, mb_detect_encoding($retStr));
+		$retStr = mb_convert_encoding($retStr, $outCharset, mb_detect_encoding($retStr, 'UTF-8,ISO-8859-1,ISO-8859-15'));
 		return $retStr;
 	}
 
 	protected function encodeStr($inStr){
 		$retStr = $inStr;
 		if($inStr){
-			$retStr = mb_convert_encoding($retStr, $GLOBALS['CHARSET'], mb_detect_encoding($retStr));
+			$retStr = mb_convert_encoding($retStr, $GLOBALS['CHARSET'], mb_detect_encoding($retStr, 'UTF-8,ISO-8859-1,ISO-8859-15'));
  		}
 		return $retStr;
 	}

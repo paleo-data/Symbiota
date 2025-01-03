@@ -1,6 +1,5 @@
 body{
 	font-family: Arial, Helvetica, sans-serif;
-	font-size: 12px;
 }
 
 fieldset{
@@ -9,13 +8,12 @@ fieldset{
 
 #innertext{
 	padding:	10px;
-	font-size:	12px;
 	background-color: #ffffff;;
 }
 
 #titleDiv{
 	font-weight: bold;
-	font-size: 16px;
+	font-size: 2rem;
 	width: 900px;
 }
 
@@ -38,7 +36,6 @@ fieldset{
 
 #occedittabs{
 	font-family: Arial,Helvetica,sans-serif;
-	font-size: 12px;
 }
 
 #dupesDiv{
@@ -842,7 +839,7 @@ fieldset{
 #localStageDiv{ float:left; margin:3px; }
 #biotaDiv{ float:left; margin:3px; }
 #biostratigraphyDiv{ float:left; margin:3px; }
-#lithoGroupDiv{ float:left; margin:3px; }
+#lithogroupDiv{ float:left; margin:3px; }
 #formationDiv{ float:left; margin:3px; }
 #taxonEnvironmentDiv{ float:left; margin:3px; }
 #memberDiv{ float:left; margin:3px; }
@@ -854,8 +851,8 @@ fieldset{
 #elementDiv{ float:left; margin:3px; }
 #slidePropertiesDiv{ float:left; margin:3px; }
 #slidePropertiesDiv input{ width:400px; }
-#geologicalContextIdDiv{ float:left; margin:3px; }
-#geologicalContextIdDiv input{ width:120px; }
+#geologicalContextIDDiv{ float:left; margin:3px; }
+#geologicalContextIDDiv input{ width:120px; }
 
 /* Button Controls */
 #bottomSubmitDiv{
@@ -893,7 +890,6 @@ img.editimg {
 
 table { 
 	font-family: 	Arial, Helvetica, sans-serif; 
-	font-size: 		12px;
 }
 
 .divTable{ display: table; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 2px }

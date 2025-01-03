@@ -26,11 +26,20 @@ class OccurrenceListManager extends OccurrenceManager{
 		$occArr = array();
 		$sqlWhere = $this->getSqlWhere();
 		if(!$this->recordCount || $this->reset) $this->setRecordCnt($sqlWhere);
-		$sql = 'SELECT o.occid, c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.icon, o.institutioncode AS instcodeoverride, o.collectioncode AS collcodeoverride, '.
+		$sql = "";
+		if (array_key_exists("earlyInterval",$this->searchTermArr) || array_key_exists("lateInterval",$this->searchTermArr)) {
+			$sql .= "WITH searchRange AS (SELECT COALESCE((SELECT myaStart FROM omoccurpaleogts WHERE gtsterm = '"  . ($this->searchTermArr["earlyInterval"] ?? '') . "'), 5000) AS searchStart,";
+			$sql .= "COALESCE((SELECT myaEnd FROM omoccurpaleogts WHERE gtsterm = '" . ($this->searchTermArr["lateInterval"] ?? '') ."'), 0) AS searchEnd)";
+		}
+		$sql .= 'SELECT o.occid, c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.icon, o.institutioncode AS instcodeoverride, o.collectioncode AS collcodeoverride, '.
 			'o.catalognumber, o.family, o.sciname, o.scientificnameauthorship, o.tidinterpreted, o.recordedby, o.recordnumber, o.eventdate, '.
 			'o.country, o.stateprovince, o.county, o.locality, o.decimallatitude, o.decimallongitude, o.localitysecurity, o.localitysecurityreason, '.
-			'o.habitat, o.substrate, o.minimumelevationinmeters, o.maximumelevationinmeters, o.observeruid, c.sortseq '.
-			'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid ';
+			'o.habitat, o.substrate, o.minimumelevationinmeters, o.maximumelevationinmeters, o.observeruid, c.sortseq ';
+		if ($GLOBALS['ACTIVATE_PALEO'])
+			$sql .= ', paleo.formation, paleo.earlyInterval, paleo.lateInterval ';
+		$sql .= 'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid ';
+		if ($GLOBALS['ACTIVATE_PALEO'])
+			$sql .= 'LEFT JOIN omoccurpaleo paleo ON o.occid = paleo.occid ';
 		$sql .= $this->getTableJoins($sqlWhere).$sqlWhere;
 		//Don't allow someone to query all occurrences if there are no conditions
 		if(!$sqlWhere) $sql .= 'WHERE o.occid IS NULL ';
@@ -40,7 +49,7 @@ class OccurrenceListManager extends OccurrenceManager{
 			$pageRequest = ($pageRequest - 1)*$cntPerPage;
 		}
 		$sql .= ' LIMIT ' . $pageRequest . ',' . $cntPerPage;
-		//echo '<div>Spec sql: ' . $sql . '</div>'; exit;
+		// echo '<div>Spec sql: ' . $sql . '</div>'; exit; // @TODO HERE
 		$result = $this->conn->query($sql);
 		if($result){
 			$securityCollArr = array();
@@ -68,6 +77,9 @@ class OccurrenceListManager extends OccurrenceManager{
 				$retArr[$row->occid]['sciname'] = ($row->sciname?$this->cleanOutStr($row->sciname):'undetermined');
 				$retArr[$row->occid]['tid'] = $row->tidinterpreted;
 				$retArr[$row->occid]['author'] = $this->cleanOutStr($row->scientificnameauthorship);
+				$retArr[$row->occid]['earlyInterval'] = $this->cleanOutStr($row->earlyInterval);
+				$retArr[$row->occid]['lateInterval'] = $this->cleanOutStr($row->lateInterval);
+				$retArr[$row->occid]['formation'] = $this->cleanOutStr($row->formation);
 				/*
 				if(isset($row->scinameprotected) && $row->scinameprotected && !$securityClearance){
 					$retArr[$row->occid]['taxonsecure'] = 1;
@@ -124,8 +136,13 @@ class OccurrenceListManager extends OccurrenceManager{
 
 	private function setRecordCnt($sqlWhere){
 		if($sqlWhere){
-			$sql = "SELECT COUNT(DISTINCT o.occid) AS cnt FROM omoccurrences o ".$this->getTableJoins($sqlWhere).$sqlWhere;
-			//echo "<div>Count sql: ".$sql."</div>";
+			$sql = "";
+			if (array_key_exists("earlyInterval",$this->searchTermArr) || array_key_exists("lateInterval",$this->searchTermArr)) {
+				$sql .= "WITH searchRange AS (SELECT COALESCE((SELECT myaStart FROM omoccurpaleogts WHERE gtsterm = '"  . ($this->searchTermArr['earlyInterval'] ?? '') . "'), 5000) AS searchStart,";
+				$sql .= "COALESCE((SELECT myaEnd FROM omoccurpaleogts WHERE gtsterm = '" . ($this->searchTermArr['lateInterval'] ?? '') . "'), 0) AS searchEnd) ";
+			}
+			$sql .= "SELECT COUNT(DISTINCT o.occid) AS cnt FROM omoccurrences o ".$this->getTableJoins($sqlWhere).$sqlWhere;
+			// echo "<div>Count sql: ".$sql."</div>"; exit; // @TODO here
 			$result = $this->conn->query($sql);
 			if($result){
 				if($row = $result->fetch_object()){

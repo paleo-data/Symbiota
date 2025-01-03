@@ -2,6 +2,7 @@
 include_once('Manager.php');
 include_once('OccurrenceAccessStats.php');
 include_once('ChecklistVoucherAdmin.php');
+include_once('utilities/GeneralUtil.php');
 
 class OccurrenceIndividual extends Manager{
 
@@ -75,31 +76,31 @@ class OccurrenceIndividual extends Manager{
 		if(!$this->occid){
 			//Check occurrence recordID
 			$sql = 'SELECT occid FROM omoccurrences WHERE (occurrenceid = ?) OR (recordID = ?)';
-			if($stmt = $this->conn->prepare($sql)){
-				$stmt->bind_param('ss', $guid, $guid);
-				$stmt->execute();
-				$stmt->bind_result($this->occid);
-				$stmt->close();
+			if($result = SymbUtil::execute_query($this->conn, $sql, [$guid, $guid])){
+				if($row = $result->fetch_assoc()) {
+					$this->occid = $row['occid'];
+				}
+				$result->free();
 			}
 		}
 		if(!$this->occid){
 			//Check image recordID
 			$sql = 'SELECT occid FROM images WHERE recordID = ?';
-			if($stmt = $this->conn->prepare($sql)){
-				$stmt->bind_param('s', $guid);
-				$stmt->execute();
-				$stmt->bind_result($this->occid);
-				$stmt->close();
+			if($result = SymbUtil::execute_query($this->conn, $sql, [$guid])){
+				if($row = $result->fetch_assoc()) {
+					$this->occid = $row['occid'];
+				}
+				$result->free();
 			}
 		}
 		if(!$this->occid){
 			//Check identification recordID
 			$sql = 'SELECT occid FROM omoccurdeterminations WHERE recordID = ?';
-			if($stmt = $this->conn->prepare($sql)){
-				$stmt->bind_param('s', $guid);
-				$stmt->execute();
-				$stmt->bind_result($this->occid);
-				$stmt->close();
+			if($result = SymbUtil::execute_query($this->conn, $sql, [$guid])){
+				if($row = $result->fetch_assoc()) {
+					$this->occid = $row['occid'];
+				}
+				$result->free();
 			}
 		}
 		return $this->occid;
@@ -322,22 +323,48 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setPaleo(){
-		if(isset($this->activeModules['paleo']) && $this->activeModules['paleo']){
-			$sql = 'SELECT paleoid, eon, era, period, epoch, earlyinterval, lateinterval, absoluteage, storageage, stage, localstage, biota,
-				biostratigraphy, lithogroup, formation, taxonenvironment, member, bed, lithology, stratremarks, element, slideproperties, geologicalcontextid
-				FROM omoccurpaleo WHERE occid = ?';
-			if($stmt = $this->conn->prepare($sql)){
-				$stmt->bind_param('i', $this->occid);
-				$stmt->execute();
-				if($rs = $stmt->get_result()){
-					while($r = $rs->fetch_assoc()){
-						$this->occArr = array_merge($this->occArr, $r);
-					}
-					$rs->free();
+		$sql = 'SELECT paleoid, eon, era, period, epoch, earlyInterval, lateInterval, absoluteAge, storageAge, stage, localStage, biota,
+			biostratigraphy, lithogroup, formation, taxonEnvironment, member, bed, lithology, stratRemarks, element, slideProperties, geologicalContextID
+			FROM omoccurpaleo WHERE occid = ?';
+		if($stmt = $this->conn->prepare($sql)){
+			$stmt->bind_param('i', $this->occid);
+			$stmt->execute();
+			if($rs = $stmt->get_result()){
+				while($r = $rs->fetch_assoc()){
+					$this->occArr = array_merge($this->occArr, $r);
 				}
-				$stmt->close();
+				$rs->free();
 			}
+			$stmt->close();
 		}
+		if (isset($this->occArr['earlyInterval']))
+			$this->occArr['earlyIntervalHieararchy'] = $this->getPaleoGtsParents($this->occArr['earlyInterval']);
+		if (isset($this->occArr['lateInterval']))
+			$this->occArr['lateIntervalHieararchy'] = $this->getPaleoGtsParents($this->occArr['lateInterval']);
+	}
+
+	public function getPaleoGtsParents($term){
+		$retArr = [];
+		$sql = 'SELECT gtsid, gtsterm, rankid, rankname, parentgtsid FROM omoccurpaleogts WHERE rankid > 10 AND gtsterm = "'.$this->cleanInStr($term).'"';
+		$parentId = '';
+		do{
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				if($parentId == $r->parentgtsid){
+					$parentId = 0;
+				}
+				else{
+					$retArr[] = $r->gtsterm	;
+					$parentId = $r->parentgtsid;
+				}
+			}
+			else $parentId = 0;
+			$rs->free();
+			$sql = 'SELECT gtsid, gtsterm, rankid, rankname, parentgtsid FROM omoccurpaleogts WHERE rankid > 10 AND gtsid = '.$parentId;
+		}while($parentId);
+		$retArr = array_reverse($retArr);
+		$retStr = implode(' | ', $retArr);
+		return trim($retStr);
 	}
 
 	private function setLoan(){
@@ -413,14 +440,24 @@ class OccurrenceIndividual extends Manager{
 			}
 		}
 		if($relOccidArr){
-			$sql = 'SELECT o.occid, o.sciname,
-				CONCAT_WS("-",IFNULL(o.institutioncode, c.institutioncode), IFNULL(o.collectioncode, c.collectioncode)) as collcode, IFNULL(o.catalogNumber, o.otherCatalogNumbers) as catnum
+			$sql = 'SELECT o.occid, o.sciname, IFNULL(o.institutioncode, c.institutioncode) as instCode, IFNULL(o.collectioncode, c.collectioncode) as collCode, o.catalogNumber, o.occurrenceID, o.recordID
 				FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid
 				WHERE o.occid IN(' . implode(',', array_keys($relOccidArr)) . ')';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				foreach($relOccidArr[$r->occid] as $targetAssocID){
-					$this->occArr['relation'][$targetAssocID]['objectID'] = $r->collcode . ':' . $r->catnum;
+					$objectID = $r->catalogNumber;
+					if($objectID) {
+						if(strpos($objectID, $r->instCode) === false){
+							//Append institution and collection code to catalogNumber, but only if it is not already included
+							$collCode = $r->instCode;
+							if($r->collCode) $collCode .= '-' . $r->collCode;
+							$objectID = $collCode . ':' . $r->catalogNumber;
+						}
+					}
+					elseif($r->occurrenceID) $objectID = $r->occurrenceID;
+					else $objectID = $r->recordID;
+					$this->occArr['relation'][$targetAssocID]['objectID'] = $objectID;
 					$this->occArr['relation'][$targetAssocID]['sciname'] = $r->sciname;
 				}
 			}
@@ -545,25 +582,15 @@ class OccurrenceIndividual extends Manager{
 				$displayStr = $this->occArr['catalognumber'];
 			}
 			elseif(strpos($iUrl,'--OTHERCATALOGNUMBERS--') !== false && $this->occArr['othercatalognumbers']){
-				if(substr($this->occArr['othercatalognumbers'],0,1) == '{'){
-					if($this->occArr['othercatalognumbers']){
-						foreach($this->occArr['othercatalognumbers'] as $idKey => $idArr){
-							if(!$displayStr || $idKey == 'NEON sampleID' || $idKey == 'NEON sampleCode (barcode)'){
-								$displayStr = $idArr[0];
-								if($idKey == 'NEON sampleCode (barcode)') $iUrl = str_replace('sampleTag','barcode',$iUrl);
-								$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$idArr[0],$iUrl);
-								if($idKey == 'NEON sampleCode (barcode)') break;
-							}
-						}
+				foreach($this->occArr['othercatalognumbers'] as $idArr){
+					$tagName = $idArr['name'];
+					$idValue = $idArr['value'];
+					if(!$displayStr || $tagName == 'NEON sampleID' || $tagName == 'NEON sampleCode (barcode)'){
+						$displayStr = $tagName;
+						if($tagName == 'NEON sampleCode (barcode)') $iUrl = str_replace('sampleTag','barcode',$iUrl);
+						$indUrl = str_replace('--OTHERCATALOGNUMBERS--', $idValue, $iUrl);
+						if($tagName == 'NEON sampleCode (barcode)') break;
 					}
-				}
-				else{
-					$ocn = str_replace($this->occArr['othercatalognumbers'], ',', ';');
-					$ocnArr = explode(';',$ocn);
-					$ocnValue = trim(array_pop($ocnArr));
-					if(stripos($ocnValue,':')) $ocnValue = trim(array_pop(explode(':',$ocnValue)));
-					$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$ocnValue,$iUrl);
-					$displayStr = $ocnValue;
 				}
 			}
 			elseif(strpos($iUrl,'--OCCURRENCEID--') !== false && $this->occArr['occurrenceid']){
@@ -779,7 +806,7 @@ class OccurrenceIndividual extends Manager{
 
 			//Email to portal admin
 			$emailAddr = $GLOBALS['ADMIN_EMAIL'];
-			$comUrl = $this->getDomain().$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid=' . $this->occid . '#commenttab';
+			$comUrl = GeneralUtil::getDomain().$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid=' . $this->occid . '#commenttab';
 			$subject = $GLOBALS['DEFAULT_TITLE'] . ' '. $LANG['INAPPROPRIATE'] . '<br/>';
 			$bodyStr = $LANG['REPORTED_AS_INAPPROPRIATE'] . ':<br/> <a href="' . $comUrl  . '">' . $comUrl . '</a>';
 			$headerStr = "MIME-Version: 1.0 \r\nContent-type: text/html \r\nTo: " . $emailAddr . " \r\nFrom: Admin <" . $emailAddr . "> \r\n";
@@ -1251,6 +1278,15 @@ class OccurrenceIndividual extends Manager{
 				}
 				$rsAssoc->free();
 				foreach($recArr['assoc'] as $pk => $secArr){
+					if(empty($secArr['associationType'])){
+						if(!empty($secArr['occidAssociate'])) $secArr['associationType'] = 'internalOccurrence';
+						elseif(!empty($secArr['resourceUrl'])){
+							if(!empty($secArr['verbatimSciname'])) $secArr['associationType'] = 'externalOccurrence';
+							else $secArr['associationType'] = 'resource';
+						}
+						elseif(!empty($secArr['verbatimSciname'])) $secArr['associationType'] = 'observational';
+						else $secArr['associationType'] = 'resource';
+					}
 					$sql1 = 'INSERT INTO omoccurassociations(';
 					$sql2 = 'VALUES(';
 					foreach($secArr as $f => $v){

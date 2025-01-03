@@ -16,6 +16,9 @@ $LANG['SCINAME'] = 'Nom Scientifique';
 $LANG['COUNTRY'] = 'Pays';
 $LANG['STATE_PROVINCE'] = 'État/province';
 $LANG['COUNTY'] = 'Comté';
+$LANG['FORMATION'] = 'Formation';
+$LANG['EARLY_INT'] = 'Intervalle Précoce';
+$LANG['LATE_INT'] = 'Intervalle Tardif';
 $LANG['THEN_BY'] = 'Puis Trier Par';
 $LANG['SEL_FIELD'] = 'Sélectionner Nom du Champ';
 $LANG['ORDER'] = 'Ordre du Tri';
@@ -30,4 +33,5 @@ $LANG['HAS_IMAGE'] = 'A Image';
 $LANG['CLICK_SYMB'] = "Cliquez sur l'Identifiant Symbiota dans la première colonne pour voir les détails complets de l'enregistrement";
 $LANG['NONE_FOUND'] = 'Aucun enregistrement trouvé correspondant à la requête';
 $LANG['SORT'] = 'Trier';
+$LANG['SEARCH_RESULTS_TABLE'] = 'Résultats de la recherche (Tableau)';
 ?>
