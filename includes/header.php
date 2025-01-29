@@ -64,24 +64,36 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 							<?= $LANG['H_SEARCH'] ?>
 						</a>
 					</li>
+					   <ul>
+                                                        <li>
+                                                                <a href="<?= $CLIENT_ROOT . $collectionSearchPage ?>">
+                                                        		<?= $LANG['H_SEARCH'] ?>
+                                                		</a>
+                                                        </li>
+                                                        <li>
+                                                                <a href="<?= $CLIENT_ROOT ?>/collections/index.php">
+                                                        		<?= $LANG['H_CLASSIC_SEARCH'] ?>
+                                                		</a>
+                                                        </li>
+							<li>
+                                                                <a href="<?= $CLIENT_ROOT ?>/collections/map/index.php" rel="noopener noreferrer">
+									<?= $LANG['H_MAP_SEARCH'] ?>
+								</a>
+                                                        </li>
+                                                        <li>
+                                                                <a href="<?= $CLIENT_ROOT ?>/imagelib/search.php">
+									<?= $LANG['H_IMAGES'] ?>
+								</a>
+                                                        </li>
+                                                </ul>
 					<li>
 						<a href="<?= $CLIENT_ROOT ?>/includes/usagepolicy.php">
 							<?= $LANG['H_DATA_USAGE'] ?>
 						</a>
 					</li>
 					<li>
-						<a href="<?= $CLIENT_ROOT ?>/collections/map/index.php" rel="noopener noreferrer">
-							<?= $LANG['H_MAP_SEARCH'] ?>
-						</a>
-					</li>
-					<li>
 						<a href="<?= $CLIENT_ROOT ?>/checklists/index.php">
 							<?= $LANG['H_INVENTORIES'] ?>
-						</a>
-					</li>
-					<li>
-						<a href="<?= $CLIENT_ROOT ?>/imagelib/search.php">
-							<?= $LANG['H_IMAGES'] ?>
 						</a>
 					</li>
 					<li>
