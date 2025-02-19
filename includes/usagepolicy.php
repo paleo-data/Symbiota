@@ -46,14 +46,14 @@ $serverHost = UtilityFunctions::getDomain();
 		<h3>Additional Considerations</h3>
 		<ul>
 			<li>If all or parts of your collection require locality redaction, please carefully review the documentation on <a href="https://biokic.github.io/symbiota-docs/coll_manager/data_publishing/redaction/" target="_blank" rel="noopener noreferrer">data redaction in Symbiota portals</a>.</li>
-			<li>This data portal resides on servers at Arizona State University (ASU) that are actively maintained by the Symbiota Support Hub. While maintaining your data on this infrastructure is one benefit of using an ASU-hosted Symbiota portal, data providers are urged to regularly <a href="https://biokic.github.io/symbiota-docs/coll_manager/download/" target="_blank" rel="noopener noreferrer">download data backups</a>. Please review the Symbiota Support Hub's <a href="https://symbiota.org/cybersecurity/" target="_blank" rel="noopener noreferrer">Statement on Cybersecurity</a> for more information on this topic.</li>
+			<li>This data portal resides on servers at Arizona State University (ASU) that are actively maintained by the Symbiota Support Hub. While maintaining your data on this infrastructure is one benefit of using an SSH-hosted Symbiota portal, data providers are urged to regularly <a href="https://biokic.github.io/symbiota-docs/coll_manager/download/" target="_blank" rel="noopener noreferrer">download data backups</a>. Please review the Symbiota Support Hub's <a href="https://symbiota.org/cybersecurity/" target="_blank" rel="noopener noreferrer">Statement on Cybersecurity</a> for more information on this topic.</li>
 			<li>Thanks to support from the US National Science Foundation, contributing specimen occurrence records to this Symbiota portal is presently free of charge (NSF Awards <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324688" target="_blank" rel="noopener noreferrer">2324688</a>, <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324689" target="_blank" rel="noopener noreferrer">2324689</a>, and <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324690" target="_blank" rel="noopener noreferrer">2324690</a>). Please review <a href="https://symbiota.org/sustaining-symbiota-services/" target="_blank" rel="noopener noreferrer">Sustaining Symbiota Services</a> for more information on the Symbiota Support Hub's sustainability planning initiatives.</li>
 		</ul>
 
 		<h2 id="users">For Data Users</h2>
 		<p>By using data in this portal, you are agreeing to give attribution to data providers according to the licenses and usage rights specified on the collection profile(s) in this portal. When in doubt, reach out to the relevant <a href="https://biokic.github.io/symbiota-docs/user/public_feedback/contact/" target="_blank" rel="noopener noreferrer">listed contact(s)</a> for more information. Additionally:</p>
 			<ul>
-			<li> It is incumbent upon data users to use the information available in this portal responsibly. The Symbiota Support Hub, the portal's Steering Committee members, and their affiliated institutions cannot assume responsibility for damages resulting from misuse or misinterpretation of data made available in this portal, or from errors or omissions that may exist in the data.</li>
+			<li>It is incumbent upon data users to use the information available in this portal responsibly. The Symbiota Support Hub, the portal's Steering Committee members, and their affiliated institutions cannot assume responsibility for damages resulting from misuse or misinterpretation of data made available in this portal, or from errors or omissions that may exist in the data.</li>
 			<li>Images and other multimedia available within this portal have been contributed to promote research and education. The original data contributors retain full copyright to these media records unless indicated otherwise on their respective portal profiles. When in doubt, contact the appropriate data provider(s) before reusing any imagery or other media found in this portal.</li>
 			<li>Data users are asked not to redistribute data obtained from this site without written permission from the data's respective owner(s). However, links or references to the portal may be freely posted.</li> 
 			<li>Requests to view redacted data must be directed to the appropriate <a href="https://biokic.github.io/symbiota-docs/user/public_feedback/contact/" target="_blank" rel="noopener noreferrer">listed contacts</a>. Please do not contact the portal Steering Committee or the Symbiota Support Hub for access to redacted information in this portal.</li>
@@ -69,7 +69,7 @@ $serverHost = UtilityFunctions::getDomain();
 		
 	<h3>This portal:</h3>
 		<blockquote>
-		Symbiota Paleo Data Portal. Year. https://paleodata.biokic.asu.edu. Accessed on YYYY-MM-DD.
+		Symbiota Paleo Data Portal. Year. https://paleo.symbiota.org. Accessed on YYYY-MM-DD.
 		</blockquote>
 		
 	<h3>Occurrence data from specific institutions:</h3>
@@ -83,7 +83,7 @@ $serverHost = UtilityFunctions::getDomain();
 			if (file_exists($SERVER_ROOT . '/includes/citationcollection.php')) {
 				include($SERVER_ROOT . '/includes/citationcollection.php');
 			} else {
-				echo 'Name of Institution or Collection. Occurrence dataset ' . 'https://paleodata.biokic.asu.edu/portal/content/dwca/ ' . 'accessed via the ' . 'Symbiota Paleo Data ' . 'Portal, ' . 'https://paleodata.biokic.asu.edu' . ', 2022-07-25.';
+				echo 'Name of Institution or Collection. Occurrence dataset ' . 'https://paleo.symbiota.org/portal/content/dwca/ ' . 'accessed via the ' . 'Symbiota Paleo Data ' . 'Portal, ' . 'https://paleo.symbiota.org' . ', 2022-07-25.';
 			}
 			?>
 		</blockquote>
