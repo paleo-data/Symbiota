@@ -64,7 +64,8 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 							<?= $LANG['H_SEARCH'] ?>
 						</a>
 					</li>
-					   <ul>
+					<li>
+						<ul>
                                                         <li>
                                                                 <a href="<?= $CLIENT_ROOT . $collectionSearchPage ?>">
                                                         		<?= $LANG['H_SEARCH'] ?>
@@ -86,6 +87,7 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 								</a>
                                                         </li>
                                                 </ul>
+					</li>
 					<li>
 						<a href="<?= $CLIENT_ROOT ?>/includes/usagepolicy.php">
 							<?= $LANG['H_DATA_USAGE'] ?>
