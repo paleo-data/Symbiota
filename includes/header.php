@@ -60,11 +60,9 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 						</a>
 					</li>
 					<li>
-						<a href="<?= $CLIENT_ROOT . $collectionSearchPage ?>">
+						<a href="#">
 							<?= $LANG['H_SEARCH'] ?>
 						</a>
-					</li>
-					<li>
 						<ul>
                                                         <li>
                                                                 <a href="<?= $CLIENT_ROOT . $collectionSearchPage ?>">
