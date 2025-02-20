@@ -22,4 +22,12 @@ strong {
         padding-top: 3rem;
         padding-bottom: 3rem;
     }
+ 
+    /* First level drop-down menu */
+    nav.top-menu > ul > li > a:hover > ul,
+    nav.top-menu > ul > li > a:focus > ul,
+    nav.top-menu > ul > li:hover > ul,
+    nav.top-menu > ul > li:focus-within > ul {
+      background-color: #353472;
+    }
 }
