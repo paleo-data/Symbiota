@@ -376,11 +376,13 @@ class TaxonProfile extends Manager {
 						$indexKey = 1;
 					}
 					if(!isset($retArr[$indexKey]) || !array_key_exists($rowArr['tdbid'],$retArr[$indexKey])){
-						$retArr[$indexKey][$rowArr['tdbid']]['caption'] = $rowArr['caption'];
-						$retArr[$indexKey][$rowArr['tdbid']]['source'] = $rowArr['source'];
-						$retArr[$indexKey][$rowArr['tdbid']]['url'] = $rowArr['sourceurl'];
+						$retArr[$indexKey][$rowArr['tdbid']]['caption'] = htmlspecialchars($rowArr['caption'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE);
+						$retArr[$indexKey][$rowArr['tdbid']]['source'] = htmlspecialchars($rowArr['source'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE);
+						$retArr[$indexKey][$rowArr['tdbid']]['url'] = htmlspecialchars($rowArr['sourceurl'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE);
 					}
-					$retArr[$indexKey][$rowArr['tdbid']]['desc'][$rowArr['tdsid']] = ($rowArr['displayheader'] && $rowArr['heading']?'<b>'.$rowArr['heading'].'</b>: ':'').$rowArr['statement'];
+					$stmtStr = $rowArr['statement'];
+					if($rowArr['displayheader'] && $rowArr['heading']) $stmtStr = '<b>' . htmlspecialchars($rowArr['heading'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '</b>: ' . $stmtStr;
+					$retArr[$indexKey][$rowArr['tdbid']]['desc'][$rowArr['tdsid']] = $stmtStr;
 					$usedCaptionArr[$rowArr['caption']] = $rowArr['tdbid'];
 				}
 			}
@@ -427,7 +429,7 @@ class TaxonProfile extends Manager {
 			}
 		}
 		if((isset($CALENDAR_TRAIT_PLOTS) && $CALENDAR_TRAIT_PLOTS > 0) && $this->rankId > 180) {
-			$retStr .= '<li><a href="plottab.php?tid=' . $this->tid . '">' . ($LANG['CALENDAR_TRAIT_PLOT']?$LANG['CALENDAR_TRAIT_PLOT']:'Traits Plots') . '</a></li>';
+			$retStr .= '<li><a href="plottab.php?tid=' . $this->tid . '">' . $LANG['CALENDAR_TRAIT_PLOT'] . '</a></li>';
 		}
 
 		//Fetch Wikipedia sections
@@ -438,7 +440,7 @@ class TaxonProfile extends Manager {
 			}
 		}
 
-		$retStr .= '<li><a href="resourcetab.php?tid=' . htmlspecialchars($this->tid, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '">' . htmlspecialchars(($LANG['RESOURCES']?$LANG['RESOURCES']:'Resources'), ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '</a></li>';
+		$retStr .= '<li><a href="resourcetab.php?tid=' . $this->tid . '">' . $LANG['RESOURCES'] . '</a></li>';
 		$retStr .= '</ul>';
 
 		foreach($descArr as $dArr){
@@ -447,15 +449,15 @@ class TaxonProfile extends Manager {
 				if (!empty($vArr['source'])){
 					$retStr .= '<div id="descsource" style="float:right;">';
 					if (!empty($vArr['url'])){
-						$retStr .= '<a href="' . htmlspecialchars($vArr['url'], ENT_QUOTES, 'UTF-8') . '" target="_blank">';
+						$retStr .= '<a href="' . $vArr['url'] . '" target="_blank">';
 					}
-					$retStr .= htmlspecialchars($vArr['source'], ENT_QUOTES, 'UTF-8');
+					$retStr .= $vArr['source'];
 					if (!empty($vArr['url'])){
 						$retStr .= '</a>';
 					}
 					$retStr .= '</div>';
 				}
-				$retStr .= '<div style="clear:both;">' . implode(' ', array_map('htmlspecialchars', $vArr['desc'])) . '</div>';
+				$retStr .= '<div style="clear:both;">' . implode(' ', $vArr['desc']) . '</div>';
 				$retStr .= '</div>';
 			}
 		}
