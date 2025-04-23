@@ -1,6 +1,4 @@
-This fork of the Symbiota code is actively being developed by the Biodiversity Knowledge Integration Center (BioKIC, https://github.com/BioKIC) development team at Arizona State University.
-Even though BioKIC code developments are regularly pushed back to this repository, we recommend that you download/fork code directly from the
-BioKIC/Symbiota repository (https://github.com/BioKIC/Symbiota) to ensure that you obtain the most recently code changes.
+This fork of the Symbiota code is actively being developed by the Symbiota Support Hub ([SSH](https://symbiota.org/about-us)) development team at Univeristy of Kansas in collaboration with the University of Colorado at Boulder at the Smithsonian National Museum of Natural History. Even though SSH code developments are regularly pushed back to this repository, we recommend that you download/fork code directly from the main Symbiota repository (https://github.com/Symbiota/Symbiota) to ensure that you obtain the most recently code changes.
 
 # Welcome to the Symbiota code repository
 
@@ -14,7 +12,7 @@ For documentation and user guides please visit [Symbiota Docs](https://symbiota.
 
 ## ACKNOWLEDGEMENTS
 
-Symbiota has been generously funded by the National Science Foundation (DBI-0743827) from 15 July 2008 to 30 June 2011 (Estimated). The Global Institute of Sustainability (GIOS) at Arizona State University has also been a major supporters of the Symbiota initiative since the very beginning. Arizona State University Vascular Plant and Lichen Herbarium have been intricately involved in the development from the start. Sky Island Alliance and the Arizona-Sonora Desert Museum have both been long-term participants in the development of this product.
+Symbiota has been generously funded by the National Science Foundation. The Global Institute of Sustainability (GIOS) at Arizona State University has also been a major supporters of the Symbiota initiative since the very beginning. Arizona State University Vascular Plant and Lichen Herbarium have been intricately involved in the development from the start. Sky Island Alliance and the Arizona-Sonora Desert Museum have both been long-term participants in the development of this product.
 
 ## FEATURES
 
