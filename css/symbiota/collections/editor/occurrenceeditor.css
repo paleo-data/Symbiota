@@ -1,3 +1,91 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans&display=swap");
+
+body{
+	font-family: Arial,sans-serif;
+}
+
+fieldset{
+	padding: 15px;
+}
+
+#innertext{
+	padding:	10px;
+	background-color: #ffffff;;
+}
+
+#titleDiv{
+	font-weight: bold;
+	font-size: 2rem;
+	width: 900px;
+}
+
+#navDiv{
+	clear: both;	
+}
+
+#navDiv.navpath{
+}
+
+#occdiv{
+	width: 900px;
+	resize:both;
+	overflow:auto; /* something other than visible */
+}
+
+#admindiv{
+	width: 795px;
+}
+
+#admindiv select{
+	width: 100%;
+}
+
+#occedittabs{
+	font-family: Arial,Helvetica,sans-serif;
+}
+
+#dupesDiv{
+	float:left;
+	margin:5px 5px;
+}
+
+#dupeMsgDiv{
+	position: absolute;
+	top: 78px;
+	left: 615px;
+	display:none;
+	background-color: lightgrey;
+	z-index: 10; 
+	padding:15px;
+	font-weight:bold;
+}
+
+#dupeMsgDiv div{
+	width:170px;
+	border:2px outset blue;
+	background-color: white;
+	padding:3px;
+}
+
+#idrefToggleDiv{
+	float:left;
+	margin-left:15px;
+	cursor:pointer;
+}
+
+#idrefdiv{
+	display:none;
+	clear:both;
+}
+
+
+/* Field entry divs and input objects */
+
+.fieldGroupDiv input,
+.fieldGroupDiv select{
+	font-size: 100%;
+}
+
 #catalogNumberDiv {
 	float:	left;
 	margin-top: 5px;
@@ -10,6 +98,14 @@
 #otherCatalogNumbersDiv {
 	float:	left;
 	margin-left: 10px;
+}
+
+.idNameInput{
+	width:	185px;
+}
+
+.idValueInput{
+	width:	250px;	
 }
 
 #recordedByDiv {
@@ -700,20 +796,8 @@
 	width:150px;
 }
 
-#storageLocationDiv{
-	float:left;
-	margin-top:3px;	
-	margin-right: 3px;
-}
-
-#storageLocationDiv input{
-	width:150px;
-}
-
 #basisOfRecordDiv{
 	float:left;
-	margin-top:3px;	
-	margin-right: 3px;
 }
 
 #basisOfRecordDiv input{
@@ -755,6 +839,14 @@
 	clear:both;
 }
 
+.bottom-breathing-room-rel {
+	margin-bottom: 1rem;
+}
+
+.bottom-breathing-room-rel-sm {
+	margin-bottom: 0.5rem;
+}
+
 /* Paleo fields */
 #eonDiv{ float:left; margin:3px; }
 #eraDiv{ float:left; margin:3px; }
@@ -783,3 +875,160 @@
 #geologicalContextIDDiv{ float:left; margin:3px; }
 #geologicalContextIDDiv input{ width:120px; }
 
+/* Button Controls */
+
+.button {
+	background-color: var(--darkest-color);
+	border: none;
+	border-radius: 5px;
+	padding: 0.5rem 1rem;
+	font-family: var(--body-font-family);
+	font-size: 100%;
+	letter-spacing: 1px;
+	text-align: center;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+	width: fit-content;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-weight: 600;
+  }
+
+  .button-toggle {
+	font-family: var(--body-font-family);
+	font-size: 100%;
+	font-weight: 600;
+  }
+
+  .icon-button {
+	padding: 6px;
+	border-width: 1px;
+	border-style: outset;
+	border-color: buttonborder;
+    color: #fff;
+  }
+
+  .button:disabled {
+	background-color: lightgray;
+    color: darkgray;
+    border-color: lightgray;
+  }
+
+  .button-danger {
+	background-color: var(--danger-color, var(--darkest-color));
+  }
+
+  .button-primary {
+	background-color: var(--darkest-color);
+  }
+
+  .icon-button:hover 
+  {
+    background-color: var(--medium-color);
+  }
+
+#bottomSubmitDiv{
+	padding:10px;
+}
+
+#addButtonDiv{
+	width:		450px;
+	border:		1px solid black;
+	background-color:	var(--light-color);
+	padding:	10px;
+	margin:		20px;
+}
+
+#editButtonDiv{
+	margin:	15px 30px;
+}
+
+#editortd{
+	vertical-align: top;
+	padding-right: 1em;
+}
+
+/*Misc styling*/
+img.docimg { 
+	border:			0px;
+	width:			11px;
+	margin-bottom:	2px; 
+}
+
+img.editimg { 
+	border:			0px;
+	width:			15px;
+}
+
+img[id^="activeimg-"] {
+	max-width: unset;
+}
+
+.divTable{ display: table; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 2px }
+.divTableRow { display: table-row; }
+.divTableHeading { display: table-header-group; background: #f2f2f2; border-bottom: 2px solid #444444; }
+.divTableHeading, .divTableHead { color: #000000; border: 1px solid #f2f2f2; }
+.divTableCell, .divTableHead { display: table-cell; border: 1px solid #AAAAAA; padding: 2px 8px; }
+.divTableHead { padding: 1px 8px; }
+.divTableBody { display: table-row-group;}
+
+.imgInfo {
+	vertical-align: top;
+}
+
+ /* Record Search Form */
+
+#querydiv fieldset {
+	display: block;
+    margin-inline-start: 2px;
+    margin-inline-end: 2px;
+    padding-block-start: 0.35em;
+    padding-inline-start: 0.75em;
+    padding-inline-end: 0.75em;
+    padding-block-end: 0.625em;
+    min-inline-size: min-content;
+    border-width: 2px;
+    border-style: groove;
+    border-color: rgb(192, 192, 192);
+    border-image: initial;
+}
+
+#querydiv {
+    font-family: var(--body-font-family);
+	line-height: 1.15;
+}
+#querydiv input{
+	font-family: inherit;
+    font-size: 100%;
+    line-height: 1.15rem;
+}
+
+#querydiv button.icon-button {
+    padding: 6px;
+    border-width: 1px;
+}
+#querydiv button:hover {
+	background-color: var(--medium-color);
+	color: var(--light-color);
+}
+
+#querydiv button {
+	background-color: var(--darkest-color);
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-family: var(--body-font-family);
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+	font-size: 100%;
+	border-width: 2px;
+    border-style: outset;
+    border-color: buttonborder;
+}
+
+button.icon-button svg {
+	fill: var(--light-color);
+  }
