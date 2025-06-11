@@ -1,6 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistVoucherReport.php');
+include_once($SERVER_ROOT.'/classes/ChecklistAdmin.php');
 if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/checklists/voucheradmin.' . $LANG_TAG . '.php')) include_once($SERVER_ROOT . '/content/lang/checklists/voucheradmin.' . $LANG_TAG . '.php');
 else include_once($SERVER_ROOT.'/content/lang/checklists/voucheradmin.en.php');
 header('Content-Type: text/html; charset='.$CHARSET);
@@ -17,11 +18,17 @@ $displayMode = (array_key_exists('displaymode', $_REQUEST) ? filter_var($_REQUES
 $clManager = new ChecklistVoucherReport();
 $clManager->setClid($clid);
 
+//Needed to save polygon footprint
+$clAdminManager = new ChecklistAdmin();
+$clAdminManager->setClid($clid);
+
 $statusStr = '';
 $isEditor = 0;
 if($IS_ADMIN || (array_key_exists('ClAdmin',$USER_RIGHTS) && in_array($clid,$USER_RIGHTS['ClAdmin']))){
 	$isEditor = 1;
 	if($action == 'SaveSearch'){
+		$clAdminManager->savePolygon($_POST['footprint']);
+
 		$statusStr = $clManager->saveQueryVariables($_POST);
 	}
 	elseif($action == 'DeleteVariables'){
@@ -47,7 +54,7 @@ if($IS_ADMIN || (array_key_exists('ClAdmin',$USER_RIGHTS) && in_array($clid,$USE
 			if(substr($key, 0, 2) == 'i-') {
 				$tid = substr($key, 2);
 				if(is_numeric($tid) && !empty($_POST[$tid])) {
-					if($clManager->addExternalVouchers($tid, urldecode($_POST[$tid]))){
+					if($clManager->addExternalVouchers($tid, json_decode($_POST[$tid], true))){
 						$cnt++;
 					}
 					else{
@@ -75,10 +82,36 @@ $clMetaArr = $clManager->getClMetadata();
 	?>
 	<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-3.7.1.min.js" type="text/javascript"></script>
 	<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.min.js" type="text/javascript"></script>
+	<script src="<?= $CLIENT_ROOT ?>/js/symb/mapAidUtils.js" type="text/javascript"></script>
 	<script type="text/javascript">
+		function checkSearchFootprint(e) {
+			const checkbox = document.getElementById('search_footprint');
+			const error_msg_box = document.getElementById('footprintwkt-error');
+
+			error_msg_box.innerHTML = "";
+			error_msg_box.style.display="none";
+
+			let footprint_json = e.target.value;
+
+			if(footprint_json) {
+				try {
+					footprint_json = JSON.parse(footprint_json);
+				} catch(err) {
+					footprint_json = false;
+					error_msg_box.innerHTML = "<?= $LANG['ERROR_INVALID_JSON'] ?>"; 
+					error_msg_box.style.display="block";
+				}
+			}
+
+			if(footprint_json && !checkbox.checked) {
+				checkbox.checked = true;
+			} else if(!footprint_json && checkbox.checked) {
+				checkbox.checked = false;
+			}
+		}
 		var clid = <?php echo $clid; ?>;
 		var tabIndex = <?php echo $tabIndex; ?>;
-		var footprintwktExists = <?php echo ($clManager->getClFootprintWkt()?'true':'false') ?>;
+		var footprintExists = <?php echo ($clManager->getClFootprint()?'true':'false') ?>;
 	</script>
 	<script type="text/javascript" src="../js/symb/checklists.voucheradmin.js?ver=2"></script>
 	<style>
@@ -198,9 +231,10 @@ if($clid && $isEditor){
 									<b><?php echo $LANG['LATN'];?>:</b>
 									<input id="upperlat" type="text" name="latnorth" style="width:80px;" value="<?php echo isset($termArr['latnorth'])?$termArr['latnorth']:''; ?>" title="<?php echo $LANG['LAT_NORTH'] ?>" />
 									<?php
-									$coordAidUrl = '../collections/tools/mapcoordaid.php?map_mode_strict=true&mapmode=rectangle&latdef='.$clMetaArr['latcentroid'].'&lngdef='.$clMetaArr['longcentroid'];
+									$latDef = $clMetaArr['latcentroid'];
+									$lngDef = $clMetaArr['longcentroid'];
 									?>
-									<a href="#" onclick="openPopup('<?= $coordAidUrl ?>','boundingbox')"><img src="../images/world.png" style="width:1.2em" title="<?php echo $LANG['FIND_COORD'] ?>" /></a>
+											<a href="#" onclick="openCoordAid({map_mode: MAP_MODES.RECTANGLE, client_root:'<?=$CLIENT_ROOT?>', map_mode_strict: true, latdef: '<?= $latDef ?>', lngdef: '<?= $lngDef ?>' })"><img src="../images/world.png" style="width:1.2em" title="<?php echo $LANG['FIND_COORD'] ?>" /></a>
 								</div>
 								<div>
 									<b><?php echo $LANG['LATS'];?>:</b>
@@ -219,9 +253,14 @@ if($clid && $isEditor){
 									<?php echo $LANG['ONLYCOORD'];?>
 								</div>
 								<div>
-									<input name="includewkt" value="1" type="checkbox" <?php if(isset($termArr['includewkt'])) echo 'CHECKED'; ?> onclick="coordInputSelected(this)" />
+									<input id="search_footprint" name="includewkt" value="1" type="checkbox" <?php if(isset($termArr['includewkt'])) echo 'CHECKED'; ?> onclick="coordInputSelected(this)" />
 									<?php echo $LANG['POLYGON_SEARCH']; ?>
-									<a href="#"  onclick="openPopup('tools/mappolyaid.php?clid=<?= $clid ?>','mappopup');return false;" title="<?php echo $LANG['EDIT_META_POLYGON'] ?>"><img src="../images/edit.png" style="width:1.2em" /></a>
+									<a href="#"  onclick="openCoordAid({map_mode: MAP_MODES.POLYGON, polygon_text_type: POLYGON_TEXT_TYPES.GEOJSON, client_root:'<?=$CLIENT_ROOT?>', map_mode_strict: true, latdef: '<?= $latDef ?>', lngdef: '<?= $lngDef ?>' });return false;" title="<?php echo $LANG['EDIT_META_POLYGON'] ?>"><img src="../images/edit.png" style="width:1.2em" /></a>
+								</div>
+								<div>
+									<label style="display:block; margin-bottom:0.25rem" for="footprintwkt"><b><?= $LANG['GEOJSON_FOOTPRINT'] ?>:</b></label>
+									<textarea onchange="checkSearchFootprint(event)" id="footprintwkt" name='footprint' style="width:100%"><?= htmlspecialchars($clManager->getClFootprint() ?? ''); ?></textarea>
+									<div id="footprintwkt-error" style="display:none; color: var(--danger-color); margin-bottom: 0.25rem"></div>
 								</div>
 								<div>
 									<input name="excludecult" value="1" type="checkbox" <?php if(isset($termArr['excludecult'])) echo 'CHECKED'; ?> />
@@ -276,7 +315,7 @@ if($clid && $isEditor){
 				<li><a href="vaconflicts.php?clid=<?= $clid . '&pid=' . $pid . '&start=' . $startPos; ?>"><span><?= $LANG['VOUCHCONF'];?></span></a></li>
 				<?php
 				if($clManager->getAssociatedExternalService()) echo '<li><a href="externalvouchers.php?clid=' . $clid . '&pid=' . $pid . '"><span>' . $LANG['EXTERNALVOUCHERS'] . '</span></a></li>';
-				if($clManager->hasVoucherProjects()) echo '<li><a href="imgvouchertab.php?clid=' . $clid . '">' . (isset($LANG['ADDIMGV'])?$LANG['ADDIMGV']:'Add Image Voucher') . '</a></li>';
+				if($clManager->hasVoucherProjects()) echo '<li><a href="imgvouchertab.php?clid=' . $clid . '">' . $LANG['ADDIMGVOUCHER'] . '</a></li>';
 				?>
 				<li><a href="#reportDiv"><span><?= $LANG['REPORTS'] ?></span></a></li>
 			</ul>

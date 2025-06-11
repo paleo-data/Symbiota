@@ -4,6 +4,8 @@ include_once($SERVER_ROOT . '/classes/OccurrenceMaintenance.php');
 include_once($SERVER_ROOT . '/classes/GuidManager.php');
 include_once($SERVER_ROOT . '/classes/utilities/OccurrenceUtil.php');
 include_once($SERVER_ROOT . '/classes/utilities/Encoding.php');
+include_once($SERVER_ROOT . '/classes/utilities/QueryUtil.php');
+include_once($SERVER_ROOT . '/classes/Media.php');
 
 class SpecUploadBase extends SpecUpload{
 
@@ -35,7 +37,6 @@ class SpecUploadBase extends SpecUpload{
 
 	private $sourceCharset;
 	private $targetCharset = 'UTF-8';
-	private $imgFormatDefault = '';
 	private $sourceDatabaseType = '';
 	private $dbpkCnt = 0;
 	private $relationshipArr;
@@ -298,7 +299,7 @@ class SpecUploadBase extends SpecUpload{
 				$this->identSymbFields[] = 'coreid';
 
 				//Get image metadata
-				$skipImageFields = array('tid','photographeruid','imagetype','occid','dbpk','specimengui','collid','username','sortsequence','initialtimestamp');
+				$skipImageFields = array('tid','creatorUid','imagetype','occid','dbpk','specimengui','collid','username','sortsequence','initialtimestamp');
 				if($this->uploadType == $this->RESTOREBACKUP){
 					unset($skipImageFields);
 					$skipImageFields = array();
@@ -388,7 +389,7 @@ class SpecUploadBase extends SpecUpload{
 			$symbFieldsRaw = $this->imageSymbFields;
 			$sourceArr = $this->imageSourceArr;
 			$translationMap = array('accessuri'=>'originalurl','thumbnailaccessuri'=>'thumbnailurl','goodqualityaccessuri'=>'url',
-				'providermanagedid'=>'sourceidentifier','usageterms'=>'copyright','webstatement'=>'accessrights','creator'=>'photographer',
+				'providermanagedid'=>'sourceidentifier','usageterms'=>'copyright','webstatement'=>'accessrights','creator'=>'creator',
 				'comments'=>'notes','associatedspecimenreference'=>'referenceurl');
 		}
 
@@ -396,6 +397,7 @@ class SpecUploadBase extends SpecUpload{
 		foreach($symbFieldsRaw as $sValue){
 			$symbFields[$sValue] = strtolower($sValue);
 		}
+
 		//Build a Source => Symbiota field Map
 		$sourceSymbArr = Array();
 		foreach($fieldMap as $symbField => $fArr){
@@ -408,7 +410,7 @@ class SpecUploadBase extends SpecUpload{
 		}
 		//Output table rows for source data
 		echo '<table class="styledtable" style="width:600px;font-size:12px;">';
-		echo '<tr><th>Source Field</th><th>Target Field</th></tr>'."\n";
+		echo '<tr><th>Source Field</th><th>Target Field ' . '<a href="https://biokic.github.io/symbiota-docs/coll_manager/upload/fields/" target="_blank"><img src="../../images/info.png" style="width:1.2em;" alt="More about Symbiota Data Fields" title="More about Symbiota Data Fields" aria-label="more info"/></a></th></tr>'."\n";
 		foreach($sourceArr as $fieldName){
 			if($fieldName == 'coreid') continue;
 			$diplayFieldName = $fieldName;
@@ -552,7 +554,7 @@ class SpecUploadBase extends SpecUpload{
 		$this->conn->query($sqlDel2);
 		$sqlDel3 = 'DELETE FROM uploadimagetemp WHERE (collid IN('.$this->collId.'))';
 		$this->conn->query($sqlDel3);
-		$sqlDel4 = 'DELETE FROM uploadKeyValueTemp WHERE (collid IN('.$this->collId.'))';
+		$sqlDel4 = 'DELETE FROM uploadkeyvaluetemp WHERE (collid IN('.$this->collId.'))';
 		$this->conn->query($sqlDel4);
 	}
 
@@ -631,7 +633,7 @@ class SpecUploadBase extends SpecUpload{
 
 	private function linkTempKeyValueOccurrences() {
 		$this->outputMsg('<li>Linking key value data to occurrences...</li>');
-		$sql = 'UPDATE uploadKeyValueTemp kv JOIN uploadspectemp s ON s.dbpk = kv.dbpk SET kv.occid = s.occid, kv.collid = s.collid';
+		$sql = 'UPDATE uploadkeyvaluetemp kv JOIN uploadspectemp s ON s.dbpk = kv.dbpk AND kv.collid = s.collid SET kv.occid = s.occid ';
 		$this->conn->query($sql);
 	}
 
@@ -736,8 +738,8 @@ class SpecUploadBase extends SpecUpload{
 
 		//Lock security setting if set so that local system can't override
 		$sql = 'UPDATE uploadspectemp '.
-			'SET localitySecurityReason = "Locked: set via import file" '.
-			'WHERE localitySecurity > 0 AND localitySecurityReason IS NULL AND collid IN('.$this->collId.')';
+			'SET securityReason = "Locked: set via import file" '.
+			'WHERE recordSecurity > 0 AND securityReason IS NULL AND collid IN('.$this->collId.')';
 		$this->conn->query($sql);
 
 		if($this->sourceDatabaseType == 'specify'){
@@ -756,6 +758,8 @@ class SpecUploadBase extends SpecUpload{
 		$this->outputMsg('<li style="margin-left:10px;">Setting basisOfRecord for new records, if not designated within import file...</li>');
 		$borValue = 'PreservedSpecimen';
 		if(strpos($this->collMetadataArr['colltype'], 'Observations') !== false) $borValue = 'HumanObservation';
+		elseif($this->paleoSupport) $borValue = 'FossilSpecimen';
+
 		$sql = 'UPDATE uploadspectemp SET basisOfRecord = "'.$borValue.'" WHERE basisOfRecord IS NULL AND occid IS NULL';
 		$this->conn->query($sql);
 	}
@@ -1200,54 +1204,63 @@ class SpecUploadBase extends SpecUpload{
 			$this->outputMsg('<li>Linking Paleo data...</li>');
 			$sql = 'SELECT occid, catalogNumber, paleoJSON FROM uploadspectemp WHERE (occid IS NOT NULL) AND (paleoJSON IS NOT NULL) AND (collid = '.$this->collId.')';
 			$rs = $this->conn->query($sql);
+			$paleogtsTerms = $this->getPaleoGtsTerms();
 			while($r = $rs->fetch_object()){
 				try{
 					$paleoArr = json_decode($r->paleoJSON,true);
 					//Deal with DwC terms
-					$eonTerm = '';
-					if(isset($paleoArr['earliesteonorlowesteonothem']) && $paleoArr['earliesteonorlowesteonothem']) $eonTerm = $paleoArr['earliesteonorlowesteonothem'];
-					if(isset($paleoArr['latesteonorhighesteonothem']) && $paleoArr['latesteonorhighesteonothem'] != $eonTerm) $eonTerm .= ' - '.$paleoArr['latesteonorhighesteonothem'];
-					if($eonTerm && !isset($paleoArr['eon'])) $paleoArr['eon'] = $eonTerm;
-					unset($paleoArr['earliesteonorlowesteonothem']);
-					unset($paleoArr['latesteonorhighesteonothem']);
 
-					$eraTerm = '';
-					if(isset($paleoArr['earliesteraorlowesterathem']) && $paleoArr['earliesteraorlowesterathem']) $eraTerm = $paleoArr['earliesteraorlowesterathem'];
-					if(isset($paleoArr['latesteraorhighesterathem']) && $paleoArr['latesteraorhighesterathem'] != $eraTerm) $eraTerm .= ' - '.$paleoArr['latesteraorhighesterathem'];
-					if($eraTerm && !isset($paleoArr['era'])) $paleoArr['era'] = $eraTerm;
-					unset($paleoArr['earliesteraorlowesterathem']);
-					unset($paleoArr['latesteraorhighesterathem']);
+					$eonLow = (!empty($paleoArr['earliesteonorlowesteonothem'])) ? $paleoArr['earliesteonorlowesteonothem'] : '';
+					$eonHigh = (!empty($paleoArr['latesteonorhighesteonothem'])) ? $paleoArr['latesteonorhighesteonothem'] : '';
+					if(($eonLow || $eonHigh) && !isset($paleoArr['eon']))
+						$paleoArr['eon'] = trim($eonLow . ($eonHigh && $eonHigh != $eonLow ? ' - ' . $eonHigh : ''));
+					unset($paleoArr['earliesteonorlowesteonothem'], $paleoArr['latesteonorhighesteonothem']);
 
-					$periodTerm = '';
-					if(isset($paleoArr['earliestperiodorlowestsystem']) && $paleoArr['earliestperiodorlowestsystem']) $periodTerm = $paleoArr['earliestperiodorlowestsystem'];
-					if(isset($paleoArr['latestperiodorhighestsystem']) && $paleoArr['latestperiodorhighestsystem'] != $periodTerm) $periodTerm .= ' - '.$paleoArr['latestperiodorhighestsystem'];
-					if($periodTerm && !isset($paleoArr['period'])) $paleoArr['period'] = $periodTerm;
-					unset($paleoArr['earliestperiodorlowestsystem']);
-					unset($paleoArr['latestperiodorhighestsystem']);
+					$eraLow = (!empty($paleoArr['earliesteraorlowesterathem'])) ? $paleoArr['earliesteraorlowesterathem'] : '';
+					$eraHigh = (!empty($paleoArr['latesteraorhighesterathem'])) ? $paleoArr['latesteraorhighesterathem'] : '';
+					if(($eraLow || $eraHigh) && !isset($paleoArr['era']))
+						$paleoArr['era'] = trim($eraLow . ($eraHigh && $eraHigh != $eraLow ? ' - ' . $eraHigh : ''));
+					unset($paleoArr['earliesteraorlowesterathem'], $paleoArr['latesteraorhighesterathem']);
 
-					$epochTerm = '';
-					if(isset($paleoArr['earliestepochorlowestseries']) && $paleoArr['earliestepochorlowestseries']) $epochTerm = $paleoArr['earliestepochorlowestseries'];
-					if(isset($paleoArr['latestepochorhighestseries']) && $paleoArr['latestepochorhighestseries'] != $epochTerm) $epochTerm .= ' - '.$paleoArr['latestepochorhighestseries'];
-					if($epochTerm && !isset($paleoArr['epoch'])) $paleoArr['epoch'] = $epochTerm;
-					unset($paleoArr['earliestepochorlowestseries']);
-					unset($paleoArr['latestepochorhighestseries']);
+					$periodLow = (!empty($paleoArr['earliestperiodorlowestsystem'])) ? $paleoArr['earliestperiodorlowestsystem'] : '';
+					$periodHigh = (!empty($paleoArr['latestperiodorhighestsystem'])) ? $paleoArr['latestperiodorhighestsystem'] : '';
+					if(($periodLow || $periodHigh) && !isset($paleoArr['period']))
+						$paleoArr['period'] = trim($periodLow . ($periodHigh && $periodHigh != $periodLow ? ' - ' . $periodHigh : ''));
+					unset($paleoArr['earliestperiodorlowestsystem'], $paleoArr['latestperiodorhighestsystem']);
 
-					$stageTerm = '';
-					if(isset($paleoArr['earliestageorloweststage']) && $paleoArr['earliestageorloweststage']) $stageTerm = $paleoArr['earliestageorloweststage'];
-					if(isset($paleoArr['latestageorhigheststage']) && $paleoArr['latestageorhigheststage'] != $stageTerm) $stageTerm .= ' - '.$paleoArr['latestageorhigheststage'];
-					if($stageTerm && !isset($paleoArr['stage'])) $paleoArr['stage'] = $stageTerm;
-					unset($paleoArr['earliestageorloweststage']);
-					unset($paleoArr['latestageorhigheststage']);
+					$epochLow = (!empty($paleoArr['earliestepochorlowestseries'])) ? $paleoArr['earliestepochorlowestseries'] : '';
+					$epochHigh = (!empty($paleoArr['latestepochorhighestseries'])) ? $paleoArr['latestepochorhighestseries'] : '';
+					if(($epochLow || $epochHigh) && !isset($paleoArr['epoch']))
+						$paleoArr['epoch'] = trim($epochLow . ($epochHigh && $epochHigh != $epochLow ? ' - ' . $epochHigh : ''));
+					unset($paleoArr['earliestepochorlowestseries'], $paleoArr['latestepochorhighestseries']);
 
-					$biostratigraphyTerm = '';
-					if(isset($paleoArr['lowestbiostratigraphiczone']) && $paleoArr['lowestbiostratigraphiczone']) $biostratigraphyTerm = $paleoArr['lowestbiostratigraphiczone'];
-					if(isset($paleoArr['highestbiostratigraphiczone']) && $paleoArr['highestbiostratigraphiczone'] != $biostratigraphyTerm) $biostratigraphyTerm .= ' - '.$paleoArr['highestbiostratigraphiczone'];
-					if($biostratigraphyTerm && !isset($paleoArr['biostratigraphy'])) $paleoArr['biostratigraphy'] = $biostratigraphyTerm;
-					unset($paleoArr['lowestbiostratigraphiczone']);
-					unset($paleoArr['highestbiostratigraphiczone']);
+					$stageLow = (!empty($paleoArr['earliestageorloweststage'])) ? $paleoArr['earliestageorloweststage'] : '';
+					$stageHigh = (!empty($paleoArr['latestageorhigheststage'])) ? $paleoArr['latestageorhigheststage'] : '';
+					if(($stageLow || $stageHigh) && !isset($paleoArr['stage']))
+						$paleoArr['stage'] = trim($stageLow . ($stageHigh && $stageHigh != $stageLow ? ' - ' . $stageHigh : ''));
+					unset($paleoArr['earliestageorloweststage'], $paleoArr['latestageorhigheststage']);
 
 					$insertSQL = '';
 					$valueSQL = '';
+
+					if (!isset($paleoArr['earlyInterval'])) {
+						foreach ([ $stageLow, $epochLow, $periodLow, $eraLow, $eonLow ] as $term) {
+							if ($term && isset($paleogtsTerms[$term])) {
+								$paleoArr['earlyInterval'] = $term;
+								break;
+							}
+						}
+					}
+
+					if (!isset($paleoArr['lateInterval'])) {
+						foreach ([ $stageHigh, $epochHigh, $periodHigh, $eraHigh, $eonHigh ] as $term) {
+							if ($term && isset($paleogtsTerms[$term])) {
+								$paleoArr['lateInterval'] = $term;
+								break;
+							}
+						}
+					}
+
 					foreach($paleoArr as $k => $v){
 						$insertSQL .= ','.$k;
 						$valueSQL .= ',"'.$this->cleanInStr($v).'"';
@@ -1263,6 +1276,20 @@ class SpecUploadBase extends SpecUpload{
 			}
 			$rs->free();
 		}
+	}
+
+	public function getPaleoGtsTerms(){
+		$retArr = array();
+		if($GLOBALS['ACTIVATE_PALEO']){
+			$sql = 'SELECT gtsterm, rankid FROM omoccurpaleogts ';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->gtsterm] = $r->rankid;
+			}
+			$rs->free();
+			ksort($retArr);
+		}
+		return $retArr;
 	}
 
 	// private function transferMaterialSampleData(){
@@ -1294,11 +1321,9 @@ class SpecUploadBase extends SpecUpload{
 	private function setOtherCatalogNumbers(){
 		if($this->uploadType == $this->FILEUPLOAD || $this->uploadType == $this->SKELETAL){
 			$sql = 'INSERT IGNORE INTO omoccuridentifiers (occid, identifiername, identifiervalue, modifiedUid)
-			SELECT o.occid, kv.key as identifiername, kv.value as identifiervalue, kv.upload_uid as modifiedUid
-			FROM uploadKeyValueTemp kv
-			INNER JOIN uploadspectemp u on u.dbpk = kv.dbpk
-			INNER JOIN omoccurrences o on o.occid = u.occid
-			WHERE type = "omoccuridentifiers" AND kv.collid = ?';
+			SELECT u.occid, kv.key as identifiername, kv.value as identifiervalue, kv.uploadUid as modifiedUid
+			FROM uploadkeyvaluetemp kv INNER JOIN uploadspectemp u ON kv.dbpk = u.dbpk AND kv.collid = u.collid
+			WHERE kv.type = "omoccuridentifiers" AND kv.collid = ?';
 
 			if($stmt = $this->conn->prepare($sql)){
 				$stmt->bind_param('i', $this->collId);
@@ -1414,7 +1439,7 @@ class SpecUploadBase extends SpecUpload{
 				foreach($mediaArr as $mediaUrl){
 					$mediaUrl = trim($mediaUrl);
 					if(strpos($mediaUrl,'"')) continue;
-					$this->loadImageRecord(array('occid'=>$r->occid,'collid'=>$this->collId,'dbpk'=>$r->dbpk,'tid'=>($r->tidinterpreted?$r->tidinterpreted:''),'originalurl'=>$mediaUrl));
+					$this->loadMediaRecord(array('occid'=>$r->occid,'collid'=>$this->collId,'dbpk'=>$r->dbpk,'tid'=>($r->tidinterpreted?$r->tidinterpreted:''),'originalurl'=>$mediaUrl));
 				}
 			}
 		}
@@ -1444,11 +1469,11 @@ class SpecUploadBase extends SpecUpload{
 				$this->outputMsg('<li style="margin-left:20px;">WARNING updating occids within uploadimagetemp: '.$this->conn->error.'</li> ');
 			}
 			//Remove and skip previously loaded images where urls match exactly
-			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl)';
+			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN media m ON u.occid = m.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl = m.originalurl)';
 			if(!$this->conn->query($sql)){
 				$this->outputMsg('<li style="margin-left:20px;">ERROR deleting uploadimagetemp records with matching urls: '.$this->conn->error.'</li> ');
 			}
-			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl IS NULL) AND (i.originalurl IS NULL) AND (u.url = i.url)';
+			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN media m ON u.occid = m.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl IS NULL) AND (m.originalurl IS NULL) AND (u.url = m.url)';
 			if(!$this->conn->query($sql)){
 				$this->outputMsg('<li style="margin-left:20px;">ERROR deleting image records with matching originalurls: '.$this->conn->error.'</li> ');
 			}
@@ -1480,8 +1505,9 @@ class SpecUploadBase extends SpecUpload{
 				while($r1 = $rs1->fetch_object()){
 					$imageFieldArr[strtolower($r1->Field)] = 0;
 				}
+
 				$rs1->free();
-				$rs2 = $this->conn->query('SHOW COLUMNS FROM images');
+				$rs2 = $this->conn->query('SHOW COLUMNS FROM media ');
 				while($r2 = $rs2->fetch_object()){
 					$fieldName = strtolower($r2->Field);
 					if(array_key_exists($fieldName, $imageFieldArr)) $imageFieldArr[$fieldName] = 1;
@@ -1494,20 +1520,20 @@ class SpecUploadBase extends SpecUpload{
 				unset($imageFieldArr['initialtimestamp']);
 
 				//Remap URLs and remove from import images where source identifiers match, but original URLs differ (e.g. host server is changed)
-				$sql = 'UPDATE uploadimagetemp u INNER JOIN images i ON u.occid = i.occid '.
-					'SET i.originalurl = u.originalurl, i.url = IFNULL(u.url,if(SUBSTRING(i.url,1,1)="/",i.url,NULL)), i.thumbnailurl = IFNULL(u.thumbnailurl,if(SUBSTRING(i.thumbnailurl,1,1)="/",i.thumbnailurl,NULL)) '.
-					'WHERE (u.collid = '.$this->collId.') AND (u.sourceIdentifier = i.sourceIdentifier) ';
+				$sql = 'UPDATE uploadimagetemp u INNER JOIN media m ON u.occid = m.occid '.
+					'SET m.originalurl = u.originalurl, m.url = IFNULL(u.url,if(SUBSTRING(m.url,1,1)="/",m.url,NULL)), m.thumbnailurl = IFNULL(u.thumbnailurl,if(SUBSTRING(m.thumbnailurl,1,1)="/",m.thumbnailurl,NULL)) '.
+					'WHERE (u.collid = '.$this->collId.') AND (u.sourceIdentifier = m.sourceIdentifier) ';
 				if(!$this->conn->query($sql)){
 					$this->outputMsg('<li style="margin-left:20px;">ERROR remapping URL with matching sourceIdentifier: '.$this->conn->error.'</li> ');
 				}
-				$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.sourceIdentifier = i.sourceIdentifier)';
+				$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN media m ON u.occid = m.occid WHERE (u.collid = '.$this->collId.') AND (u.sourceIdentifier = m.sourceIdentifier)';
 				if(!$this->conn->query($sql)){
 					$this->outputMsg('<li style="margin-left:20px;">ERROR deleting incoming image records that have matching sourceIdentifier: '.$this->conn->error.'</li> ');
 				}
 
 				//Load images
-				$sql = 'INSERT INTO images('.implode(',',array_keys($imageFieldArr)).') '.
-					'SELECT '.implode(',',array_keys($imageFieldArr)).' FROM uploadimagetemp WHERE (occid IS NOT NULL) AND (collid = '.$this->collId.')';
+				$sql = 'INSERT INTO media ('.implode(',',array_keys($imageFieldArr)).') '.
+					'SELECT ' . implode(',',array_keys($imageFieldArr)) . ' FROM uploadimagetemp WHERE (occid IS NOT NULL) AND (collid = '.$this->collId.')';
 				if($this->conn->query($sql)){
 					$this->outputMsg('<li style="margin-left:10px;">'.$this->imageTransferCount.' images transferred</li> ');
 				}
@@ -1795,6 +1821,12 @@ class SpecUploadBase extends SpecUpload{
 		//Optimize table to reset indexes
 		$this->conn->query('OPTIMIZE TABLE uploadimagetemp');
 
+		//Remove records from keyvalue temp table (uploadimagetemp)
+		$sql = 'DELETE FROM uploadkeyvaluetemp WHERE (collid IN('.$this->collId.'))';
+		$this->conn->query($sql);
+		//Optimize table to reset indexes
+		$this->conn->query('OPTIMIZE TABLE uploadkeyvaluetemp');
+
 		//Remove temporary dbpk values
 		if($this->collMetadataArr['managementtype'] == 'Live Data' || $this->uploadType == $this->SKELETAL){
 			$sql = 'UPDATE omoccurrences SET dbpk = NULL WHERE (collid IN('.$this->collId.')) AND (dbpk LIKE "SYMBDBPK-%")';
@@ -1896,31 +1928,37 @@ class SpecUploadBase extends SpecUpload{
 			$sqlFragments = $this->getSqlFragments($recMap,$this->occurFieldMap);
 			if($sqlFragments){
 				$sql = 'INSERT INTO uploadspectemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
-				if($this->conn->query($sql)){
-					$this->transferCount++;
-					if($this->transferCount%1000 == 0) $this->outputMsg('<li style="margin-left:10px;">Count: '.$this->transferCount.'</li>');
-					//$this->outputMsg("<li>");
-					//$this->outputMsg("Appending/Replacing observation #".$this->transferCount.": SUCCESS");
-					//$this->outputMsg("</li>");
-				}
-				else{
-					$sql = Encoding::fixUTF8($sql);
-					if(!$this->conn->query($sql)){
-						$this->outputMsg('<li>FAILED adding record #'.$this->transferCount.'</li>');
-						$this->outputMsg('<li style="margin-left:10px;">Error: '.$this->conn->error.'</li>');
-						$this->outputMsg('<li style="margin:0px 0px 10px 10px;">SQL: '.$sql.'</li>');
+				try {
+					if($this->conn->query($sql)){
+						$this->transferCount++;
+						if($this->transferCount%1000 == 0) $this->outputMsg('<li style="margin-left:10px;">Count: '.$this->transferCount.'</li>');
+						//$this->outputMsg("<li>");
+						//$this->outputMsg("Appending/Replacing observation #".$this->transferCount.": SUCCESS");
+						//$this->outputMsg("</li>");
+					}
+					else{
+						$sql = Encoding::fixUTF8($sql);
+						if(!$this->conn->query($sql)){
+							$this->outputMsg('<li>FAILED adding record #'.$this->transferCount.'</li>');
+							$this->outputMsg('<li style="margin-left:10px;">Error: '.$this->conn->error.'</li>');
+							$this->outputMsg('<li style="margin:0px 0px 10px 10px;">SQL: '.$sql.'</li>');
+						}
 					}
 				}
+				catch(mysqli_sql_exception $e){
+					$this->outputMsg('<li>FAILED adding record #' . $this->transferCount . ' Error: ' . $e->getMessage() . '</li>');
+				}
 
-				if(isset($recMap['othercatalognumbers']) && $recMap['othercatalognumbers']) {
-					$parsedCatalogNumbers = self::parseOtherCatalogNumbers($recMap['othercatalognumbers']);
-					$sql = 'INSERT INTO uploadKeyValueTemp (`key`, `value`, dbpk, upload_uid, type) VALUES (?, ?, ?, ?, "omoccuridentifiers")';
-					foreach ($parsedCatalogNumbers as $entry) {
-						mysqli_execute_query($this->conn, $sql, [$entry['key'], $entry['value'], $recMap['dbpk'], $GLOBALS['SYMB_UID']]);
+				if($this->uploadType == $this->FILEUPLOAD || $this->uploadType == $this->SKELETAL){
+					if(isset($recMap['othercatalognumbers']) && $recMap['othercatalognumbers']) {
+						$parsedCatalogNumbers = self::parseOtherCatalogNumbers($recMap['othercatalognumbers']);
+						$sql = 'INSERT INTO uploadkeyvaluetemp (`key`, `value`, collid, dbpk, uploadUid, type) VALUES (?, ?, ?, ?, ?, "omoccuridentifiers")';
+						foreach ($parsedCatalogNumbers as $entry) {
+							QueryUtil::executeQuery($this->conn, $sql, [$entry['key'], $entry['value'], $this->collId, $recMap['dbpk'], $GLOBALS['SYMB_UID']]);
+						}
 					}
 				}
 			}
-
 		}
 	}
 	private static function parseOtherCatalogNumbers($otherCatalogNumbers): Array {
@@ -1951,10 +1989,9 @@ class SpecUploadBase extends SpecUpload{
 			$paleoTermArr = $this->getPaleoTerms();
 			$paleoArr = array();
 			foreach($paleoTermArr as $fieldName){
-				$k = strtolower($fieldName);
-				if(isset($recMap[$k])){
-					if($recMap[$k] !== '') $paleoArr[substr($k,6)] = $recMap[$k];
-					unset($recMap[$k]);
+				if(isset($recMap[$fieldName])){
+					if($recMap[$fieldName] !== '') $paleoArr[substr($fieldName,6)] = $recMap[$fieldName];
+					unset($recMap[$fieldName]);
 				}
 			}
 			if($paleoArr){
@@ -2056,7 +2093,12 @@ class SpecUploadBase extends SpecUpload{
 		}
 	}
 
-	protected function loadImageRecord($recMap){
+  /*
+	* Parses media import rows into a valid media record and insert it into database
+	* @param Array $recMap
+	* @return Bool
+	*/
+	protected function loadMediaRecord($recMap){
 		if($recMap){
 			//Test images
 			$testUrl = '';
@@ -2070,33 +2112,52 @@ class SpecUploadBase extends SpecUpload{
 				//Abort, no images avaialble
 				return false;
 			}
-			//if(strtolower(substr($testUrl,0,4)) != 'http') return false;
-			if(stripos($testUrl,'.dng') || stripos($testUrl,'.tif')) return false;
-			$skipFormats = array('image/tiff','image/dng','image/bmp','text/html','application/xml','application/pdf','tif','tiff','dng','html','pdf');
-			$allowedFormats = array('image/jpeg','image/gif','image/png');
-			$imgFormat = $this->imgFormatDefault;
-			if(isset($recMap['format']) && $recMap['format']){
-				$imgFormat = strtolower($recMap['format']);
-				if(in_array($imgFormat, $skipFormats)) return false;
+
+			$file = Media::parseFileName($testUrl);
+
+			$parsed_mime = false;
+			// If provided format is not supported try to parse it from filename.
+			// Sometimes this happens when wrong formats are spread around
+			// example audio/jpg
+			if(isset($recMap['format']) && Media::getAllowedMime($recMap['format'])) {
+				$parsed_mime = $recMap['format'];
+			} else if(isset($file['extension'])) {
+				$parsed_mime = Media::ext2Mime($file['extension']);
 			}
-			else{
-				$ext = strtolower(substr(strrchr($testUrl, '.'), 1));
-				if(strpos($testUrl,'?')) $ext = substr($ext, 0, strpos($ext,'?'));
-				if($ext== 'gif') $imgFormat = 'image/gif';
-				if($ext== 'png') $imgFormat = 'image/png';
-				if($ext== 'jpg') $imgFormat = 'image/jpeg';
-				elseif($ext== 'jpeg') $imgFormat = 'image/jpeg';
-				if($imgFormat === ''){
-					if($this->imgFormatDefault) $imgFormat = $this->imgFormatDefault;
-					else {
-						$imgFormat = $this->getMimeType($testUrl);
-						if($imgFormat) $this->imgFormatDefault = $imgFormat;
-						else $this->imgFormatDefault = false;
-					}
-					//if(!in_array(strtolower($imgFormat), $allowedFormats)) return false;
+
+			if(!$parsed_mime) {
+				try {
+					$file = Media::getRemoteFileInfo($testUrl);
+					$parsed_mime = $file['type'];
+				} catch(Throwable $error) {
+					error_log('SpecUploadBase: Failed to Parse File: ' . $error->getMessage() . ' ' . $testUrl . ' ' . __LINE__ . ' ');
+					$this->outputMsg('<li style="margin-left:20px;">File format could not be parsed: ' . $testUrl . ' </li>');
+					return false;
 				}
+
 			}
-			if($imgFormat) $recMap['format'] = $imgFormat;
+			$mime = Media::getAllowedMime($parsed_mime);
+			if(!$mime) {
+				if($parsed_mime) {
+					$this->outputMsg('<li style="margin-left:20px;">Unsupported File Format: ' . $parsed_mime . ' from url ' . $testUrl . ' </li>');
+				} else {
+					$this->outputMsg('<li style="margin-left:20px;">Could Not Parse the File Format: ' . $testUrl . ' </li>');
+				}
+				// Not Supported extension
+				return false;
+			} else {
+				$recMap['format'] = $mime;
+			}
+
+			$mediaTypeStr = explode('/', $mime)[0];
+			$mediaType = MediaType::tryFrom($mediaTypeStr);
+
+			if(!$mediaType) {
+				$this->outputMsg('<li style="margin-left:20px;">Invalid Media Type: ' . $mediaType . ' from url ' . $testUrl . ' </li>');
+				return false;
+			}
+
+			$recMap['mediatype'] = $mediaType;
 
 			if($this->verifyImageUrls){
 				if(!$this->urlExists($testUrl)){
@@ -2153,7 +2214,7 @@ class SpecUploadBase extends SpecUpload{
 			if(substr($symbField,0,8) != 'unmapped' && $symbField != 'collid'){
 				$sqlFields .= ','.$symbField;
 				$valueStr = $this->encodeString($valueStr);
-				$valueStr = $this->cleanInStr($valueStr);
+				$valueStr = $this->cleanInStr($valueStr ?? '');
 				$valueStr = $this->removeEmoji($valueStr);
 				if($valueStr) $hasValue = true;
 				//Load data
@@ -2403,7 +2464,7 @@ class SpecUploadBase extends SpecUpload{
 
 	private function getPaleoSymbTerms(){
 		$paleoTermArr = array('paleo-eon','paleo-era','paleo-period','paleo-epoch',
-			'paleo-earlyInterval','paleo-lateInterval','paleo-absoluteAge','paleo-storageAge','paleo-stage','paleo-localStage','paleo-biota','paleo-biostratigraphy',
+			'paleo-earlyInterval','paleo-lateInterval','paleo-absoluteAge','paleo-stage','paleo-localStage','paleo-biota','paleo-biostratigraphy',
 			'paleo-taxonEnvironment','paleo-lithology','paleo-stratRemarks','paleo-element','paleo-slideProperties');
 		return $paleoTermArr;
 	}
@@ -2595,7 +2656,7 @@ class SpecUploadBase extends SpecUpload{
 
 	protected function encodeString($inStr){
 		if($inStr){
-			$inStr = mb_convert_encoding($inStr, $this->targetCharset, mb_detect_encoding($inStr, 'UTF-8,ISO-8859-1,ISO-8859-15'));
+			$inStr = mb_convert_encoding($inStr, $this->targetCharset, mb_detect_encoding($inStr, ['ASCII', 'UTF-8', 'ISO-8859-1', 'ISO-8859-15']));
 
 			//Get rid of UTF-8 curly smart quotes and dashes
 			$badwordchars=array(

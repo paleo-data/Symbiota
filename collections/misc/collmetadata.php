@@ -79,7 +79,7 @@ $collManager->cleanOutArr($collData);
 	?>
 	<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-3.7.1.min.js" type="text/javascript"></script>
 	<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.min.js" type="text/javascript"></script>
-	<script src="../../js/symb/common.js" type="text/javascript"></script>
+	<script src="../../js/symb/shared.js?ver=1" type="text/javascript"></script>
 	<script type="text/javascript" src="../../js/tinymce/tinymce.min.js"></script>
 	<script>
 		// Adds WYSIWYG editor to description field
@@ -493,21 +493,31 @@ $collManager->cleanOutArr($collData);
 							</div>
 							<?php
 							if ($IS_ADMIN) {
+								$collTypeValue = '';
+								if($collid){
+									if($collData['colltype'] == 'Observations') $collTypeValue = 'obs';
+									elseif($collData['colltype'] == 'General Observations') $collTypeValue = 'go';
+									elseif($collData['colltype'] == 'Fossil Specimens') $collTypeValue = 'fs';
+								}
+								else{
+									//Is a new collection, thus set to Fossil Specimen is that is the default for the portal
+									if($ACTIVATE_PALEO) $collTypeValue = 'fs';
+								}
 								?>
 								<div class="field-block">
 									<span class="field-elem">
-										<label for="collType"> <?php echo htmlspecialchars($LANG['DATASET_TYPE'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE); ?>: </label>
+										<label for="collType"> <?= $LANG['DATASET_TYPE'] ?>: </label>
 										<select id="collType" name="collType">
-											<option value="Preserved Specimens"><?php echo $LANG['PRES_SPECS']; ?></option>
-											<option value="Observations" <?php echo ($collid && $collData["colltype"] == 'Observations' ? 'SELECTED' : ''); ?>><?php echo $LANG['OBSERVATIONS']; ?></option>
-											<option value="General Observations" <?php echo ($collid && $collData["colltype"] == 'General Observations' ? 'SELECTED' : ''); ?>><?php echo $LANG['PERS_OBS_MAN']; ?></option>
+											<option value="Preserved Specimens"><?= $LANG['PRES_SPECS']; ?></option>
+											<option value="Fossil Specimens" <?= ($collTypeValue == 'fs' ? 'SELECTED' : '') ?>><?= $LANG['FOSSIL_SPECS'] ?></option>
+											<option value="Observations" <?= ($collTypeValue == 'obs' ? 'SELECTED' : '') ?>><?= $LANG['OBSERVATIONS'] ?></option>
+											<option value="General Observations" <?= ($collTypeValue == 'go' ? 'SELECTED' : '') ?>><?= $LANG['PERS_OBS_MAN'] ?></option>
 										</select>
-
 										<a id="colltypeinfo" href="#" onclick="return false" tabindex="0">
-											<img src="../../images/info.png" style="width:1.2em;" alt="<?php echo $LANG['MORE_INFO'] ?>" title="<?php echo $LANG['MORE_COL_TYPE']; ?>"/>
+											<img src="../../images/info.png" style="width:1.2em;" alt="<?= $LANG['MORE_INFO'] ?>" title="<?= $LANG['MORE_COL_TYPE'] ?>"/>
 										</a>
 										<span id="colltypeinfodialog" aria-live="polite">
-											<?php echo $LANG['COL_TYPE_DEF'] ?>
+											<?= $LANG['COL_TYPE_DEF'] ?>
 										</span>
 									</span>
 								</div>
@@ -614,10 +624,10 @@ $collManager->cleanOutArr($collData);
 									</span>
 								</span>
 								<span class="icon-elem" style="display:<?php echo (($collid && $collData["icon"]) ? 'none;' : 'inline'); ?>">
-									<a href="#" onclick="toggle('icon-elem');return false;"><?php echo $LANG['ENTER_URL'] ?></a>
+									<a href="#" onclick="toggleElement('.icon-elem');return false;"><?php echo $LANG['ENTER_URL'] ?></a>
 								</span>
 								<span class="icon-elem" style="display:<?php echo (($collid && $collData["icon"]) ? 'inline' : 'none;'); ?>">
-									<a href="#" onclick="toggle('icon-elem');return false;">
+									<a href="#" onclick="toggleElement('.icon-elem');return false;">
 										<?php echo $LANG['UPLOAD_LOCAL'] ?>
 									</a>
 								</span>

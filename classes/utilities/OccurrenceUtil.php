@@ -1,9 +1,10 @@
 <?php
 include_once($SERVER_ROOT . '/classes/GPoint.php');
 include_once($SERVER_ROOT . '/classes/utilities/TaxonomyUtil.php');
+include_once($SERVER_ROOT.'/traits/TaxonomyTrait.php');
 
 class OccurrenceUtil {
-
+	use TaxonomyTrait;
 	private static $monthRoman = array('I'=>'01','II'=>'02','III'=>'03','IV'=>'04','V'=>'05','VI'=>'06','VII'=>'07','VIII'=>'08','IX'=>'09','X'=>'10','XI'=>'11','XII'=>'12');
 	public static $monthNames = array('jan'=>'01','ene'=>'01','feb'=>'02','mar'=>'03','abr'=>'04','apr'=>'04','may'=>'05','jun'=>'06','jul'=>'07','ago'=>'08',
 		'aug'=>'08','sep'=>'09','oct'=>'10','nov'=>'11','dec'=>'12','dic'=>'12');
@@ -184,7 +185,7 @@ class OccurrenceUtil {
 
 		/*
 		 *	Supported Formats
-		 *	Space must exist between units and numbers. 
+		 *	Space must exist between units and numbers.
 		 *	No units assumes meters.
 		 *
 		 *	Numbers: 100, 100-200, 1,000-2,000
@@ -212,16 +213,16 @@ class OccurrenceUtil {
 			$max_elev = str_replace(',', '', $max_elev);
 
 			if(is_numeric($min_elev)) {
-				$retArr['minelev'] = round($min_elev * $meter_conversion); 
+				$retArr['minelev'] = round($min_elev * $meter_conversion);
 			}
 			if(is_numeric($max_elev)) {
-				$retArr['maxelev'] = round($max_elev * $meter_conversion); 
+				$retArr['maxelev'] = round($max_elev * $meter_conversion);
 			}
-		} 
+		}
 
 		if(array_key_exists('minelev',$retArr) && ($retArr['minelev'] > 8000 || $retArr['minelev'] < 0)) unset($retArr['minelev']);
 		if(array_key_exists('maxelev',$retArr) && ($retArr['maxelev'] > 8000 || $retArr['maxelev'] < 0)) unset($retArr['maxelev']);
-	
+
 		return $retArr;
 	}
 
@@ -713,8 +714,14 @@ class OccurrenceUtil {
 				//Build sciname from individual units supplied by source
 				$sciName = trim($recMap['genus'].' '.$recMap['specificepithet']);
 				if(array_key_exists('infraspecificepithet',$recMap)){
-					if(array_key_exists('taxonrank',$recMap)) $sciName .= ' '.$recMap['taxonrank'];
+					if(array_key_exists('taxonrank',$recMap) && strtolower($recMap['taxonrank'])!== 'cultivar') $sciName .= ' '.$recMap['taxonrank'];
 					$sciName .= ' '.$recMap['infraspecificepithet'];
+				}
+				if(array_key_exists('cultivarepithet',$recMap) && !empty($recMap['cultivarepithet']) ){
+					$sciName .= " " . self::standardizeCultivarEpithet($recMap['cultivarepithet']);
+				}
+				if(array_key_exists('tradename',$recMap) && !empty($recMap['tradename'])){
+					$sciName .= ' ' . self::standardizeTradeName($recMap['tradename']);
 				}
 				$recMap['sciname'] = trim($sciName);
 			}
@@ -1062,26 +1069,28 @@ class OccurrenceUtil {
 	public static function verifyUser($user, $conn){
 		//If input is numberic, verify against uid, or convert username or email to uid
 		$uid = null;
-		$paramArr = array();
-		$typeStr = '';
-		$sql = 'SELECT uid FROM users WHERE ';
-		if(is_numeric($user)){
-			$sql .= 'uid = ?';
-			$paramArr[] = $user;
-			$typeStr = 'i';
-		}
-		else{
-			$sql .= 'username = ? OR email = ?';
-			$paramArr[] = $user;
-			$paramArr[] = $user;
-			$typeStr = 'ss';
-		}
-		if($stmt = $conn->prepare($sql)){
-			$stmt->bind_param($typeStr, ...$paramArr);
-			$stmt->execute();
-			$stmt->bind_result($uid);
-			$stmt->fetch();
-			$stmt->close();
+		if($user){
+			$paramArr = array();
+			$typeStr = '';
+			$sql = 'SELECT uid FROM users WHERE ';
+			if(is_numeric($user)){
+				$sql .= 'uid = ?';
+				$paramArr[] = $user;
+				$typeStr = 'i';
+			}
+			else{
+				$sql .= 'username = ? OR email = ?';
+				$paramArr[] = $user;
+				$paramArr[] = $user;
+				$typeStr = 'ss';
+			}
+			if($stmt = $conn->prepare($sql)){
+				$stmt->bind_param($typeStr, ...$paramArr);
+				$stmt->execute();
+				$stmt->bind_result($uid);
+				$stmt->fetch();
+				$stmt->close();
+			}
 		}
 		return $uid;
 	}
@@ -1098,6 +1107,31 @@ class OccurrenceUtil {
 		}
 		elseif($inStr > 19000000){
 			$retStr = substr($inStr,0,4).'-'.substr($inStr,4,2).'-'.substr($inStr,6,2);
+		}
+		return $retStr;
+	}
+
+	public static function appendFullProtectionSQL($allowNull=false){
+		//Protect by default
+		$retStr = 'AND (o.recordSecurity != 5 ';
+		if($allowNull) $retStr .= 'OR o.recordSecurity IS NULL ';
+		//User needs Collection Admin or Collection Editor status to view full hidden records
+		$collStr = self::getFullProtectionPermission();
+		if($collStr){
+			$retStr .= 'OR o.collid IN(' . $collStr . ')';
+		}
+		$retStr .= ') ';
+		return $retStr;
+	}
+
+	public static function getFullProtectionPermission(){
+		$retStr = false;
+		$collArr = array();
+		if(!empty($GLOBALS['USER_RIGHTS']['CollAdmin'])) $collArr = $GLOBALS['USER_RIGHTS']['CollAdmin'];
+		if(!empty($GLOBALS['USER_RIGHTS']['CollEditor'])) $collArr = array_merge($collArr, $GLOBALS['USER_RIGHTS']['CollEditor']);
+		if($collArr){
+			$collArr = array_unique($collArr);
+			$retStr = implode(',', $collArr);
 		}
 		return $retStr;
 	}

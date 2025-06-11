@@ -70,6 +70,8 @@ $LANG['EDIT'] = 'Edit';
 $LANG['NEW'] = 'New';
 $LANG['PROFILE'] = 'Profile';
 $LANG['CLOSE_EDITOR'] = 'Close Editor';
+$LANG['IMG_PROC_CHANGE_EXPLAIN'] = '<b>Tools to upload image URL files have moved!</b> You can now upload files of media URLs through the Extended Data Importer 
+	(Administration Control Panel > Import/Update Specimen Records > Extended Data Import';
 $LANG['PROC_TYPE'] = 'Processing Type';
 $LANG['MAP_FROM_SERVER'] = 'Map Images from a Local or Remote Server';
 $LANG['URL_MAP_FILE'] = 'Image URL Mapping File';
@@ -90,12 +92,12 @@ $LANG['IMG_SOURCE_PATH'] = 'Image source path';
 $LANG['IMG_TARGET_PATH'] = 'Image target path';
 $LANG['TARGET_PATH_EXPLAIN'] = "Web server path to where the image derivatives will be depositied.
 							The web server (e.g. apache user) must have read/write access to this directory.
-							If this field is left blank, the portal's default image target (\$IMAGE_ROOT_PATH) will be used.";
+							If this field is left blank, the portal's default image target (\$MEDIA_ROOT_PATH) will be used.";
 $LANG['IMG_URL_BASE'] = 'Image URL base';
 $LANG['IMG_URL_EXPLAIN'] = "Image URL prefix that will access the target folder from the browser.
 							This will be used to create the image URLs that will be stored in the database.
 							If absolute URL is supplied without the domain name, the portal domain will be assumed.
-							If this field is left blank, the portal's default image url will be used (\$IMAGE_ROOT_URL).";
+							If this field is left blank, the portal's default image url will be used (\$MEDIA_ROOT_URL).";
 $LANG['WEB_IMG_WIDTH'] = 'Web-sized image width';
 $LANG['WEB_IMG_EXPLAIN'] = 'Width of the standard web image in pixels. If the source image is smaller than this width, the file will simply be copied over without resizing.';
 $LANG['TN_IMG_WIDTH'] = 'Thumbnail image width';

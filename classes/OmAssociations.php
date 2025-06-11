@@ -1,8 +1,8 @@
 <?php
 include_once('Manager.php');
+include_once('AssociationManager.php');
 include_once('utilities/OccurrenceUtil.php');
 include_once('utilities/UuidFactory.php');
-include_once('AssociationManager.php');
 
 class OmAssociations extends Manager{
 
@@ -25,14 +25,11 @@ class OmAssociations extends Manager{
 		parent::__destruct();
 	}
 
-	public function getAssociationArr($filter = null, $excludeScriptGenerated = true){
+	public function getAssociationArr($filter = null){
 		$retArr = array();
 		$relOccidArr = array();
 		$uidArr = array();
 		$sql = 'SELECT assocID, occid, '.implode(', ', array_keys($this->schemaMap)).', modifiedUid, modifiedTimestamp, createdUid, initialTimestamp FROM omoccurassociations WHERE ';
-		if($excludeScriptGenerated){
-			$sql .= "(basisOfRecord IS NULL OR basisOfRecord != 'scriptGenerated') AND ";
-		}
 		if($this->assocID) $sql .= '(assocID = '.$this->assocID.') ';
 		elseif($filter == 'FULL')$sql .= '(occid = '.$this->occid.' OR occidAssociate = '.$this->occid.') ';
 		elseif($this->occid) $sql .= '(occid = '.$this->occid.') ';
@@ -41,7 +38,7 @@ class OmAssociations extends Manager{
 				$sql .= 'AND '.$field.' = "'.$this->cleanInStr($cond).'" ';
 			}
 		}
-		echo 'sql is: ' . $sql;
+		// echo 'sql is: ' . $sql;
 		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_assoc()){
 				$retArr[$r['assocID']] = $r;
@@ -159,10 +156,6 @@ class OmAssociations extends Manager{
 			else $this->errorMessage = 'ERROR preparing statement for omoccurassociations insert: '.$this->conn->error;
 		}
 
-		// if($status == true){
-		// 	$associationManager = new AssociationManager;
-		// 	$associationManager->createInverseRecord($insertedRecord);
-		// } //@TODO deleteMe remove upon approval
 		return $status;
 	}
 

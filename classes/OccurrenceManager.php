@@ -1,17 +1,18 @@
 <?php
-include_once($SERVER_ROOT.'/classes/OccurrenceSearchSupport.php');
+include_once($SERVER_ROOT . '/classes/OccurrenceSearchSupport.php');
+include_once($SERVER_ROOT . '/classes/ChecklistVoucherAdmin.php');
+include_once($SERVER_ROOT . '/classes/OccurrenceTaxaManager.php');
+include_once($SERVER_ROOT . '/classes/AssociationManager.php');
 include_once($SERVER_ROOT . '/classes/utilities/OccurrenceUtil.php');
-include_once($SERVER_ROOT.'/classes/ChecklistVoucherAdmin.php');
-include_once($SERVER_ROOT.'/classes/OccurrenceTaxaManager.php');
-include_once($SERVER_ROOT.'/classes/AssociationManager.php');
 
 class OccurrenceManager extends OccurrenceTaxaManager {
 
 	protected $searchTermArr = Array();
 	protected $sqlWhere;
+	protected $paleoSqlWith;
 	protected $displaySearchArr = Array();
 	protected $reset = 0;
-	private $voucherManager;
+	protected $voucherManager;
 	private $occurSearchProjectExists = 0;
 	protected $searchSupportManager = null;
 	protected $errorMessage;
@@ -58,6 +59,11 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		return $this->sqlWhere;
 	}
 
+	public function getPaleoSqlWith(){
+		if(!$this->paleoSqlWith) $this->setPaleoSqlWith();
+		return $this->paleoSqlWith;
+	}
+
 	protected function setSqlWhere(){
 		$sqlWhere = '';
 		if(array_key_exists("targetclid",$this->searchTermArr) && is_numeric($this->searchTermArr["targetclid"])){
@@ -77,7 +83,9 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				if(isset($voucherVariableArr['recordedby'])) $this->searchTermArr['collector'] = $voucherVariableArr['recordedby'];
 				if(isset($voucherVariableArr['taxon']) && !$this->taxaArr) $this->setTaxonRequestVariable(array('taxa'=>$voucherVariableArr['taxon'],'usethes'=>1));
 				if(isset($voucherVariableArr['latsouth'])) $this->searchTermArr['llbound'] = $voucherVariableArr['latnorth'].';'.$voucherVariableArr['latsouth'].';'.$voucherVariableArr['lngwest'].';'.$voucherVariableArr['lngeast'];
-				if(isset($voucherVariableArr['includewkt'])) $this->searchTermArr['footprintwkt'] = $this->voucherManager->getClFootprintWkt();
+				//if(isset($voucherVariableArr['includewkt'])) $this->searchTermArr['footprintwkt'] = $this->voucherManager->getClFootprintWkt();
+				if(isset($voucherVariableArr['includewkt'])) $this->searchTermArr['footprintGeoJson'] = $this->voucherManager->getClFootprint();
+
 				if(!isset($voucherVariableArr['excludecult'])) $this->searchTermArr['includecult'] = 1;
 				if(isset($voucherVariableArr['onlycoord'])){
 					//Include details to limit to coordinates
@@ -99,7 +107,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 						$clOccidArr[] = $r->occid;
 					}
 					$rs->free();
-				}
+			}
 				if($clOccidArr) $sqlWhere .= 'AND (o.occid NOT IN('.implode(',',$clOccidArr).')) ';
 			}
 			//$this->displaySearchArr[] = $this->voucherManager->getQueryVariableStr();
@@ -114,7 +122,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			}
 			$this->displaySearchArr[] = $this->LANG['CHECKLIST_ID'] . ': ' . $this->searchTermArr['clid'];
 		}
-		elseif(array_key_exists('db',$this->searchTermArr) && $this->searchTermArr['db']){
+		elseif(array_key_exists('db',$this->searchTermArr)){
 			$pattern = '/[^\d,]/';
 			if (preg_match($pattern, $this->searchTermArr['db'])==0) {
 				$sqlWhere .= OccurrenceSearchSupport::getDbWhereFrag($this->cleanInStr($this->searchTermArr['db']));
@@ -126,27 +134,39 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			$this->displaySearchArr[] = $this->LANG['DATASETS'] . ': ' . $this->getDatasetTitle($this->searchTermArr['datasetid']);
 		}
 		$sqlWhere .= $this->getTaxonWhereFrag();
-		$hasValidRelationship = isset(($this->associationArr['relationship'])) && $this->associationArr['relationship']!=='none';
+		$hasValidRelationship = isset($this->associationArr['relationship']) && $this->associationArr['relationship']!=='none';
 		if($hasValidRelationship){
 			$sqlWhere = substr_replace($sqlWhere,'',-1);
 			$sqlWhere .= $this->associationManager->getAssociatedRecords($this->associationArr) . ')';
 		}
+		$hasValidRelationshipFromSearchTermArr = isset(($this->searchTermArr['association-type'])) && $this->searchTermArr['association-type']!=='none' && !$hasValidRelationship;
+		if($hasValidRelationshipFromSearchTermArr){
+			$sqlWhere = substr_replace($sqlWhere,'',-1);
+			$sqlWhere .= $this->associationManager->getAssociatedRecords($this->searchTermArr, 'association-type') . ')';
+		}
 		
-		if(array_key_exists('country',$this->searchTermArr)){
-			$countryArr = explode(";",$this->searchTermArr["country"]);
-			$tempArr = Array();
+
+		//Country term
+		//Note: $this->displaySearchArr is set within the readRequestVariables function
+		$countryTermArr = array();
+		if(!empty($this->searchTermArr['countryCode'])){
+			$countryTermArr[] = '(o.countryCode IN("' . implode('","', $this->searchTermArr['countryCode']) . '"))';
+		}
+		if(array_key_exists('countryRaw', $this->searchTermArr)){
+			$countryArr = explode(";", $this->searchTermArr['countryRaw']);
 			foreach($countryArr as $k => $value){
 				if($value == 'NULL'){
-					$countryArr[$k] = 'Country IS NULL';
-					$tempArr[] = '(o.Country IS NULL)';
+					$countryArr[$k] = 'country IS NULL';
+					$countryTermArr[] = '(o.country IS NULL)';
 				}
 				else{
-					$tempArr[] = '(o.Country = "'.$this->cleanInStr($value).'")';
+					$countryTermArr[] = '(o.country = "'.$this->cleanInStr($value).'")';
 				}
 			}
-			$sqlWhere .= 'AND ('.implode(' OR ',$tempArr).') ';
-			$this->displaySearchArr[] = implode(' ' .  $this->LANG['OR'] . ' ', $countryArr);
 		}
+		if($countryTermArr) $sqlWhere .= 'AND ('.implode(' OR ',$countryTermArr).') ';
+
+		//State term
 		if(array_key_exists("state",$this->searchTermArr)){
 			$stateAr = explode(";",$this->searchTermArr["state"]);
 			$tempArr = Array();
@@ -192,9 +212,9 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 					$tempTermArr[] = 'Locality IS NULL';
 				}
 				else{
-					$tempSqlArr[] = '(o.municipality LIKE "'.$value.'%")';
+					//$tempSqlArr[] = '(o.municipality LIKE "'.$value.'%")';
 					if(strpos($value, ' ')){
-						$tempSqlArr[] = '(MATCH(o.locality) AGAINST("'.str_replace(' ', ' +', $value).'" IN BOOLEAN MODE) AND o.locality LIKE "%'.$value.'%")';
+						$tempSqlArr[] = '(MATCH(o.locality) AGAINST("+'.str_replace(' ', ' +', $value).'" IN BOOLEAN MODE) AND o.locality LIKE "%'.$value.'%")';
 					}
 					else{
 						$singleWords[] = $value;
@@ -223,7 +243,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				$lLng = $llboundArr[2];
 				$rLng = $llboundArr[3];
 				//$sqlWhere .= 'AND (o.DecimalLatitude BETWEEN '.$llboundArr[1].' AND '.$llboundArr[0].' AND o.DecimalLongitude BETWEEN '.$llboundArr[2].' AND '.$llboundArr[3].') ';
-				$sqlWhere .= 'AND (ST_Within(p.point,GeomFromText("POLYGON(('.$uLat.' '.$rLng.','.$bLat.' '.$rLng.','.$bLat.' '.$lLng.','.$uLat.' '.$lLng.','.$uLat.' '.$rLng.'))"))) ';
+				$sqlWhere .= 'AND (ST_Within(p.lngLatPoint,GeomFromText("POLYGON(('.$rLng.' '.$uLat.','.$rLng.' '.$bLat.','.$lLng.' '.$bLat.','.$lLng.' '.$uLat.','.$rLng.' '.$uLat.'))"))) ';
 				$this->displaySearchArr[] = $this->LANG['LAT'] . ': ' . $llboundArr[1] . ' - ' . $llboundArr[0] . ' ' . $this->LANG['LONG'] . ': '.$llboundArr[2].' - '.$llboundArr[3];
 			}
 		}
@@ -249,8 +269,8 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			}
 			$this->displaySearchArr[] = $pointArr[0] . ' ' . $pointArr[1] . ' +- ' . $pointArr[2] . $pointArr[3];
 		}
-		elseif(array_key_exists('footprintwkt',$this->searchTermArr)){
-			$sqlWhere .= 'AND (ST_Within(p.point,GeomFromText("'.$this->searchTermArr['footprintwkt'].'"))) ';
+		elseif(!empty($this->searchTermArr['footprintGeoJson'])){
+			$sqlWhere .= "AND (ST_Within(p.lngLatPoint,ST_GeomFromGeoJSON('".$this->searchTermArr['footprintGeoJson']."'))) ";
 			$this->displaySearchArr[] = $this->LANG['POLYGON_SEARCH'];
 		}
 		if(array_key_exists('collector',$this->searchTermArr)){
@@ -357,6 +377,37 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				$this->displaySearchArr[] = $this->searchTermArr['eventdate1'].(isset($this->searchTermArr['eventdate2'])?' - '.$this->searchTermArr['eventdate2']:'');
 			}
 		}
+		if(array_key_exists('recordenteredby', $this->searchTermArr)) {
+			$enterBy = $this->cleanInStr($this->searchTermArr['recordenteredby']);
+			if($enterBy) {
+				$sqlWhere .= ' AND (o.recordEnteredBy LIKE "%' . $enterBy . '%") ';
+			}
+		}
+		if(array_key_exists('dateentered', $this->searchTermArr)) {
+			$dateEntered = $this->cleanInStr($this->searchTermArr['dateentered']);
+			if($dateEntered) {
+				$sqlWhere .= ' AND (DATE(o.dateentered) ="' . $dateEntered . '") ';
+			}
+		}
+		if(array_key_exists('datelastmodified', $this->searchTermArr)) {
+			$dateLastModified = $this->cleanInStr($this->searchTermArr['datelastmodified']);
+			if($dateLastModified) {
+				$sqlWhere .= ' AND (DATE(o.datelastmodified) ="' . $dateLastModified . '") ';
+			}
+		}
+		if(array_key_exists('processingstatus', $this->searchTermArr)) {
+			$processingstatus = $this->cleanInStr($this->searchTermArr['processingstatus']);
+			if($processingstatus) {
+				$sqlWhere .= ' AND (o.processingStatus = "' . $processingstatus . '") ';
+			}
+		}
+		if(array_key_exists('exsiccatiid', $this->searchTermArr)) {
+			$exsiccatiId = $this->cleanInStr($this->searchTermArr['exsiccatiid']);
+			if($exsiccatiId) {
+				$sqlWhere .= ' AND (o.occid IN( SELECT occid FROM omexsiccatiocclink exlink JOIN omexsiccatinumbers exnums ON exnums.omenid = exlink.omenid JOIN omexsiccatititles extitles ON extitles.ometid = exnums.ometid WHERE extitles.ometid = ' . $exsiccatiId . ')) ';
+			}
+		}
+
 		if(array_key_exists('catnum',$this->searchTermArr)){
 			$catStr = $this->cleanInStr($this->searchTermArr['catnum']);
 			$includeOtherCatNum = array_key_exists('includeothercatnum',$this->searchTermArr)?true:false;
@@ -432,7 +483,16 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			$this->displaySearchArr[] = $this->LANG['IS_TYPE'];
 		}
 		if(array_key_exists('hasimages', $this->searchTermArr)){
-			$sqlWhere .= 'AND (o.occid IN(SELECT occid FROM images)) ';
+			if($this->searchTermArr['hasimages']) {
+				$sqlWhere .= 'AND (o.occid IN(SELECT occid FROM media where mediaType = "image")) ';
+
+			} else {
+				$sqlWhere .= 'AND (o.occid NOT IN(SELECT occid FROM media where mediaType = "image" and occid IS NOT NULL)) ';
+			}
+			$this->displaySearchArr[] = $this->LANG['HAS_IMAGES'];
+		}
+		if(array_key_exists('hasaudio', $this->searchTermArr)){
+			$sqlWhere .= 'AND (o.occid IN(SELECT occid FROM media where mediaType = "audio")) ';
 			$this->displaySearchArr[] = $this->LANG['HAS_IMAGES'];
 		}
 		if(array_key_exists('hasgenetic', $this->searchTermArr)){
@@ -445,24 +505,25 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		}
 		// Geological Context
 		if(array_key_exists('formation', $this->searchTermArr)){
-			$sqlWhere .= 'AND paleo.formation = "' . $this->cleanInStr($this->searchTermArr["formation"]) . '" ';
+			$sqlWhere .= 'AND paleo.formation LIKE "' . $this->cleanInStr($this->searchTermArr["formation"]) . '%" ';
 			$this->displaySearchArr[] = $this->searchTermArr["formation"];
 		}
 		if(array_key_exists('member', $this->searchTermArr)){
-			$sqlWhere .= 'AND paleo.member = "' . $this->cleanInStr($this->searchTermArr["member"]) . '" ';
+			$sqlWhere .= 'AND paleo.member LIKE "' . $this->cleanInStr($this->searchTermArr["member"]) . '%" ';
 			$this->displaySearchArr[] = $this->searchTermArr["member"];
 		}
 		if(array_key_exists('bed', $this->searchTermArr)){
-			$sqlWhere .= 'AND paleo.bed = "' . $this->cleanInStr($this->searchTermArr["bed"]) . '" ';
+			$sqlWhere .= 'AND paleo.bed LIKE "' . $this->cleanInStr($this->searchTermArr["bed"]) . '%" ';
 			$this->displaySearchArr[] = $this->searchTermArr["bed"];
 		}
 		if(array_key_exists('lithogroup', $this->searchTermArr)){
-			$sqlWhere .= 'AND paleo.lithogroup = "' . $this->cleanInStr($this->searchTermArr["lithogroup"]) . '" ';
+			$sqlWhere .= 'AND paleo.lithogroup LIKE "' . $this->cleanInStr($this->searchTermArr["lithogroup"]) . '%" ';
 			$this->displaySearchArr[] = $this->searchTermArr["lithogroup"];
 		}
 		if(array_key_exists('earlyInterval', $this->searchTermArr) || array_key_exists('lateInterval', $this->searchTermArr)) {
-			$sqlWhere .= 'AND ((early.myaStart >= search.searchEnd AND late.myaEnd <= search.searchStart) OR (early.myaStart > search.searchStart AND late.myaEnd >= search.searchEnd AND late.myaEnd <= search.searchStart) ';
-			$sqlWhere .= 'OR (early.myaStart <= search.searchStart AND early.myaStart >= search.searchEnd AND late.myaEnd < search.searchEnd) OR (early.myaStart > search.searchStart AND late.myaEnd < search.searchEnd)) ';
+			$sqlWhere .= 'AND ((early.myaStart > search.searchEnd AND early.myaStart <= search.searchStart AND late.myaEnd >= search.searchEnd AND late.myaEnd < search.searchStart) ';
+			$sqlWhere .= 'OR (early.myaStart > search.searchStart AND late.myaEnd >= search.searchEnd AND late.myaEnd < search.searchStart) ';
+			$sqlWhere .= 'OR (early.myaStart <= search.searchStart AND early.myaStart > search.searchEnd AND late.myaEnd < search.searchEnd) OR (early.myaStart > search.searchStart AND late.myaEnd < search.searchEnd)) ';
 		}
 
 		if($sqlWhere){
@@ -492,13 +553,23 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			}
 			$sqlWhere .= 'AND (o.occid IN(SELECT occid FROM tmattributes WHERE stateid IN(' . $this->searchTermArr['attr'] . '))) ';
 		}
-
-		if($sqlWhere) $this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
+		if($sqlWhere){
+			$sqlWhere .= OccurrenceUtil::appendFullProtectionSQL();
+			$this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
+		}
 		else{
 			//Make the sql valid, but return nothing
 			//$this->sqlWhere = 'WHERE o.occid IS NULL ';
 		}
-		// echo $this->sqlWhere; exit;
+	}
+
+	protected function setPaleoSqlWith() {
+		$paleoSqlWith = '';
+		if (array_key_exists("earlyInterval",$this->searchTermArr) || array_key_exists("lateInterval",$this->searchTermArr)) {
+			$paleoSqlWith .= "WITH searchRange AS (SELECT COALESCE((SELECT myaStart FROM omoccurpaleogts WHERE gtsterm = '"  . ($this->searchTermArr["earlyInterval"] ?? '') . "'), 5000) AS searchStart, ";
+			$paleoSqlWith .= "COALESCE((SELECT myaEnd FROM omoccurpaleogts WHERE gtsterm = '" . ($this->searchTermArr["lateInterval"] ?? '') ."'), 0) AS searchEnd) ";
+			$this->paleoSqlWith = $paleoSqlWith;
+		}
 	}
 
 	private function getAdditionIdentifiers($identFrag){
@@ -562,11 +633,12 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			if(strpos($sqlWhere,'ds.datasetid')){
 				$sqlJoin .= 'INNER JOIN omoccurdatasetlink ds ON o.occid = ds.occid ';
 			}
-			if(array_key_exists('polycoords',$this->searchTermArr) || strpos($sqlWhere,'p.point')){
+			if(array_key_exists('footprintGeoJson',$this->searchTermArr) || strpos($sqlWhere,'p.lngLatPoint')){
 				$sqlJoin .= 'INNER JOIN omoccurpoints p ON o.occid = p.occid ';
 			}
 			if ($GLOBALS['ACTIVATE_PALEO']) {
-				if (array_key_exists('earlyInterval',$this->searchTermArr) || array_key_exists('lateInterval',$this->searchTermArr)){
+				$sqlJoin .= 'LEFT JOIN omoccurpaleo paleo ON o.occid = paleo.occid ';
+				if (!empty($this->searchTermArr['earlyInterval']) || !empty($this->searchTermArr['lateInterval'])) {
 					$sqlJoin .= 'JOIN omoccurpaleogts early ON paleo.earlyInterval = early.gtsterm ';
 					$sqlJoin .= 'JOIN omoccurpaleogts late ON paleo.lateInterval = late.gtsterm ';
 					$sqlJoin .= 'CROSS JOIN searchRange search ';
@@ -593,6 +665,21 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			ksort($retArr);
 		}
 		return $retArr;
+	}
+
+	public function getPaleoTimes(){
+		$paleoTimes = []; 
+		if ($GLOBALS['ACTIVATE_PALEO']) {
+			$sql = "SELECT gtsterm, myaStart, myaEnd FROM omoccurpaleogts";
+			$rs = $this->conn->query($sql);
+			while ($r = $rs->fetch_object()) {
+				$paleoTimes[$r->gtsterm] = [
+					'myaStart' => floatval($r->myaStart),
+					'myaEnd' => floatval($r->myaEnd)
+				];
+			}
+		}
+		return $paleoTimes;
 	}
 
 	public function getFullCollectionList($catId = ''){
@@ -674,7 +761,11 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 
 	public function getSearchTerm($k){
 		if($k && isset($this->searchTermArr[$k])){
-			return $this->cleanOutStr(trim($this->searchTermArr[$k],' ;'));
+			if(is_array($this->searchTermArr[$k])) {
+				return $this->cleanOutArray($this->searchTermArr[$k]);
+			} else {
+				return $this->cleanOutStr(trim($this->searchTermArr[$k],' ;'));
+			}
 		}
 		return '';
 	}
@@ -683,6 +774,8 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		//Returns a search variable string
 		$retStr = '';
 		foreach($this->searchTermArr as $k => $v){
+			if($k == 'countryCode') continue;
+			if($k == 'countryRaw') continue;
 			if(is_array($v)) $v = implode(',', $v);
 			if($v) $retStr .= '&'. $this->cleanOutStr($k) . '=' . $this->cleanOutStr($v);
 		}
@@ -765,7 +858,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			}
 			foreach($parsedArr as $k => $v){
 				$k = $this->cleanInputStr($k);
-				$v = $this->cleanInputStr($v);
+				$v = is_array($v)? array_map(fn($av) => $this->cleanInputStr($av), $v): $this->cleanInputStr($v);
 				if($k) $this->searchTermArr[$k] = $v;
 			}
 		}
@@ -802,40 +895,65 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		if($hasEverythingRequiredForAssociationSearch){
 			$this->setAssociationRequestVariable();
 		}
+		$hasEverythingRequiredForAssociationSearchForDownload = (array_key_exists('association-type', $this->searchTermArr) && $this->searchTermArr['association-type'] || (array_key_exists('associated-taxa', $this->searchTermArr) &&  $this->searchTermArr['associated-taxa']) && array_key_exists('associated-taxon-type',$this->searchTermArr) && $this->searchTermArr['associated-taxon-type']);
+		if($hasEverythingRequiredForAssociationSearchForDownload){
+			$this->setAssociationRequestVariable($this->searchTermArr);
+		}
 		if(array_key_exists('country',$_REQUEST)){
 			$country = $this->cleanInputStr($_REQUEST['country']);
 			if($country){
-				$str = str_replace(',',';',$country);
-				if(stripos($str, 'USA') !== false || stripos($str, 'United States') !== false || stripos($str, 'U.S.A.') !== false || stripos($str, 'United States of America') !== false){
-					if(stripos($str, 'USA') === false){
-						$str .= ';USA';
+				$str = str_replace(',', ';', $country);
+				$countryRaw = '';					//Terms that were not found within geo thesaurus
+				$countryCodeArr = array();			//Terms convered to valid Country Codes
+				$countryInputArr = array();			//Verbatim terms with duplicates removed
+				foreach(explode(';', $str) as $term){
+					$term = trim($term);
+					if(!$term) continue;
+					if(isset($countryInputArr[strtolower($term)])) continue;
+					$countryInputArr[strtolower($term)] = $term;
+					$code = '';
+					$sql = 'SELECT iso2 FROM geographicthesaurus WHERE geoTerm = ? AND iso2 IS NOT NULL';
+					if($stmt = $this->conn->prepare($sql)){
+						$stmt->bind_param('s', $term);
+						$stmt->execute();
+						$stmt->bind_result($code);
+						$stmt->fetch();
+						$stmt->close();
 					}
-					if(stripos($str, 'United States') === false){
-						$str .= ';United States';
+					if($code){
+						$countryCodeArr[$code] = $code;
+						$this->displaySearchArr[] = $term . ' (' . $code . ')';
 					}
-					if(stripos($str, 'U.S.A.') === false){
-						$str .= ';U.S.A.';
-					}
-					if(stripos($str, 'United States of America') === false){
-						$str .= ';United States of America';
+					else{
+						$countryRaw .= ';' . $term;
+						$this->displaySearchArr[] = $term;
 					}
 				}
-				$this->searchTermArr['country'] = $str;
+				if(!$countryRaw && !$countryCodeArr) $countryRaw = $str;
+				if($countryCodeArr) $this->searchTermArr['countryCode'] = $countryCodeArr;
+				if($countryRaw) $this->searchTermArr['countryRaw'] = trim($countryRaw, '; ');
+				if($countryInputArr) $this->searchTermArr['country'] = implode('; ', $countryInputArr);
 			}
-			else unset($this->searchTermArr['country']);
+			else{
+				unset($this->searchTermArr['countryCode']);
+				unset($this->searchTermArr['countryRaw']);
+				unset($this->searchTermArr['country']);
+			}
 		}
 		if(array_key_exists('state',$_REQUEST)){
 			$state = $this->cleanInputStr($_REQUEST['state']);
 			if($state){
 				if(strlen($state) == 2 && (!isset($this->searchTermArr['country']) || stripos($this->searchTermArr['country'],'USA') !== false)){
-					$sql = 'SELECT s.geoTerm AS statename, c.geoTerm AS countryname
+					$sql = 'SELECT s.geoTerm AS statename
 						FROM geographicthesaurus s INNER JOIN geographicthesaurus c ON s.parentID = c.geoThesID
-						WHERE c.geoTerm IN("USA","United States") AND (s.abbreviation = "'.$state.'")';
-					$rs = $this->conn->query($sql);
-					if($r = $rs->fetch_object()){
-						$state = $r->statename;
+						WHERE c.geoTerm IN("USA","United States") AND (s.abbreviation = ?)';
+					if($stmt = $this->conn->prepare($sql)){
+						$stmt->bind_param('s', $state);
+						$stmt->execute();
+						$stmt->bind_result($state);
+						$stmt->fetch();
+						$stmt->close();
 					}
-					$rs->free();
 				}
 				$str = str_replace(',',';',$state);
 				$this->searchTermArr['state'] = $str;
@@ -942,6 +1060,10 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			if($_REQUEST['hasimages']) $this->searchTermArr['hasimages'] = true;
 			else unset($this->searchTermArr['hasimages']);
 		}
+		if(array_key_exists('hasaudio',$_REQUEST)){
+			if($_REQUEST['hasaudio']) $this->searchTermArr['hasaudio'] = true;
+			else unset($this->searchTermArr['hasaudio']);
+		}
 		if(array_key_exists('hasgenetic',$_REQUEST)){
 			if($_REQUEST['hasgenetic']) $this->searchTermArr['hasgenetic'] = true;
 			else unset($this->searchTermArr['hasgenetic']);
@@ -1031,29 +1153,28 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		if(array_key_exists('llpoint',$_REQUEST) && $_REQUEST['llpoint']){
 			$this->searchTermArr['llpoint'] = $this->cleanInputStr($_REQUEST['llpoint']);
 		}
-		if(array_key_exists('footprintwkt',$_REQUEST) && $_REQUEST['footprintwkt']){
-			$this->searchTermArr['footprintwkt'] = $this->cleanInputStr($_REQUEST['footprintwkt']);
+		if(array_key_exists('footprintGeoJson',$_REQUEST) && $_REQUEST['footprintGeoJson']){
+			//$this->searchTermArr['footprintwkt'] = $this->cleanInputStr($_REQUEST['footprintwkt']);
+			$this->searchTermArr['footprintGeoJson'] = $this->cleanInputStr($_REQUEST['footprintGeoJson']);
 		}
-
-		if(array_key_exists('earlyInterval',$_REQUEST)){
+		if(!empty($_REQUEST['earlyInterval'])){
 			$this->searchTermArr['earlyInterval'] =  $this->cleanInputStr($_REQUEST['earlyInterval']);
 		}
-		if(array_key_exists('lateInterval',$_REQUEST)){
+		if(!empty($_REQUEST['lateInterval'])){
 			$this->searchTermArr['lateInterval'] =  $this->cleanInputStr($_REQUEST['lateInterval']);
 		}
-		if(array_key_exists('lithogroup',$_REQUEST)){
+		if(!empty($_REQUEST['lithogroup'])){
 			$this->searchTermArr['lithogroup'] =  $this->cleanInputStr($_REQUEST['lithogroup']);
 		}
-		if(array_key_exists('formation',$_REQUEST)){
+		if(!empty($_REQUEST['formation'])){
 			$this->searchTermArr['formation'] =  $this->cleanInputStr($_REQUEST['formation']);
 		}
-		if(array_key_exists('member',$_REQUEST)){
+		if(!empty($_REQUEST['member'])){
 			$this->searchTermArr['member'] =  $this->cleanInputStr($_REQUEST['member']);
 		}
-		if(array_key_exists('bed',$_REQUEST)){
+		if(!empty($_REQUEST['bed'])){
 			$this->searchTermArr['bed'] =  $this->cleanInputStr($_REQUEST['bed']);
 		}
-
 	}
 
 	private function setChecklistVariables($clid){
@@ -1079,11 +1200,6 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 	public function getClName(){
 		if(!$this->voucherManager) return false;
 		return $this->voucherManager->getClName();
-	}
-
-	public function getClFootprintWkt(){
-		if(!$this->voucherManager) return false;
-		return $this->voucherManager->getClFootprintWkt();
 	}
 
 	public function getTaxaArr(){

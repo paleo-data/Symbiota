@@ -7,6 +7,8 @@ const form = document.getElementById("params-form") || null;
 const formColls = document.getElementById("search-form-colls") || null;
 const formSites = document.getElementById("site-list") || null;
 const searchFormColls = document.getElementById("search-form-colls") || null;
+const searchFormPaleo = document.getElementById("search-form-geocontext") || null;
+
 // list of parameters to be passed to url, modified by getSearchUrl method
 let paramNames = [
   "db",
@@ -14,6 +16,7 @@ let paramNames = [
   "catnum",
   "includeothercatnum",
   "hasimages",
+  "hasaudio",
   "typestatus",
   "hasgenetic",
   "hascoords",
@@ -25,7 +28,7 @@ let paramNames = [
   "elevlow",
   "elevhigh",
   "llbound",
-  "footprintwkt",
+  "footprintGeoJson",
   "llpoint",
   "eventdate1",
   "eventdate2",
@@ -62,7 +65,7 @@ const pLngEw = document.getElementById("pointlong_EW") || null;
 const pRadius = document.getElementById("radius") || null;
 const pRadiusUn = document.getElementById("radiusunits") || null;
 
-let paramsArr = [];
+let paramsArr = {};
 //////////////////////////////////////////////////////////////////////////
 
 /**
@@ -97,21 +100,6 @@ function openModal(elementid) {
  */
 function closeModal(elementid) {
   $(elementid)?.css("display", "none");
-}
-
-/**
- * Opens map helper
- * @param {String} mapMode Option from select in form
- * Function from `../../js/symb/collections.harvestparams.js`
- */
-function openCoordAid(mapMode) {
-  mapWindow = open(
-    "../tools/mapcoordaid.php?mapmode=" + mapMode,
-    "polygon",
-    "resizable=0,width=900,height=630,left=20,top=20"
-  );
-  if (mapWindow.opener == null) mapWindow.opener = self;
-  mapWindow.focus();
 }
 
 /**
@@ -155,7 +143,13 @@ function addChip(element) {
       uncheckAll(document.getElementById(element.name));
       removeChip(inputChip);
     };
-  } else {
+  }
+  else if (element.tagName === "OPTION") {
+    inputChip.id = "chip-" + element.dataset.chip;
+    inputChip.textContent = (element.dataset.chip ? element.dataset.chip + ": " : "") + element.textContent;
+    chipBtn.onclick = () => handleRemoval(element, inputChip);
+  }
+  else {
     inputChip.id = "chip-" + element.id;
     let isTextOrNum = (element.type == "text") | (element.type == "number");
     isTextOrNum
@@ -180,6 +174,12 @@ function handleRemoval(element, inputChip) {
   element.type === "checkbox"
     ? (element.checked = false)
     : (element.value = element.defaultValue);
+    if (element.tagName === "OPTION") {
+      const selectElement = element.closest('select');
+      if (selectElement) {
+        element.selected = false;
+      }
+    }
   if (element.getAttribute("id") === "dballcb") {
     const targetCategoryCheckboxes =
       document.querySelectorAll('input[id^="cat-"]');
@@ -202,7 +202,6 @@ function handleRemoval(element, inputChip) {
   setMaterialSampleToDefault(element);
   setTaxonTypeToDefault(element);
   setAssociationTaxonTypeToDefault(element);
-  // uncheckAllChip(element); // @TODO test this out
   element.dataset.formId ? uncheckAll(element) : "";
   removeChip(inputChip);
 }
@@ -569,6 +568,10 @@ function getParam(paramName) {
       let pRadiusVal = pRadius.value + ";" + pRadiusUn.value;
       elementValues = `${pLatVal};${pLngVal};${pRadiusVal}`;
     }
+  } else if (paramName === "elevlow" || paramName === "elevhigh") {
+    firstEl.type === "number" && firstEl != ""
+      ? (elementValues = firstEl.value)
+      : "";
   } else if (elements[0] != undefined) {
     switch (firstEl.tagName) {
       case "INPUT":
@@ -593,7 +596,7 @@ function getParam(paramName) {
  * Creates search URL with parameters
  * Define parameters to be looked for in `paramNames` array
  */
-function getSearchUrl() {
+function getSearchUrl(appendParams = false) {
   const formatPreference = document.getElementById("list-button").checked
     ? "list"
     : "table";
@@ -603,20 +606,22 @@ function getSearchUrl() {
 
   const baseUrl = new URL(harvestUrl + urlSuffix);
 
-  // Clears array temporarily to avoid redundancy
-  paramsArr = [];
-
-  // Grabs params from form for each param name
-  paramNames.forEach((param, i) => {
-    return getParam(paramNames[i]);
-  });
-
-  // Appends each key value for each param in search url
-  let queryString = Object.keys(paramsArr).map((key) => {
-    baseUrl.searchParams.append(key, paramsArr[key]);
-  });
-
-  baseUrl.searchParams.append("comingFrom", "newsearch");
+  if(appendParams){
+    // Clears array temporarily to avoid redundancy
+    paramsArr = {};
+  
+    // Grabs params from form for each param name
+    paramNames.forEach((param, i) => {
+      return getParam(paramNames[i]);
+    });
+  
+    // Appends each key value for each param in search url
+    let queryString = Object.keys(paramsArr).map((key) => {
+      baseUrl.searchParams.append(key, paramsArr[key]);
+    });
+  
+    baseUrl.searchParams.append("comingFrom", "newsearch");
+  }
 
   return baseUrl.href;
 }
@@ -705,6 +710,27 @@ function validateForm() {
     }
   }
 
+  // Geo Context
+  if (searchFormPaleo) {
+    let early = form.earlyInterval.value;
+    let late = form.lateInterval.value;
+    if ((early !== "" && late === "") || (early === "" && late !== "")) {
+      errors.push({
+        elId: "search-form-geocontext",
+        errorMsg:
+          translations.INTERVAL_MISSING,
+      });
+    }
+
+    if (early in paleoTimes && late in paleoTimes && paleoTimes[early].myaStart <= paleoTimes[late].myaEnd) {
+      errors.push({
+        elId: "search-form-geocontext",
+        errorMsg:
+          translations.INTERVALS_WRONG_ORDER,
+      });
+    }
+  }
+
   return errors;
 }
 
@@ -740,11 +766,24 @@ function simpleSearch() {
   errors = validateForm();
   let isValid = errors.length == 0;
   if (isValid) {
-    let searchUrl = getSearchUrl();
-    window.location = searchUrl;
+    const searchUrl = shortenSearchUrlIfAllCollectionsAreSearched();
+    sessionStorage.setItem('verbatimSearchUrl', searchUrl);
+    const submitForm = document.getElementById("params-form");
+    submitForm.method = "POST"; // if GET is used instead, the URL is too short for complex polygon + many collections queries. Hence, the need for POST.
+    submitForm.action = getSearchUrl();
+    submitForm.submit();
   } else {
     handleValErrors(errors);
   }
+}
+
+function shortenSearchUrlIfAllCollectionsAreSearched(){
+  const searchUrlOriginal = getSearchUrl(true);
+    let searchUrl = searchUrlOriginal;
+    if(searchUrlOriginal.includes("db=all")){
+      searchUrl = searchUrlOriginal.replace(/db=all(?:%[^&?]*)*/, "db=all");
+    }
+    return searchUrl;
 }
 
 /**
@@ -792,15 +831,16 @@ function checkTheCollectionsThatShouldBeChecked(queriedCollections) {
       if (candidateTargetElems.length > 0) {
         targetElem = candidateTargetElems[0]; // there should only be one match; get the first one
       }
+    } 
+    if(targetElem){
+      targetElem.checked = true;
     }
-    targetElem.checked = true;
   });
 }
 
 function setSearchForm(frm) {
   if (sessionStorage.querystr) {
-    var urlVar = parseUrlVariables(sessionStorage.querystr);
-
+    var urlVar = parseUrlVariables(sessionStorage.querystr.replaceAll('&quot;', '"'));
     if (
       typeof urlVar.usethes !== "undefined" &&
       (urlVar.usethes == "" || urlVar.usethes == "0")
@@ -901,19 +941,31 @@ function setSearchForm(frm) {
     if (urlVar.llbound) {
       var coordArr = urlVar.llbound.split(";");
       frm.upperlat.value = Math.abs(parseFloat(coordArr[0]));
+      frm.upperlat_NS.value = parseFloat(coordArr[0]) > 0 ? "N" : "S";
+
       frm.bottomlat.value = Math.abs(parseFloat(coordArr[1]));
+      frm.bottomlat_NS.value = parseFloat(coordArr[1]) > 0 ? "N" : "S";
+
       frm.leftlong.value = Math.abs(parseFloat(coordArr[2]));
+      frm.leftlong_EW.value = parseFloat(coordArr[2]) > 0 ? "E" : "W";
+
       frm.rightlong.value = Math.abs(parseFloat(coordArr[3]));
+      frm.rightlong_EW.value = parseFloat(coordArr[3]) > 0 ? "E" : "W";
     }
-    if (urlVar.footprintwkt) {
-      frm.footprintwkt.value = urlVar.footprintwkt;
+    if (urlVar.footprintGeoJson) {
+      frm.footprintwkt.value = urlVar.footprintGeoJson;
     }
     if (urlVar.llpoint) {
       var coordArr = urlVar.llpoint.split(";");
       frm.pointlat.value = Math.abs(parseFloat(coordArr[0]));
+      frm.pointlat_NS.value = parseFloat(coordArr[0]) > 0 ? "N" : "S";
+
       frm.pointlong.value = Math.abs(parseFloat(coordArr[1]));
+      frm.pointlong_EW.value = parseFloat(coordArr[1]) > 0 ? "E" : "W";
+
       frm.radius.value = Math.abs(parseFloat(coordArr[2]));
-      if (coordArr[4] == "mi") frm.radiusunits.value = "mi";
+      if (coordArr[3] === "mi") frm.radiusunits.value = "mi";
+      else if (coordArr[3] === "km") frm.radiusunits.value = "km";
     }
     if (urlVar.collector) {
       frm.collector.value = urlVar.collector;
@@ -987,11 +1039,46 @@ function parseUrlVariables(varStr) {
   return result;
 }
 
+function toggleTheNonDefaultsClosed(defaultId) {
+  const categoryButtons = document.querySelectorAll('a[id^="condense-"]');
+  categoryButtons.forEach((categoryButton) => {
+    const regexPattern = new RegExp(`^condense-\\d+-${defaultId}$`);
+    if (!regexPattern.test(categoryButton.id)) {
+      const idToToggle = categoryButton.id
+        .replace("condense-", "")
+        .replace("-" + defaultId, "");
+      toggleCat(idToToggle);
+    }
+  });
+}
+
+function toggleAccordionsFromSessionStorage(accordionIds) {
+  const accordions = document.querySelectorAll(
+    'input[class="accordion-selector"]'
+  );
+  accordions.forEach((accordion) => {
+    if(accordion.id !== "taxonomy") accordion.checked = false;
+    if(accordion.id === "taxonomy" && localStorage.getItem("taxonomyAccordionClosed")) accordion.checked = false;
+  });
+  accordions.forEach((accordion) => {
+    const currentId = accordion.getAttribute("id");
+    if (accordionIds.includes(currentId)) {
+      accordion.checked = true;
+    }
+  });
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 /**
  * EVENT LISTENERS/INITIALIZERS
  */
+
+document.getElementById("params-form").addEventListener("submit", function(event) {
+  event.preventDefault();
+  simpleSearch();
+});
+
 
 // Reset button
 document
@@ -1039,3 +1126,24 @@ $(".expansion-icon").click(function () {
 });
 // Hides MOSC-BU checkboxes
 hideColCheckbox(58);
+
+const accordions = document.querySelectorAll(
+  'input[class="accordion-selector"]'
+);
+accordions.forEach((accordion) => {
+  accordion.addEventListener("click", (event) => {
+    const currentAccordionIds = localStorage?.accordionIds?.split(",") || [];
+    const currentId = event.target.id;
+    if (currentAccordionIds.includes(currentId)) {
+      const targetIdx = currentAccordionIds.indexOf(currentId);
+      currentAccordionIds.splice(targetIdx, 1);
+      if(currentId==="taxonomy") {
+        localStorage.setItem("taxonomyAccordionClosed", true);
+      }
+    } else {
+      currentAccordionIds.push(currentId);
+      if(currentId==="taxonomy") localStorage.setItem("taxonomyAccordionClosed", false)
+    }
+    localStorage.setItem("accordionIds", currentAccordionIds);
+  });
+});

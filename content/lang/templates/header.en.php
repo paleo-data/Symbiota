@@ -15,9 +15,9 @@ $LANG['H_MAP'] = 'Map';
 $LANG['H_MAP_SEARCH'] = 'Map Search';
 $LANG['H_TAXONOMIC_EXPLORER'] = 'Taxonomic Explorer';
 
-$LANG['H_IMAGES'] = 'Images';
-$LANG['H_IMAGE_BROWSER'] = 'Image Browser';
-$LANG['H_IMAGE_SEARCH'] = 'Image Search';
+$LANG['H_IMAGES'] = 'Media';
+$LANG['H_IMAGE_BROWSER'] = 'Media Browser';
+$LANG['H_IMAGE_SEARCH'] = 'Media Search';
 
 $LANG['H_INVENTORIES'] = 'Species Checklists';
 $LANG['H_PROJECT_1'] = 'Checklist Project 1';
@@ -32,6 +32,9 @@ $LANG['H_INVERTEBRATES'] = 'Invertebrates';
 $LANG['H_MAMMALIA'] = 'Mammals';
 $LANG['H_PLANTA'] = 'Plants';
 $LANG['H_REPTILIA'] = 'Reptiles';
+
+$LANG['H_GLOSSARY'] = 'Glossary';
+$LANG['H_GLOSSARY_SEARCH'] = 'Search Glossary';
 
 $LANG['H_MORE_INFO'] = 'More Information';
 $LANG['H_ABOUT_PROJECT'] = 'About Project';

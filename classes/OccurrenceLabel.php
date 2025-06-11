@@ -123,7 +123,7 @@ class OccurrenceLabel{
 				$sqlWhere .= 'AND (o.collid = '.$this->collid.') ';
 			}
 			$sql = 'SELECT DISTINCT o.occid, o.collid, IFNULL(o.duplicatequantity,1) AS q, CONCAT_WS(" ",o.recordedby,IFNULL(o.recordnumber,o.eventdate)) AS collector, o.observeruid, '.
-				'o.family, o.sciname, CONCAT_WS("; ",o.country, o.stateProvince, o.county, o.locality) AS locality, IFNULL(o.localitySecurity,0) AS localitySecurity '.
+				'o.family, o.sciname, CONCAT_WS("; ",o.country, o.stateProvince, o.county, o.locality) AS locality, IFNULL(o.recordSecurity,0) AS recordSecurity '.
 				'FROM omoccurrences o LEFT JOIN omoccuridentifiers i ON o.occid = i.occid ';
 			if($sqlWhere) $sql .= 'WHERE '.substr($sqlWhere, 4);
 			if($sqlOrderBy) $sql .= ' ORDER BY '.substr($sqlOrderBy,1);
@@ -132,8 +132,8 @@ class OccurrenceLabel{
 			//echo '<div>'.$sql.'</div>';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				$localitySecurity = $r->localitySecurity;
-				if(!$localitySecurity || $canReadRareSpp || ($r->observeruid == $GLOBALS['SYMB_UID'])){
+				$recordSecurity = $r->recordSecurity;
+				if(!$recordSecurity || $canReadRareSpp || ($r->observeruid == $GLOBALS['SYMB_UID'])){
 					$occId = $r->occid;
 					$retArr[$occId]['collid'] = $r->collid;
 					$retArr[$occId]['q'] = $r->q;
@@ -278,8 +278,8 @@ class OccurrenceLabel{
 				'decimalLongitude'=>'o.decimallongitude', 'geodeticDatum'=>'o.geodeticdatum', 'coordinateUncertaintyInMeters'=>'o.coordinateuncertaintyinmeters', 'verbatimCoordinates'=>'o.verbatimcoordinates',
 				'minimumElevationInMeters'=>'o.minimumelevationinmeters', 'maximumElevationInMeters'=>'o.maximumelevationinmeters',
 				'elevationInMeters'=>'CONCAT_WS(" - ",o.minimumElevationInMeters,o.maximumElevationInMeters) AS elevationinmeters', 'verbatimElevation'=>'o.verbatimelevation',
-				'minimumDepthInMeters'=>'minimumdepthinmeters', 'maximumDepthInMeters'=>'maximumdepthinmeters', 'verbatimDepth'=>'verbatimdepth',
-				'disposition'=>'o.disposition', 'storageLocation'=>'storagelocation', 'duplicateQuantity'=>'o.duplicatequantity', 'dateLastModified'=>'o.datelastmodified');
+				'minimumDepthInMeters'=>'o.minimumdepthinmeters', 'maximumDepthInMeters'=>'o.maximumdepthinmeters', 'verbatimDepth'=>'o.verbatimdepth',
+				'disposition'=>'o.disposition', 'storageLocation'=>'o.storagelocation', 'duplicateQuantity'=>'o.duplicatequantity', 'dateLastModified'=>'o.datelastmodified');
 		}
 	}
 
@@ -504,7 +504,6 @@ class OccurrenceLabel{
 		$labelArr['labelFooter']['className'] = $postArr['fClassName'];
 		$labelArr['labelFooter']['style'] = $postArr['fStyle'];
 		$labelArr['customStyles'] = $postArr['customStyles'];
-		$labelArr['defaultCss'] = $postArr['defaultCss'];
 		$labelArr['customCss'] = $postArr['customCss'];
 		$labelArr['customJS'] = $postArr['customJS'];
 		$labelArr['labelType'] = $postArr['labelType'];

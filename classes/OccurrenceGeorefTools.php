@@ -232,7 +232,7 @@ class OccurrenceGeorefTools {
 
 	public function getGeorefClones($locality, $country, $state, $county, $searchType, $collStr){
 		$occArr = array();
-		$sql = 'SELECT count(o.occid) AS cnt, o.decimallatitude, o.decimallongitude, o.coordinateUncertaintyInMeters, o.georeferencedby, o.locality '.
+		$sql = 'SELECT count(o.occid) AS cnt, o.decimallatitude, o.decimallongitude, o.coordinateUncertaintyInMeters, o.georeferencedBy, o.georeferenceProtocol, o.georeferenceSources, o.georeferenceRemarks, o.georeferenceVerificationStatus, o.locality, o.footprintWKT '.
 			'FROM omoccurrences o ';
 		$sqlWhere = 'WHERE (o.decimallatitude IS NOT NULL) AND (o.decimallongitude IS NOT NULL) ';
 		if($collStr){
@@ -281,7 +281,12 @@ class OccurrenceGeorefTools {
 			//$occArr[$cnt]['country'] = $r->country;
 			//$occArr[$cnt]['state'] = $r->stateprovince;
 			//$occArr[$cnt]['county'] = $r->county;
-			$occArr[$cnt]['georefby'] = $r->georeferencedby;
+			$occArr[$cnt]['georeferencedBy'] = $r->georeferencedBy;
+			$occArr[$cnt]['georeferenceProtocol'] = $r->georeferenceProtocol;
+			$occArr[$cnt]['georeferenceSources'] = $r->georeferenceSources;
+			$occArr[$cnt]['georeferenceRemarks'] = $r->georeferenceRemarks;
+			$occArr[$cnt]['georeferenceVerificationStatus'] = $r->georeferenceVerificationStatus;
+			$occArr[$cnt]['footprintWKT'] = $r->footprintWKT;
 			$occArr[$cnt]['locality'] = $r->locality;
 			$cnt++;
 		}
@@ -303,7 +308,7 @@ class OccurrenceGeorefTools {
 		if(isset($USER_RIGHTS['CollEditor'])) $rightArr = array_merge($rightArr, $USER_RIGHTS['CollEditor']);
 		if($rightArr || $IS_ADMIN){
 			$sql = 'SELECT collid, CONCAT_WS("-",institutioncode, collectioncode) AS code, collectionname, icon, colltype, managementtype FROM omcollections '.
-				'WHERE ((colltype IN("Preserved Specimens","Observations")) ';
+				'WHERE ((colltype IN("Preserved Specimens","Fossil Specimens","Observations")) ';
 			if($rightArr) $sql .= 'AND (collid IN('.implode(',', $rightArr).')) ';
 			$sql .= ') ';
 			if($IS_ADMIN && $this->collStr) $sql .= 'OR (collid IN('.$this->collStr.')) ';
