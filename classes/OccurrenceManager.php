@@ -1204,6 +1204,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		if(array_key_exists('characters',$_REQUEST)){
 			if($_REQUEST['characters']) $this->searchTermArr['characters'] = $_REQUEST['characters'];
 			else unset($this->searchTermArr['characters']);
+		}
 		if(!empty($_REQUEST['earlyInterval'])){
 			$this->searchTermArr['earlyInterval'] =  $this->cleanInputStr($_REQUEST['earlyInterval']);
 		}
