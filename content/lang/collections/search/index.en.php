@@ -102,9 +102,16 @@ $LANG['LEFT_LONG'] = 'Left Long';
 $LANG['RIGHT_LONG'] = 'Right Long';
 $LANG['POINT_LAT'] = 'Point Lat';
 $LANG['POINT_LONG'] = 'Point Long';
+$LANG['UPPER_HEMI'] = 'Upper Hemisphere';
+$LANG['BOTTOM_HEMI'] = 'Lower Hemisphere';
+$LANG['LEFT_HEMI'] = 'Left Hemisphere';
+$LANG['RIGHT_HEMI'] = 'Right Hemisphere';
+$LANG['POINT_LAT_HEMI'] = 'Point Lat Hemisphere';
+$LANG['POINT_LONG_HEMI'] = 'Point Long Hemisphere';
 $LANG['EVENT_DATE_START'] = 'Event Date Start';
 $LANG['EVENT_DATE_END'] = 'Event Date End';
 $LANG['COLLECTOR_LAST'] = 'Collector last';
+
 $LANG['NORTHERN_LATITUDE'] = 'Northern Latitude';
 $LANG['SOUTHERN_LATITUDE'] = 'Southern Latitude';
 $LANG['WESTERN_LONGITUDE'] = 'Western Longitude';

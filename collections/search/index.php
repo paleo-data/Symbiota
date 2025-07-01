@@ -239,8 +239,8 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 										<span class="screen-reader-only"><?php echo $LANG['SELECT_UPPER_LAT_DIRECTION_NORTH_SOUTH'] ?></span>
 										<select class="mt-1" id="upperlat_NS" name="upperlat_NS">
 											<option value=""><?php echo $LANG['SELECT_NORTH_SOUTH'] ?></option>
-											<option id="ulN" value="N"><?php echo $LANG['NORTH'] ?></option>
-											<option id="ulS" value="S"><?php echo $LANG['SOUTH'] ?></option>
+											<option id="ulN" value="N" data-chip="<?php echo $LANG['UPPER_HEMI'] ?>"><?php echo $LANG['NORTH'] ?></option>
+											<option id="ulS" value="S" data-chip="<?php echo $LANG['UPPER_HEMI'] ?>"><?php echo $LANG['SOUTH'] ?></option>
 										</select>
 									</label>
 								</div>
@@ -254,8 +254,8 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 										<span class="screen-reader-only"><?php echo $LANG['SELECT_BOTTOM_LAT_DIREC_NORTH_SOUTH'] ?></span>
 										<select class="mt-1" id="bottomlat_NS" name="bottomlat_NS">
 											<option value=""><?php echo $LANG['SELECT_NORTH_SOUTH'] ?></option>
-											<option id="blN" value="N"><?php echo $LANG['NORTH'] ?></option>
-											<option id="blS" value="S"><?php echo $LANG['SOUTH'] ?></option>
+											<option id="blN" value="N" data-chip="<?php echo $LANG['BOTTOM_HEMI'] ?>"><?php echo $LANG['NORTH'] ?></option>
+											<option id="blS" value="S" data-chip="<?php echo $LANG['BOTTOM_HEMI'] ?>"><?php echo $LANG['SOUTH'] ?></option>
 										</select>
 									</label>
 								</div>
@@ -270,8 +270,8 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 										<span class="screen-reader-only"><?php echo $LANG['SELECT_LEFT_LONG_DIREC_WEST_EAST'] ?></span>
 										<select class="mt-1" id="leftlong_EW" name="leftlong_EW">
 											<option value=""><?php echo $LANG['SELECT_WEST_EAST'] ?></option>
-											<option id="llW" value="W"><?php echo $LANG['WEST'] ?></option>
-											<option id="llE" value="E"><?php echo $LANG['EAST'] ?></option>
+											<option id="llW" value="W" data-chip="<?php echo $LANG['LEFT_HEMI'] ?>"><?php echo $LANG['WEST'] ?></option>
+											<option id="llE" value="E" data-chip="<?php echo $LANG['LEFT_HEMI'] ?>"><?php echo $LANG['EAST'] ?></option>
 										</select>
 									</label>
 								</div>
@@ -285,8 +285,8 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 										<span class="screen-reader-only"><?php echo $LANG['SELECT_RIGHT_LONG_DIREC_WEST_EAST'] ?></span>
 										<select class="mt-1" id="rightlong_EW" name="rightlong_EW">
 											<option value=""><?php echo $LANG['SELECT_WEST_EAST'] ?></option>
-											<option id="rlW" value="W"><?php echo $LANG['WEST'] ?></option>
-											<option id="rlE" value="E"><?php echo $LANG['EAST'] ?></option>
+											<option id="rlW" value="W" data-chip="<?php echo $LANG['RIGHT_HEMI'] ?>"><?php echo $LANG['WEST'] ?></option>
+											<option id="rlE" value="E" data-chip="<?php echo $LANG['RIGHT_HEMI'] ?>"><?php echo $LANG['EAST'] ?></option>
 										</select>
 									</label>
 								</div>
@@ -316,8 +316,8 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 										<span class="screen-reader-only"><?php echo $LANG['POINT_LAT_DIREC_NORTH_SOUTH'] ?></span>
 										<select class="mt-1" id="pointlat_NS" name="pointlat_NS">
 											<option value=""><?php echo $LANG['SELECT_NORTH_SOUTH'] ?></option>
-											<option id="N" value="N"><?php echo $LANG['NORTH'] ?></option>
-											<option id="S" value="S"><?php echo $LANG['SOUTH'] ?></option>
+											<option id="N" value="N" data-chip="<?php echo $LANG['POINT_LAT_HEMI'] ?>"><?php echo $LANG['NORTH'] ?></option>
+											<option id="S" value="S" data-chip="<?php echo $LANG['POINT_LAT_HEMI'] ?>"><?php echo $LANG['SOUTH'] ?></option>
 										</select>
 									</label>
 								</div>
@@ -331,8 +331,8 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 										<span class="screen-reader-only"><?php echo $LANG['POINT_LONGITUDE_DIREC_EAST_WEST'] ?></span>
 										<select class="mt-1" id="pointlong_EW" name="pointlong_EW">
 											<option value=""><?php echo $LANG['SELECT_WEST_EAST'] ?></option>
-											<option id="W" value="W"><?php echo $LANG['WEST'] ?></option>
-											<option id="E" value="E"><?php echo $LANG['EAST'] ?></option>
+											<option id="W" value="W" data-chip="<?php echo $LANG['POINT_LONG_HEMI'] ?>"><?php echo $LANG['WEST'] ?></option>
+											<option id="E" value="E" data-chip="<?php echo $LANG['POINT_LONG_HEMI'] ?>"><?php echo $LANG['EAST'] ?></option>
 										</select>
 									</label>
 								</div>
