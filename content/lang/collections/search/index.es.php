@@ -85,7 +85,7 @@ $LANG['DATE_FORMAT'] = 'AAAA-MM-DD';
 $LANG['SINGLE_DATE_START_DATE'] = 'Fecha única o fecha de inicio del rango (por ejemplo, AAAA-MM-DD o formato similar).';
 $LANG['COLLECTION_END_DATE'] = 'Fecha de finalización de la colección';
 $LANG['SINGLE_DATE_END_DATE'] = 'Fecha única o fecha de finalización del rango (por ejemplo, AAAA-MM-DD o formato similar).';
-$LANG['COLLECTOR_LAST_NAME'] = 'Apellido del Colector';
+$LANG['COLLECTOR_NAME'] = 'Nombre del Colector';
 $LANG['COLLECTOR_NUMBER_'] = 'Número de Coleccionista';
 $LANG['COLLECTIONS'] = 'Colecciones';
 
@@ -113,7 +113,6 @@ $LANG['POINT_LAT_HEMI'] = 'Latitud del punto del hemisferio';
 $LANG['POINT_LONG_HEMI'] = 'Longitud del punto del hemisferio';
 $LANG['EVENT_DATE_START'] = 'Fecha de inicio del evento';
 $LANG['EVENT_DATE_END'] = 'Fecha de finalización del evento';
-$LANG['COLLECTOR_LAST'] = 'Último Recopilador';
 
 $LANG['NORTHERN_LATITUDE'] = 'Latitud Norte';
 $LANG['SOUTHERN_LATITUDE'] = 'Latitud Sur';
@@ -132,6 +131,9 @@ $LANG['ASSOCIATIONS'] = 'Asociaciones';
 $LANG['ASSOCIATION_DESCRIPTION'] = 'Encuentre todas las apariciones de taxones que tengan la siguiente asociación';
 $LANG['ASSOCIATION_DESCRIPTION_2'] = 'con el siguiente taxon';
 $LANG['ASSOCIATION_TYPE'] = 'Tipo de asociación';
+$LANG['CHARACTERS'] = 'Caracteres';
+$LANG['CHARACTER_NOTE'] = '<b>Nota</b>: Los estados de carácter dependen de los valores asignados por la comunidad de este portal. Es posible que algunos taxones no tengan estados de carácter asignados y, por lo tanto, no aparezcan en los resultados de búsqueda.';
+$LANG['NOCHARFOUND'] = 'No se encontraron caracteres';
 $LANG['GEO_CONTEXT'] = 'Contexto geológico';
 $LANG['EARLY_INT'] = 'Intervalo temprano';
 $LANG['LATE_INT'] = 'Intervalo tardío';
@@ -139,4 +141,5 @@ $LANG['LITHOGROUP'] = 'Grupo';
 $LANG['FORMATION'] = 'Formación';
 $LANG['MEMBER'] = 'Miembro';
 $LANG['BED'] = 'Estrato';
+
 ?>

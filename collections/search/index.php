@@ -34,6 +34,7 @@ $collList = $collManager->getFullCollectionList($catId);
 $specArr = (isset($collList['spec']) ? $collList['spec'] : null);
 $obsArr = (isset($collList['obs']) ? $collList['obs'] : null);
 $associationManager = new AssociationManager();
+$characters = $collManager->getCharacters();
 $relationshipTypes = $associationManager->getRelationshipTypes();
 ?>
 <!DOCTYPE html>
@@ -105,7 +106,7 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 	?>
 	<!-- This is inner text! -->
 	<div role="main" id="innertext" class="inner-search" style="max-width: 1920px">
-		<h1 class="page-heading"><?php echo $LANG['SAMPLE_SEARCH'] ?> <a href="https://symbiota.github.io/Symbiota-Documentation/docs/User_Guide/searching_records" target="_blank" title="<?= $LANG['HOW_TO_SEARCH'] ?>" alt="<?= $LANG['HOW_TO_SEARCH'] ?>"><img class="docimg" src="../../images/qmark.png" /></a></h1>
+		<h1 class="page-heading"><?php echo $LANG['SAMPLE_SEARCH'] ?> <a href="https://docs.symbiota.org/Symbiota-Documentation/docs/User_Guide/searching_records" target="_blank" title="<?= $LANG['HOW_TO_SEARCH'] ?>" alt="<?= $LANG['HOW_TO_SEARCH'] ?>"><img class="docimg" src="../../images/qmark.png" /></a></h1>
 		<div id="error-msgs" class="errors"></div>
 		<div style="display: grid; grid-template-columns: 3fr 1fr;">
 			<button onClick="handleAccordionExpand()" class="inner-search button" id="expand-all-button" type="button" style="font-size: 1rem;"><?= $LANG['EXPAND_ALL_SECTIONS']; ?></button>
@@ -381,9 +382,9 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 							</div>
 							<div class="input-text-container">
 								<label for="collector" class="input-text--outlined">
-									<span class="screen-reader-only"><?php echo $LANG['COLLECTOR_LAST_NAME'] ?></span>
-									<input type="text" id="collector" size="32" name="collector" value="" data-chip="<?php echo $LANG['COLLECTOR_LAST'] ?>" />
-									<span class="inset-input-label"><?php echo $LANG['COLLECTOR_LASTNAME']; ?></span>
+									<span class="screen-reader-only"><?php echo $LANG['COLLECTOR_NAME'] ?></span>
+									<input type="text" id="collector" size="32" name="collector" value="" data-chip="<?php echo $LANG['COLLECTOR_NAME'] ?>" />
+									<span class="inset-input-label"><?php echo $LANG['COLLECTOR_NAME']; ?></span>
 									<span class="assistive-text"><?= $LANG['SEPARATE_MULTIPLE'] ?></span>
 								</label>
 							</div>
@@ -481,7 +482,7 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 							<!-- Accordion selector -->
 							<input type="checkbox" id="trait" class="accordion-selector" />
 							<!-- Accordion header -->
-							<label for="trait" class="accordion-header"><?php echo $LANG['TRAIT_CRITERIA'] ?> <a href="https://symbiota.github.io/Symbiota-Documentation/docs/User_Guide/traits" target="_blank" title="<?= $LANG['MORE_INFO'] ?>" alt="<?= $LANG['MORE_INFO'] ?>"><img class="docimg" src="../../images/qmark.png" /></a></label>
+							<label for="trait" class="accordion-header"><?php echo $LANG['TRAIT_CRITERIA'] ?> <a href="https://docs.symbiota.org/Symbiota-Documentation/docs/User_Guide/traits" target="_blank" title="<?= $LANG['MORE_INFO'] ?>" alt="<?= $LANG['MORE_INFO'] ?>"><img class="docimg" src="../../images/qmark.png" /></a></label>
 							<!-- Accordion content -->
 							<div class="content">
 								<div id="search-form-trait">
@@ -523,7 +524,7 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 					<input type="checkbox" id="associations" class="accordion-selector" />
 
 					<!-- Accordion header -->
-					<label for="associations" class="accordion-header"><?php echo $LANG['ASSOCIATIONS'] ?> <a href="https://symbiota.github.io/Symbiota-Documentation/docs/User_Guide/associations" target="_blank" title="<?= $LANG['MORE_INFO'] ?>" alt="<?= $LANG['MORE_INFO'] ?>"><img class="docimg" src="../../images/qmark.png" /></a></label>
+					<label for="associations" class="accordion-header"><?php echo $LANG['ASSOCIATIONS'] ?> <a href="https://docs.symbiota.org/Symbiota-Documentation/docs/User_Guide/associations" target="_blank" title="<?= $LANG['MORE_INFO'] ?>" alt="<?= $LANG['MORE_INFO'] ?>"><img class="docimg" src="../../images/qmark.png" /></a></label>
 
 					<!-- Taxonomy -->
 					<div id="search-form-associations" class="content">
@@ -581,6 +582,71 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 						</div>
 					</div>
 				</section>
+
+				<!-- Character Search -->
+				<?php if (!empty($characters)): ?>
+				<section>
+					<!-- Character selector -->
+					<input type="checkbox" id="characters" class="accordion-selector" />
+
+					<!-- Character header -->
+					<label for="characters" class="accordion-header"><?php echo $LANG['CHARACTERS'] ?> <a href="https://docs.symbiota.org/docs/User_Guide/searching_records#taxon-character-criteria" target="_blank" title="<?= $LANG['MORE_INFO'] ?>" alt="<?= $LANG['MORE_INFO'] ?>"><img class="docimg" src="../../images/qmark.png" /></a></label>
+
+					<div id="search-form-characters" class="content">
+						<div>
+							<?php if (!empty($characters)): ?>
+								<div><?= $LANG['CHARACTER_NOTE'] ?><br></br></div>
+								<?php
+								$grouped = [];
+								foreach ($characters as $cid => $char) {
+									$heading = $char['heading'] ?: 'Other';
+									$grouped[$heading][$cid] = $char;
+								}
+								?>
+
+								<?php foreach ($grouped as $heading => $charGroup): ?>
+									<?php
+										$idStr = preg_replace('/[^a-zA-Z0-9]+/', '-', strtolower($heading));
+									?>
+
+									<div class="char-headings">
+										<a href="#" onclick="toggleCharacterGroup('<?php echo $idStr; ?>'); return false;" class="condense-expand">
+											<span class="heading-text"><?php echo htmlspecialchars($heading); ?></span>
+											<span class="icon-wrapper">
+												<img id="plus-<?php echo $idStr; ?>" src="../../images/plus.png" alt="Expand" style="display:inline; width:1em;">
+												<img id="minus-<?php echo $idStr; ?>" src="../../images/minus.png" alt="Collapse" style="display:none; width:1em;">
+											</span>
+										</a>
+									</div>
+
+									<div id="char-block-<?php echo $idStr; ?>" style="display:none;">
+									<?php foreach ($charGroup as $cid => $char): ?>
+										<div class="character-block">
+											<div class="char-names"><?php echo htmlspecialchars($char['charName']); ?></div>
+											<div class="char-states">
+												<?php foreach ($char['states'] as $state): ?>
+													<?php
+													$charChip = htmlspecialchars($char['heading']) . " [" .
+																htmlspecialchars($char['charName']) . "]: " .
+																htmlspecialchars($state['charStateName']);
+													?>
+													<label>
+														<input type="checkbox" name="characters[]" data-chip="<?php echo $charChip; ?>" value="<?php echo $cid . ':' . htmlspecialchars($state['cs']); ?>">
+														<?php echo htmlspecialchars($state['charStateName']); ?>
+													</label><br>
+												<?php endforeach; ?>
+											</div>
+										</div>
+									<?php endforeach; ?>
+								</div>
+								<?php endforeach; ?>
+							<?php else: ?>
+								<p><?php echo $LANG['NOCHARFOUND'] ?></p>
+							<?php endif; ?>
+						</div>
+					</div>
+				</section>
+				<?php endif; ?>
 
 				<!-- Geological Context -->
 				<?php
