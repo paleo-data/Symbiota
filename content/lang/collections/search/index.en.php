@@ -40,7 +40,7 @@ $LANG['LAT_LONG_SEARCH_EXPLAIN'] = '<b>Note:</b> searching for records using any
 $LANG['BOUNDING_BOX'] = 'Bounding Box';
 $LANG['SELECT_IN_MAP'] = 'Map Bounding Box';
 $LANG['UPPER_LATITUDE'] = 'Upper latitude';
-$LANG['VALUE_BETWEEN_NUM'] = 'Values between -90 and 90.';
+$LANG['VALUE_BETWEEN_NUM'] = 'Values between 0 and 90.';
 $LANG['SELECT_UPPER_LAT_DIRECTION_NORTH_SOUTH'] = 'Select upper lat direction N/S';
 $LANG['SELECT_NORTH_SOUTH'] = 'Select N/S';
 $LANG['NORTH'] = 'N';
@@ -48,7 +48,7 @@ $LANG['SOUTH'] = 'S';
 $LANG['BOTTOM_LATITUDE'] = 'Bottom latitude';
 $LANG['SELECT_BOTTOM_LAT_DIREC_NORTH_SOUTH'] = 'Select bottom lat direction N/S';
 $LANG['LEFT_LONGITUDE'] = 'Left longitude';
-$LANG['VALUES_BETWEEN_NEG180_TO_180'] = 'Values between -180 and 180.';
+$LANG['VALUES_BETWEEN_0_TO_180'] = 'Values between 0 and 180.';
 
 $LANG['SELECT_LEFT_LONG_DIREC_WEST_EAST'] = 'Select left long direction W/E';
 $LANG['SELECT_WEST_EAST'] = 'Select W/E';

@@ -230,7 +230,7 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 								<div class="input-text-container">
 									<label for="upperlat" class="input-text--outlined">
 										<span class="screen-reader-only"><?php echo $LANG['NORTHERN_LATITUDE'] ?></span>
-										<input type="number" step="any" min="-90" max="90" id="upperlat" name="upperlat" data-chip="<?php echo $LANG['UPPER_LAT'] ?>" />
+										<input type="number" step="any" min="0" max="90" id="upperlat" name="upperlat" data-chip="<?php echo $LANG['UPPER_LAT'] ?>" />
 										<span class="inset-input-label"><?php echo $LANG['NORTHERN_LATITUDE'] ?></span>
 										<span class="assistive-text"><?php echo $LANG['VALUE_BETWEEN_NUM'] ?></span>
 									</label>
@@ -247,7 +247,7 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 								<div class="input-text-container">
 									<label for="bottomlat" class="input-text--outlined">
 										<span class="screen-reader-only"><?php echo $LANG['SOUTHERN_LATITUDE'] ?></span>
-										<input type="number" step="any" min="-90" max="90" id="bottomlat" name="bottomlat" data-chip="<?php echo $LANG['BOTTOM_LAT'] ?>" />
+										<input type="number" step="any" min="0" max="90" id="bottomlat" name="bottomlat" data-chip="<?php echo $LANG['BOTTOM_LAT'] ?>" />
 										<span class="inset-input-label"><?php echo $LANG['SOUTHERN_LATITUDE'] ?></span>
 									</label>
 									<label for="bottomlat_NS">
@@ -262,8 +262,9 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 								<div class="input-text-container">
 									<label for="leftlong" class="input-text--outlined">
 										<span class="screen-reader-only"><?php echo $LANG['LEFT_LONGITUDE'] ?></span>
-										<input type="number" step="any" min="-180" max="180" id="leftlong" name="leftlong" data-chip="<?php echo $LANG['LEFT_LONG'] ?>" />
+										<input type="number" step="any" min="0" max="180" id="leftlong" name="leftlong" data-chip="<?php echo $LANG['LEFT_LONG'] ?>" />
 										<span class="inset-input-label"><?php echo $LANG['WESTERN_LONGITUDE'] ?></span>
+										<span class="assistive-text"><?php echo $LANG['VALUES_BETWEEN_0_TO_180'] ?></span>
 									</label>
 									<label for="leftlong_EW" class="input-text--outlined">
 										<span class="screen-reader-only"><?php echo $LANG['SELECT_LEFT_LONG_DIREC_WEST_EAST'] ?></span>
@@ -277,7 +278,7 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 								<div class="input-text-container">
 									<label for="rightlong" class="input-text--outlined">
 										<span class="screen-reader-only"><?php echo $LANG['RIGHT_LONGITUDE'] ?></span>
-										<input type="number" step="any" min="-180" max="180" id="rightlong" name="rightlong" data-chip="<?php echo $LANG['RIGHT_LONG'] ?>" />
+										<input type="number" step="any" min="0" max="180" id="rightlong" name="rightlong" data-chip="<?php echo $LANG['RIGHT_LONG'] ?>" />
 										<span class="inset-input-label"><?php echo $LANG['EASTERN_LONGITUDE'] ?></span>
 									</label>
 									<label for="rightlong_EW" class="input-text--outlined">
@@ -308,7 +309,7 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 								<div class="input-text-container">
 									<label for="pointlat" class="input-text--outlined">
 										<span class="screen-reader-only"><?php echo $LANG['POINT_LATITUDE'] ?></span>
-										<input type="number" step="any" min="-90" max="90" id="pointlat" name="pointlat" data-chip="<?php echo $LANG['POINT_LAT'] ?>" />
+										<input type="number" step="any" min="0" max="90" id="pointlat" name="pointlat" data-chip="<?php echo $LANG['POINT_LAT'] ?>" />
 										<span class="inset-input-label"><?php echo $LANG['LATITUDE'] ?></span>
 									</label>
 									<label for="pointlat_NS" class="input-text--outlined">
@@ -323,7 +324,7 @@ $relationshipTypes = $associationManager->getRelationshipTypes();
 								<div class="input-text-container">
 									<label for="pointlong" class="input-text--outlined">
 										<span class="screen-reader-only"><?php echo $LANG['POINT_LONGITUDE'] ?></span>
-										<input type="number" step="any" min="-180" max="180" id="pointlong" name="pointlong" data-chip="<?php echo $LANG['POINT_LONG'] ?>" />
+										<input type="number" step="any" min="0" max="180" id="pointlong" name="pointlong" data-chip="<?php echo $LANG['POINT_LONG'] ?>" />
 										<span class="inset-input-label"><?php echo $LANG['LONGITUDE'] ?></span>
 									</label>
 									<label for="pointlong_EW" class="input-text--outlined">
