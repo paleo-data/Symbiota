@@ -354,7 +354,7 @@ class SpecUploadBase extends SpecUpload{
 			'generalnotes'=>'occurrenceremarks','plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','specimendescription'=>'verbatimattributes',
 			'phenology'=>'reproductivecondition','field:habitat'=>'habitat','habitatdescription'=>'habitat','sitedeschabitat'=>'habitat','captivecultivated'=>'cultivationstatus',
 			'ometid'=>'exsiccatiidentifier','exsiccataeidentifier'=>'exsiccatiidentifier','exsnumber'=>'exsiccatinumber','exsiccataenumber'=>'exsiccatinumber',
-			'group'=>'paleo-lithogroup','lithostratigraphic'=>'paleo-lithology','lithostratigraphicterms'=>'paleo-lithology',
+			'group'=>'paleo-lithogroup','lithostratigraphic'=>'paleo-lithology',
 			//'materialsample-materialsampleid'=>'materialsample-guid','preparationdetails'=>'materialsample-preparationprocess','materialsampletype'=>'materialsample-sampletype',
 			'imageurl'=>'associatedmedia','subject_references'=>'tempfield01',
 			'subject_recordid'=>'tempfield02'
@@ -410,7 +410,7 @@ class SpecUploadBase extends SpecUpload{
 		}
 		//Output table rows for source data
 		echo '<table class="styledtable" style="width:600px;font-size:12px;">';
-		echo '<tr><th>Source Field</th><th>Target Field ' . '<a href="https://biokic.github.io/symbiota-docs/coll_manager/upload/fields/" target="_blank"><img src="../../images/info.png" style="width:1.2em;" alt="More about Symbiota Data Fields" title="More about Symbiota Data Fields" aria-label="more info"/></a></th></tr>'."\n";
+		echo '<tr><th>Source Field</th><th>Target Field ' . '<a href="https://docs.symbiota.org/docs/Collection_Manager_Guide/Importing_Uploading/data_import_fields" target="_blank"><img src="../../images/info.png" style="width:1.2em;" alt="More about Symbiota Data Fields" title="More about Symbiota Data Fields" aria-label="more info"/></a></th></tr>'."\n";
 		foreach($sourceArr as $fieldName){
 			if($fieldName == 'coreid') continue;
 			$diplayFieldName = $fieldName;
@@ -633,7 +633,7 @@ class SpecUploadBase extends SpecUpload{
 
 	private function linkTempKeyValueOccurrences() {
 		$this->outputMsg('<li>Linking key value data to occurrences...</li>');
-		$sql = 'UPDATE uploadkeyvaluetemp kv JOIN uploadspectemp s ON s.dbpk = kv.dbpk AND kv.collid = s.collid SET kv.occid = s.occid ';
+		$sql = 'UPDATE uploadkeyvaluetemp kv INNER JOIN uploadspectemp u ON kv.dbpk = u.dbpk SET kv.occid = u.occid WHERE kv.collid = ' . $this->collId . ' AND u.collid = ' . $this->collId;
 		$this->conn->query($sql);
 	}
 
@@ -1205,6 +1205,10 @@ class SpecUploadBase extends SpecUpload{
 			$sql = 'SELECT occid, catalogNumber, paleoJSON FROM uploadspectemp WHERE (occid IS NOT NULL) AND (paleoJSON IS NOT NULL) AND (collid = '.$this->collId.')';
 			$rs = $this->conn->query($sql);
 			$paleogtsTerms = $this->getPaleoGtsTerms();
+			$lcaseGtsMap = [];
+			foreach ($paleogtsTerms as $key => $val) {
+				$lcaseGtsMap[strtolower($key)] = $key;
+			}
 			while($r = $rs->fetch_object()){
 				try{
 					$paleoArr = json_decode($r->paleoJSON,true);
@@ -1243,23 +1247,40 @@ class SpecUploadBase extends SpecUpload{
 					$insertSQL = '';
 					$valueSQL = '';
 
-					if (!isset($paleoArr['earlyInterval'])) {
+					if (!isset($paleoArr['earlyinterval'])) {
 						foreach ([ $stageLow, $epochLow, $periodLow, $eraLow, $eonLow ] as $term) {
-							if ($term && isset($paleogtsTerms[$term])) {
-								$paleoArr['earlyInterval'] = $term;
+							$termLower = strtolower($term);
+							if (isset($lcaseGtsMap[$termLower])) {
+								$paleoArr['earlyinterval'] = $lcaseGtsMap[$termLower];
 								break;
 							}
 						}
+					} else {
+						$termLower = strtolower($paleoArr['earlyinterval']);
+						if (isset($lcaseGtsMap[$termLower]))
+							$paleoArr['earlyinterval'] = $lcaseGtsMap[$termLower];
 					}
 
-					if (!isset($paleoArr['lateInterval'])) {
+
+					if (!isset($paleoArr['lateinterval'])) {
 						foreach ([ $stageHigh, $epochHigh, $periodHigh, $eraHigh, $eonHigh ] as $term) {
-							if ($term && isset($paleogtsTerms[$term])) {
-								$paleoArr['lateInterval'] = $term;
+							$termLower = strtolower($term);
+							if (isset($lcaseGtsMap[$termLower])) {
+								$paleoArr['lateinterval'] = $lcaseGtsMap[$termLower];
 								break;
 							}
 						}
+					} else {
+						$termLower = strtolower($paleoArr['lateinterval']);
+						if (isset($lcaseGtsMap[$termLower]))
+							$paleoArr['lateinterval'] = $lcaseGtsMap[$termLower];
 					}
+
+					//backfill early or late interval if empty
+					if (!isset($paleoArr['earlyinterval']) && isset($paleoArr['lateinterval']))
+						$paleoArr['earlyinterval'] = $paleoArr['lateinterval'];
+					if (!isset($paleoArr['lateinterval']) && isset($paleoArr['earlyinterval']))
+						$paleoArr['lateinterval'] = $paleoArr['earlyinterval'];
 
 					foreach($paleoArr as $k => $v){
 						$insertSQL .= ','.$k;
@@ -2464,8 +2485,8 @@ class SpecUploadBase extends SpecUpload{
 
 	private function getPaleoSymbTerms(){
 		$paleoTermArr = array('paleo-eon','paleo-era','paleo-period','paleo-epoch',
-			'paleo-earlyInterval','paleo-lateInterval','paleo-absoluteAge','paleo-stage','paleo-localStage','paleo-biota','paleo-biostratigraphy',
-			'paleo-taxonEnvironment','paleo-lithology','paleo-stratRemarks','paleo-element','paleo-slideProperties');
+			'paleo-earlyinterval','paleo-lateinterval','paleo-absoluteage','paleo-stage','paleo-localstage','paleo-biota','paleo-biostratigraphy',
+			'paleo-taxonenvironment','paleo-lithology','paleo-stratremarks','paleo-element','paleo-slideproperties');
 		return $paleoTermArr;
 	}
 

@@ -48,7 +48,7 @@ class OccurrenceEditorManager {
 			'verbatimdepth' => 's','storagelocation' => 's','disposition' => 's','language' => 's','duplicatequantity' => 'n','labelproject' => 's','processingstatus' => 's',
 			'recordenteredby' => 's','observeruid' => 'n','dateentered' => 'd');
 		$this->fieldArr['omoccurpaleo'] = array('eon','era','period','epoch','earlyInterval','lateInterval','absoluteAge','stage','localStage','biota','biostratigraphy',
-			'lithogroup','formation','taxonEnvironment','member','bed','lithology','stratremarks','element','slideProperties','geologicalContextID');
+			'lithogroup','formation','taxonEnvironment','member','bed','lithology','stratRemarks','element','slideProperties','geologicalContextID');
 		$this->fieldArr['omoccuridentifiers'] = array('idname', 'idvalue');
 		$this->fieldArr['omexsiccatiocclink'] = array('ometid', 'exstitle', 'exsnumber');
 	}
@@ -1040,7 +1040,7 @@ class OccurrenceEditorManager {
 						//Deal with additional identifiers
 						if (isset($postArr['idvalue'])) $this->updateIdentifiers($postArr, $identArr);
 						//Deal with paleo fields
-						if(isset($this->collMap['paleoActivated']) && array_key_exists('eon',$postArr)){
+						if(isset($this->collMap['paleoActivated']) && array_key_exists('earlyInterval',$postArr)){
 							//Check to see if paleo record already exists
 							$paleoRecordExist = false;
 							$paleoSql = 'SELECT paleoid FROM omoccurpaleo WHERE occid = ' . $this->occid;
@@ -1281,7 +1281,7 @@ class OccurrenceEditorManager {
 				//Deal with identifiers
 				if (isset($postArr['idvalue'])) $this->updateIdentifiers($postArr);
 				//Deal with paleo
-				if(isset($this->collMap['paleoActivated']) && array_key_exists('eon',$postArr)){
+				if(isset($this->collMap['paleoActivated']) && array_key_exists('earlyInterval',$postArr)){
 					//Add new record
 					$paleoFrag1 = '';
 					$paleoFrag2 = '';
@@ -2025,7 +2025,7 @@ class OccurrenceEditorManager {
 				$sqlWhere = 'WHERE occid IN(' . implode(',', $occidArr) . ')';
 				$sql = 'INSERT INTO omoccuredits(occid,fieldName,fieldValueOld,fieldValueNew,appliedStatus,uid,editType) ' .
 					'SELECT o.occid, "' . $fn . '" AS fieldName, IFNULL(' . $fn . ',"") AS oldValue, IFNULL(' . $nvSqlFrag . ',"") AS newValue, ' .
-					'1 AS appliedStatus, ' . $GLOBALS['SYMB_UID'] . ' AS uid, 1 FROM omoccurrences as o ';
+					'1 AS appliedStatus, ' . $GLOBALS['SYMB_UID'] . ' AS uid, 1 FROM ' . $targetTable . ' as o ';
 
 				// This Solution is a bit scuffed their isn't a nice way of getting many to one 
 				// tables in the batch update system without rebuilding most of it
@@ -2040,7 +2040,7 @@ class OccurrenceEditorManager {
 					$statusStr = $LANG['ERROR_ADDING_UPDATE'] . ': ' . $this->conn->error;
 				}
 				//Apply edits to core tables
-				if (isset($this->collMap['paleoActivated']) && array_key_exists($fn, $this->fieldArr['omoccurpaleo'])) {
+				if ((empty($this->collMap) || !empty($this->collMap['paleoActivated'])) && in_array($fn, $this->fieldArr['omoccurpaleo'])) {
 					$sql = 'UPDATE omoccurpaleo SET ' . $fn . ' = ' . $nvSqlFrag . ' ' . $sqlWhere;
 				} else if ($fn === 'identifierValue' || $fn === 'identifierName') {
 					$sql = 'UPDATE omoccuridentifiers as id SET ' . $fn . ' = ' . $nvSqlFrag . ' ' . $sqlWhere;
@@ -2082,7 +2082,7 @@ class OccurrenceEditorManager {
 		$sql = $this->sqlWhere;
 
 		$tablePrefix = 'o.';
-		if($fn == 'identifierValue' || 'identifierName') {
+		if($fn == 'identifierValue' || $fn == 'identifierName') {
 			$tablePrefix = 'id.';
 		}
 
@@ -2387,6 +2387,18 @@ class OccurrenceEditorManager {
 		}
 		$this->cleanOutArr($imageMap);
 		return $imageMap;
+	}
+
+	public function createOccurrenceFrom(): int {
+		$sql = 'INSERT INTO omoccurrences(collid, observeruid,processingstatus) SELECT collid, observeruid, "unprocessed" FROM omoccurrences WHERE occid = ?';
+
+		try {
+			QueryUtil::executeQuery($this->conn, $sql, [$this->occid]);
+			return $this->conn->insert_id;
+		} catch(Exception $e) {
+			$this->errorArr[] = $LANG['UNABLE_RELINK_BLANK'].': '.$this->conn->error;
+			return -1;
+		}
 	}
 
 	protected function getImageTags($imgIdStr) {
