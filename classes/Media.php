@@ -1728,11 +1728,14 @@ class Media {
 	/**
 	 * @return void
 	 * @param int $source Occid for source of media copy
-	 * @param mixed $occid Occid for target of media copy
+	 * @param int $target Occid for target of media copy
+	 * @param Mysqli $conn Database connection with write permissions
 	 * @thows mysqli_sql_exception
 	 */
-	public static function copyOccurrenceMedia(int $source, int $target): void {
-		$conn = Database::connect('write');
+	public static function copyOccurrenceMedia(int $source, int $target, $conn): void {
+		if(!isset($conn)) {
+			$conn = Database::connect('write');
+		}
 		mysqli_begin_transaction($conn);
 
 		// Using * to copy all and using mediaID which

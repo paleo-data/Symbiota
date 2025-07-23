@@ -1668,9 +1668,9 @@ class OccurrenceEditorManager {
 					}
 					if (isset($postArr['carryoverimages']) && $postArr['carryoverimages']) {
 						try {
-							Media::copyOccurrenceMedia($sourceOccid, $this->occid);
+							Media::copyOccurrenceMedia($sourceOccid, $this->occid, $this->conn);
 						} catch(Throwable $th) {
-							$this->errorArr[] = $LANG['ERROR_ADDING_IMAGES'] . ': ' . $this->conn->error;
+							$this->errorArr[] = $LANG['ERROR_ADDING_IMAGES'] . ': ' . $th->getMessage();
 						}
 					}
 				}
