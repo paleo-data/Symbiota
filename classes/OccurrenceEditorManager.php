@@ -1666,13 +1666,9 @@ class OccurrenceEditorManager {
 						}
 					}
 					if (isset($postArr['carryoverimages']) && $postArr['carryoverimages']) {
-						$sql = 'INSERT INTO media (occid, tid, url, thumbnailurl, originalurl, archiveurl, creator, creatorUid, mediaType, imagetype, format, caption, owner,
-							sourceurl, referenceUrl, copyright, rights, accessrights, locality, notes, anatomy, username, sourceIdentifier, mediaMD5, dynamicProperties,
-							defaultDisplay, sortsequence, sortOccurrence)
-							SELECT ' . $this->occid . ', tid, url, thumbnailurl, originalurl, archiveurl, creator, creatorUid, mediaType, imagetype, format, caption, owner, sourceurl, referenceUrl,
-							copyright, rights, accessrights, locality, notes, anatomy, username, sourceIdentifier, mediaMD5, dynamicProperties, defaultDisplay, sortsequence, sortOccurrence
-							FROM media WHERE occid = ' . $sourceOccid;
-						if (!$this->conn->query($sql)) {
+						try {
+							Media::copyOccurrenceMedia($sourceOccid, $this->occid);
+						} catch(Throwable $th) {
 							$this->errorArr[] = $LANG['ERROR_ADDING_IMAGES'] . ': ' . $this->conn->error;
 						}
 					}
@@ -1680,6 +1676,7 @@ class OccurrenceEditorManager {
 			}
 			$this->occid = $sourceOccid;
 		}
+
 		return $retArr;
 	}
 
