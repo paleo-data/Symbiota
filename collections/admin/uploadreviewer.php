@@ -81,19 +81,19 @@ if($SYMB_UID){
 			//Setup header map
 			$recArr = $uploadManager->getPendingImportData(($recLimit*$pageIndex),$recLimit,$searchVar);
 			if($recArr){
+				$excludeKeys = ['eon', 'era', 'period', 'epoch', 'stage'];
 				//Check to see which headers have values
 				$headerArr = array();
 				$matSampleHeaderArr = array();
 				foreach($recArr as $occurArr){
 					foreach($occurArr as $k => $v){
-						if($v && trim($v) && !array_key_exists($k,$headerArr)){
+						if($v && trim($v) && !array_key_exists($k,$headerArr) && !in_array($k, $excludeKeys)){
 							if($k == 'materialsamplejson'){
 								if($matSampleObj = json_decode($v)){
 									foreach($matSampleObj as $matKey => $matValue){
 										$matSampleHeaderArr[$matKey] = $matKey;
 									}
 								}
-							}
 							else $headerArr[$k] = $k;
 						}
 					}

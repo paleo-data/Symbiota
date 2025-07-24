@@ -690,7 +690,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			if(array_key_exists('footprintGeoJson',$this->searchTermArr) || strpos($sqlWhere,'p.lngLatPoint')){
 				$sqlJoin .= 'INNER JOIN omoccurpoints p ON o.occid = p.occid ';
 			}
-			if ($GLOBALS['ACTIVATE_PALEO']) {
+			if (!empty($GLOBALS['ACTIVATE_PALEO'])) {
 				$sqlJoin .= 'LEFT JOIN omoccurpaleo paleo ON o.occid = paleo.occid ';
 				if (!empty($this->searchTermArr['earlyInterval']) || !empty($this->searchTermArr['lateInterval'])) {
 					$sqlJoin .= 'JOIN omoccurpaleogts early ON paleo.earlyInterval = early.gtsterm ';
@@ -709,7 +709,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 
 	public function getPaleoGtsTerms(){
 		$retArr = array();
-		if($GLOBALS['ACTIVATE_PALEO']){
+		if(!empty($GLOBALS['ACTIVATE_PALEO'])){
 			$sql = 'SELECT gtsterm, rankid FROM omoccurpaleogts ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
@@ -723,7 +723,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 
 	public function getPaleoTimes(){
 		$paleoTimes = []; 
-		if ($GLOBALS['ACTIVATE_PALEO']) {
+		if (!empty($GLOBALS['ACTIVATE_PALEO'])) {
 			$sql = "SELECT gtsterm, myaStart, myaEnd FROM omoccurpaleogts";
 			$rs = $this->conn->query($sql);
 			while ($r = $rs->fetch_object()) {
