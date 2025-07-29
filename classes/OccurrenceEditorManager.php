@@ -761,6 +761,18 @@ class OccurrenceEditorManager {
 		}
 	}
 
+	public function getRecordIdByOccId($occid) {
+		$recordId = '';
+		$stmt = $this->conn->prepare("SELECT recordId FROM omoccurrences WHERE occid = ?");
+		$stmt->bind_param("i", $occid);
+		if ($stmt->execute()) {
+			$stmt->bind_result($recordId);
+			$stmt->fetch();
+		}
+		$stmt->close();
+		return $recordId;
+	}
+
 	private function addTableJoins(&$sql) {
 		if (strpos($this->sqlWhere, 'ocr.rawstr')) {
 			if (strpos($this->sqlWhere, 'ocr.rawstr IS NULL') && array_key_exists('io', $this->qryArr)) {

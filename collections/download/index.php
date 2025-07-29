@@ -137,9 +137,9 @@ $filename = file_exists($SERVER_ROOT . '/js/symb/' . $LANG_TAG . '.js') ? $CLIEN
 	}
 	?>
 	<div style="width:100%; background-color:white;">
-		<h1 class="page-heading"><?= $LANG['DATA_GUIDE'] ?></h1>
+		<h1 class="page-heading"><?= $LANG['COLL_SEARCH_DWNL'] ?></h1>
 		<div style="margin:15px 0px;">
-		<?= $LANG['GUIDE_ONE'] ?> <a href="../../includes/usagepolicy.php#images"> <?= $LANG['GUIDE_LINK'] ?> </a>.
+		<?= '<b>' . $LANG['DATA_GUIDE'] . '</b>' ?><?= $LANG['GUIDE_ONE'] ?> <a href="../../includes/usagepolicy.php#images"> <?= $LANG['GUIDE_LINK'] ?> </a>.
 			<?= $LANG['GUIDE_TWO'] ?>
 		</div>
 		<div style='margin:30px 15px;'>
