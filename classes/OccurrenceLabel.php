@@ -166,9 +166,9 @@ class OccurrenceLabel {
 			}
 			//Get occurrence records
 			$this->setLabelFieldArr();
-			$sql2 = 'SELECT '.implode(',',$this->labelFieldArr).' FROM omoccurrences o LEFT JOIN taxa t ON o.tidinterpreted = t.tid LEFT JOIN taxstatus ts ON ts.tid = o.tidinterpreted LEFT JOIN taxstatus pts ON ts.parenttid = pts.tid LEFT JOIN taxa pt ON pts.tid = pt.tid '.$sqlWhere;
-			if ($rs2 = $this->conn->query($sql2)) {
-				while ($row2 = $rs2->fetch_assoc()) {
+			$sql2 = 'SELECT ' . implode(',', $this->labelFieldArr) . ' FROM omoccurrences o LEFT JOIN taxa t ON o.tidinterpreted = t.tid LEFT JOIN taxstatus ts ON ts.tid = o.tidinterpreted LEFT JOIN taxstatus pts ON ts.parenttid = pts.tid LEFT JOIN taxa pt ON pts.tid = pt.tid '.$sqlWhere;
+			if($rs2 = $this->conn->query($sql2)){
+				while($row2 = $rs2->fetch_assoc()){
 					$occid = $row2['occid'];
 					foreach ($row2 as $fieldName => $fieldValue) {
 						$retArr[$occid][strtolower($fieldName)] = $fieldValue ?? '';
@@ -551,7 +551,6 @@ class OccurrenceLabel {
 		$labelArr['labelFooter']['className'] = $postArr['fClassName'];
 		$labelArr['labelFooter']['style'] = $postArr['fStyle'];
 		$labelArr['customStyles'] = $postArr['customStyles'];
-		$labelArr['defaultCss'] = $postArr['defaultCss'];
 		$labelArr['customCss'] = $postArr['customCss'];
 		$labelArr['customJS'] = $postArr['customJS'];
 		$labelArr['labelType'] = $postArr['labelType'];
