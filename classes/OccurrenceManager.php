@@ -291,15 +291,25 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 					}
 					else{
 						if(strpos($value, ' ')){
-							$tempCollSqlArr[] = '(MATCH(o.recordedby) AGAINST("'.str_replace(' ', ' +', $value).'" IN BOOLEAN MODE) AND o.recordedby LIKE "%'.$value.'%")';
+							$tempCollSqlArr[] = '(MATCH(o.recordedby) AGAINST("+'.str_replace(' ', ' +', $value).'" IN BOOLEAN MODE) AND o.recordedby LIKE "%'.$value.'%")';
 						}
 						else{
-							$singleWordArr[] = $value;
+							if(strlen($value) < 3) $singleWordArr['sm'][] = $value;
+							else $singleWordArr['lg'][] = $value;
 						}
 						$tempCollTextArr[] = $value;
 					}
 				}
-				if($singleWordArr) $tempCollSqlArr[] = '(MATCH(o.recordedby) AGAINST("'.implode(' ', $singleWordArr).'"))';
+				if($singleWordArr){
+					if(isset($singleWordArr['sm'])){
+						foreach($singleWordArr['sm'] as $word){
+							$tempCollSqlArr[] = '(o.recordedby REGEXP "\\\b' . $word . '\\\b")';
+						}
+					}
+					if(isset($singleWordArr['lg'])){
+						$tempCollSqlArr[] = '(MATCH(o.recordedby) AGAINST("'.implode(' ', $singleWordArr['lg']).'"))';
+					}
+				}
 			}
 			if($tempCollSqlArr) $sqlWhere .= 'AND ('.implode(' OR ',$tempCollSqlArr).') ';
 			if($tempCollTextArr) $this->displaySearchArr[] = implode(' OR ',$tempCollTextArr);
@@ -680,7 +690,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			if(array_key_exists('footprintGeoJson',$this->searchTermArr) || strpos($sqlWhere,'p.lngLatPoint')){
 				$sqlJoin .= 'INNER JOIN omoccurpoints p ON o.occid = p.occid ';
 			}
-			if ($GLOBALS['ACTIVATE_PALEO']) {
+			if (!empty($GLOBALS['ACTIVATE_PALEO'])) {
 				$sqlJoin .= 'LEFT JOIN omoccurpaleo paleo ON o.occid = paleo.occid ';
 				if (!empty($this->searchTermArr['earlyInterval']) || !empty($this->searchTermArr['lateInterval'])) {
 					$sqlJoin .= 'JOIN omoccurpaleogts early ON paleo.earlyInterval = early.gtsterm ';
@@ -699,7 +709,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 
 	public function getPaleoGtsTerms(){
 		$retArr = array();
-		if($GLOBALS['ACTIVATE_PALEO']){
+		if(!empty($GLOBALS['ACTIVATE_PALEO'])){
 			$sql = 'SELECT gtsterm, rankid FROM omoccurpaleogts ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
@@ -713,7 +723,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 
 	public function getPaleoTimes(){
 		$paleoTimes = []; 
-		if ($GLOBALS['ACTIVATE_PALEO']) {
+		if (!empty($GLOBALS['ACTIVATE_PALEO'])) {
 			$sql = "SELECT gtsterm, myaStart, myaEnd FROM omoccurpaleogts";
 			$rs = $this->conn->query($sql);
 			while ($r = $rs->fetch_object()) {
@@ -824,6 +834,11 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			if($v) $retStr .= '&'. $this->cleanOutStr($k) . '=' . $this->cleanOutStr($v);
 		}
 		if(isset($this->taxaArr['search'])){
+			if (
+				isset($this->taxaArr['taxontype']) && $this->taxaArr['taxontype'] == 1 &&
+				preg_match('/^[^:]+:\s*(.+)$/', $this->taxaArr['search'], $matches)
+			)
+				$this->taxaArr['search'] = $matches[1];
 			$patternTaxonChars = '/^[a-zA-Z0-9\s\-\,\.×†]*$/';
 			if (preg_match($patternTaxonChars, $this->getTaxaSearchTerm())==1) {
 				$retStr .= '&taxa=' . $this->getTaxaSearchTerm();
@@ -943,46 +958,48 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		if($hasEverythingRequiredForAssociationSearchForDownload){
 			$this->setAssociationRequestVariable($this->searchTermArr);
 		}
-		if(array_key_exists('country',$_REQUEST)){
+		$country = '';
+		if (!empty($_REQUEST['country']))
 			$country = $this->cleanInputStr($_REQUEST['country']);
-			if($country){
-				$str = str_replace(',', ';', $country);
-				$countryRaw = '';					//Terms that were not found within geo thesaurus
-				$countryCodeArr = array();			//Terms convered to valid Country Codes
-				$countryInputArr = array();			//Verbatim terms with duplicates removed
-				foreach(explode(';', $str) as $term){
-					$term = trim($term);
-					if(!$term) continue;
-					if(isset($countryInputArr[strtolower($term)])) continue;
-					$countryInputArr[strtolower($term)] = $term;
-					$code = '';
-					$sql = 'SELECT iso2 FROM geographicthesaurus WHERE geoTerm = ? AND iso2 IS NOT NULL';
-					if($stmt = $this->conn->prepare($sql)){
-						$stmt->bind_param('s', $term);
-						$stmt->execute();
-						$stmt->bind_result($code);
-						$stmt->fetch();
-						$stmt->close();
-					}
-					if($code){
-						$countryCodeArr[$code] = $code;
-						$this->displaySearchArr[] = $term . ' (' . $code . ')';
-					}
-					else{
-						$countryRaw .= ';' . $term;
-						$this->displaySearchArr[] = $term;
-					}
+		elseif (!empty($parsedArr['country']))
+			$country = $this->cleanInputStr($parsedArr['country']);
+		if($country){
+			$str = str_replace(',', ';', $country);
+			$countryRaw = '';					//Terms that were not found within geo thesaurus
+			$countryCodeArr = array();			//Terms convered to valid Country Codes
+			$countryInputArr = array();			//Verbatim terms with duplicates removed
+			foreach(explode(';', $str) as $term){
+				$term = trim($term);
+				if(!$term) continue;
+				if(isset($countryInputArr[strtolower($term)])) continue;
+				$countryInputArr[strtolower($term)] = $term;
+				$code = '';
+				$sql = 'SELECT iso2 FROM geographicthesaurus WHERE geoTerm = ? AND iso2 IS NOT NULL';
+				if($stmt = $this->conn->prepare($sql)){
+					$stmt->bind_param('s', $term);
+					$stmt->execute();
+					$stmt->bind_result($code);
+					$stmt->fetch();
+					$stmt->close();
 				}
-				if(!$countryRaw && !$countryCodeArr) $countryRaw = $str;
-				if($countryCodeArr) $this->searchTermArr['countryCode'] = $countryCodeArr;
-				if($countryRaw) $this->searchTermArr['countryRaw'] = trim($countryRaw, '; ');
-				if($countryInputArr) $this->searchTermArr['country'] = implode('; ', $countryInputArr);
+				if($code){
+					$countryCodeArr[$code] = $code;
+					$this->displaySearchArr[] = $term . ' (' . $code . ')';
+				}
+				else{
+					$countryRaw .= ';' . $term;
+					$this->displaySearchArr[] = $term;
+				}
 			}
-			else{
-				unset($this->searchTermArr['countryCode']);
-				unset($this->searchTermArr['countryRaw']);
-				unset($this->searchTermArr['country']);
-			}
+			if(!$countryRaw && !$countryCodeArr) $countryRaw = $str;
+			if($countryCodeArr) $this->searchTermArr['countryCode'] = $countryCodeArr;
+			if($countryRaw) $this->searchTermArr['countryRaw'] = trim($countryRaw, '; ');
+			if($countryInputArr) $this->searchTermArr['country'] = implode('; ', $countryInputArr);
+		}
+		else{
+			unset($this->searchTermArr['countryCode']);
+			unset($this->searchTermArr['countryRaw']);
+			unset($this->searchTermArr['country']);
 		}
 		if(array_key_exists('state',$_REQUEST)){
 			$state = $this->cleanInputStr($_REQUEST['state']);

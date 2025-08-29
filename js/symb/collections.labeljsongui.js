@@ -35,7 +35,7 @@ const fieldProps = [
     id: "scientificname",
     group: "taxon",
   },
-  { block: "labelBlock", name: "Taxon Rank", id: "taxonrank", group: "taxon" },
+  { block: 'labelBlock', name: 'Taxon Rank', id: 'taxonrank', group: 'taxon' },
   { block: "labelBlock", name: "Genus", id: "genus", group: "taxon" },
   {
     block: "labelBlock",
@@ -154,10 +154,10 @@ const fieldProps = [
   },
   // { block: 'labelBlock', name: 'Dynamic Properties', id: 'dynamicProperties' },
   {
-    block: "labelBlock",
-    name: "Description",
-    id: "description",
-    group: "specimen",
+    block: 'labelBlock',
+    name: 'Description',
+    id: 'description',
+    group: 'specimen',
   },
   { block: "labelBlock", name: "Behavior", id: "behavior", group: "specimen" },
   {
