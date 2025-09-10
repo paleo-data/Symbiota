@@ -6,6 +6,9 @@
 		<a href="https://www.nsf.gov" target="_blank" aria-label="<?= $LANG['F_VISIT_NSF'] ?>">
 			<img src="<?= $CLIENT_ROOT; ?>/images/layout/logo_nsf.gif" alt="<?= $LANG['F_NSF_LOGO'] ?>" />
 		</a>
+		<a href="https://biodiversity.ku.edu/" target="_blank" title="University of Kansas Biodiversity Institute & Natural History Museum" aria-label="Visit KU BI website">
+			<img src="<?= $CLIENT_ROOT; ?>/images/layout/logo_ku-bi.png"  alt="KU BI Logo" />
+		</a>
 		<a href="https://biokic.asu.edu" target="_blank" title="<?= $LANG['F_BIOKIC'] ?>" aria-label="Visit BioKIC website">
 			<img src="<?= $CLIENT_ROOT; ?>/images/layout/logo-asu-biokic.png"  alt="<?= $LANG['F_BIOKIC_LOGO'] ?>" />
 		</a>
@@ -14,7 +17,7 @@
 		</a>
 	</div>
 	<p>
-		<?= $LANG['F_NSF_AWARDS'] ?> <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324688" target="_blank">#2324688</a>, <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324689" target="_blank">#2324689</a>, & <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324690" target="_blank">#2324690</a>.
+		<?= $LANG['F_NSF_AWARDS'] ?> <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324688" target="_blank">2324688</a>, <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324689" target="_blank">2324689</a>, & <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324690" target="_blank">2324690</a>/<a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2525603" target="_blank">2525603</a>.
 	</p>
 	<p>
 		<?= $LANG['F_MORE_INFO'] ?>, <a href="https://symbiota.org/docs" target="_blank" rel="noopener noreferrer"><?= $LANG['F_READ_DOCS'] ?></a> <?= $LANG['F_CONTACT'] ?>

@@ -99,16 +99,7 @@ $serverHost = GeneralUtil::getDomain();
 		<p>
 		The data available in this portal have been derived from specimens that have been carefully collected, documented, prepared, and curated for scientific research. Collecting fossils requires permission from the applicable landowner(s), regardless of whether the specimen(s) originated on private or public lands. Moreover, scientific collecting efforts should be coordinated with an accredited institution that maintains a publicly accessible research collection. The <a href="https://www.paleosoc.org/code-of-fossil-collecting" target="_blank" rel="noopener noreferrer">Paleontological Society's Code of Fossil Collecting</a>, the <a href="https://vertpaleo.org/code-of-conduct/" target="_blank" rel="noopener noreferrer">Society of Vertebrate Paleontology's Code of Ethics</a>, and the Geological Society of America's statement on <a href="https://paleo.memberclicks.net/assets/docs/Pos28_Fieldwork.pdf" target="_blank" rel="noopener noreferrer">Responsible Geologic Fieldwork Practices</a> provides additional guidance on responsible and ethical fossil collecting practices.
 		</p>
-
-		<h1 id="credits">Acknowledgments</h1>
-		<p>
-		This portal's header image is from the Smithsonian Institution Archives, Record Unit 95, Box 62B, Folder 21, Image No. <a href="https://www.si.edu/object/louisiana-purchase-exposition-st-louis-missouri-1904:siris_arc_400893" target="_blank" rel="noopener noreferrer">SIA_000095_B62B_F21_006</a> (CC0).
-		<br><br>
-		The “trilocorn” image included in the portal's footer and favicon was created by <a href="https://orcid.org/0000-0003-1568-4858" target="_blank" rel="noopener noreferrer">Molly Phillips</a>. The trilocorn is <a href="https://paleo-data.github.io/about#what-is-your-logo" target="_blank" rel="noopener noreferrer">PDWG's mascot</a>.
-		<br><br>
-		This portal is made possible by funding from US National Science Foundation awards <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324688" target="_blank" rel="noopener noreferrer">2324688</a>, <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324689" target="_blank" rel="noopener noreferrer">2324689</a>, and <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324690" target="_blank" rel="noopener noreferrer">2324690</a>.
-		</p>
-	
+		
 	</div>
 	<?php
 	include($SERVER_ROOT . '/includes/footer.php');
