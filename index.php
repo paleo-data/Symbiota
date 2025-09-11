@@ -39,21 +39,23 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 			//Default Language
 			?>
 			<div>	
-			<h2>&#128736; &#127959; This Symbiota portal is under construction! &#128679; &#128736;</h2>
+			
 			<h1>Welcome</h1>
 				<p>
-					Welcome to the Paleo Data Portal! This portal is under construction as part of the project, <em>Community-driven enhancement of information ecosystems for the discovery and use of paleontological specimen data</em> (NSF Awards <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324688" target="_blank" rel="noopener noreferrer">2324688</a>, <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324689" target="_blank" rel="noopener noreferrer">2324689</a>, and <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324690" target="_blank" rel="noopener noreferrer">2324690</a>). The Symbiota Support Hub (University of Kansas), the Smithsonian National Museum of Natural History, and the University of Colorado Museum of Natural History will be working to establish this new Symbiota portal community in 2023-2025.
-						<br><br>
-					During the current funding cycle, the objectives of this portal will be to 1) provide paleontological collections with a low-barrier-to-entry platform for data mobilization and management, and 2) serve as an evaluation and implementation testing ground for many of the cyberinfrastructure developments identified as part of the aforementioned project. Once fully installed, this data portal will be available as a <strong>data aggregator</strong> and <strong>collections management system</strong> for fossil specimen data.
+					This <a href="https://github.com/Symbiota/Symbiota" target="_blank" rel="noopener noreferrer">Symbiota-based</a> data portal is being developed as part of the project, <em>Community-driven enhancement of information ecosystems for the discovery and use of paleontological specimen data</em>, a collaboration between the Symbiota Support Hub (University of Kansas), the Smithsonian National Museum of Natural History, and the University of Colorado Museum of Natural History (NSF Awards <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324688" target="_blank" rel="noopener noreferrer">2324688</a>, <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324689" target="_blank" rel="noopener noreferrer">2324689</a>, and <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324690" target="_blank" rel="noopener noreferrer">2324690</a>/<a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2525603" target="_blank" rel="noopener noreferrer">2525603</a>). During the current funding cycle, the objectives of this portal are to 1) provide paleontological collections with a low-barrier-to-entry platform for data mobilization and management, and 2) serve as an evaluation and implementation testing ground for many of the cyberinfrastructure developments identified as part of the aforementioned project.
 				</p>
-			<h1>How to contribute data</h1>
-			<p>
-				This <a href="https://symbiota.org/" target="_blank" rel="noopener noreferrer">Symbiota-based</a> portal is primarily for fossil collections that intend to actively manage specimen occurrence records within this data portal. <strong>Publicly accessible research collections that have not directly benefited from the <a href="https://new.nsf.gov/funding/opportunities/advancing-digitization-biodiversity-collections/503559" target="_blank" rel="noopener noreferrer">US National Digitization effort</a>, and/or do not have access to secure cyberinfrastructure to maintain their specimen data are especially encouraged to participate.</strong> Prospective data providers are strongly encouraged to review the portal's official <a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php" target="_blank" rel="noopener noreferrer">Community Guidelines</a> and may apply by completing <a href="https://forms.gle/9hrYpRYxTN4pforz9" target="_blank" rel="noopener noreferrer">this form</a>.
-				</p>
-			<h1>Community support</h1>
+			<h2>Portal scope</h2>
 				<p>
-					In order to maximize the interoperability and research utility of the data managed in this portal, <strong>data contributors will be encouraged to participate in the <a href="https://paleo-data.github.io/#how-to-get-involved" target="_blank" rel="noopener noreferrer">Paleo Data Working Group (PDWG)</a></strong>, a community of practice for paleontological collections and informatics professionals who aim to develop and promote best practices for managing and digitizing fossil specimens. Further guidance for portal data contributors will be provided by a forthcoming <strong>Community Knowledge Hub</strong> intended to document related best practices based on the requirements-gathering activities of PDWG and the aforementioned NSF Awards (#2324688–90).
-				</div>
+					This portal supports the management and sharing of data associated with paleontological specimens that are made available for research via permanent repositories. Its scope is limited to extinct organisms and their traces (i.e., fossils). Geological samples, archaeological and anthropological materials, as well as neontological specimen data fall outside this scope and should not be cataloged in this portal.
+				</p>
+			<h2>Contributing data</h2>
+				<p>
+					This portal is primarily for fossil collections that intend to actively use it for managing specimen occurrence records. <strong>Publicly accessible research collections that have not directly benefited from the <a href="https://new.nsf.gov/funding/opportunities/advancing-digitization-biodiversity-collections/503559" target="_blank" rel="noopener noreferrer">US National Digitization effort</a> or do not have access to secure cyberinfrastructure to maintain their specimen data are especially encouraged to participate.</strong> Prospective data providers should review the portal's <a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php#providers" target="_blank" rel="noopener noreferrer">community guidelines</a> and <a href="https://paleo-data.github.io/knowledge-hub/how-to-guides/start-using-symbiota" target="_blank" rel="noopener noreferrer">associated documentation</a> before <a href="https://forms.gle/9hrYpRYxTN4pforz9" target="_blank" rel="noopener noreferrer">applying to join</a>.
+				</p>
+				<p>
+					In order to maximize the interoperability and research utility of the data managed in this portal, <strong>data contributors are encouraged to participate in the <a href="https://paleo-data.github.io/knowledge-hub/community/about-pdwg" target="_blank" rel="noopener noreferrer">Paleo Data Working Group (PDWG)</a></strong>, a community of practice for paleontological collections and informatics professionals who aim to develop and promote best practices for managing and digitizing fossil specimens.
+				</p>
+					</div>
 			<?php
 		}
 		?>
