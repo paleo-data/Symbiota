@@ -55,15 +55,6 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 				<p>
 					In order to maximize the interoperability and research utility of the data managed in this portal, <strong>data contributors are encouraged to participate in the <a href="https://paleo-data.github.io/knowledge-hub/community/about-pdwg" target="_blank" rel="noopener noreferrer">Paleo Data Working Group (PDWG)</a></strong>, a community of practice for paleontological collections and informatics professionals who aim to develop and promote best practices for managing and digitizing fossil specimens.
 				</p>
-
-			<h2 id="credits">Acknowledgments</h2>
-				<p>
-					<ul>
-						<li>This portal is made possible by funding from US National Science Foundation awards <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324688" target="_blank" rel="noopener noreferrer">2324688</a>, <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324689" target="_blank" rel="noopener noreferrer">2324689</a>, and <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324690" target="_blank" rel="noopener noreferrer">2324690</a>/<a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2525603" target="_blank" rel="noopener noreferrer">2525603</a>.</li>	
-						<li> The “trilocorn” image included in the portal's footer and favicon was created by <a href="https://orcid.org/0000-0003-1568-4858" target="_blank" rel="noopener noreferrer">Molly Phillips</a>.</li>
-						<li> This portal's header image is from the Smithsonian Institution Archives, Record Unit 95, Box 62B, Folder 21, Image No. <a href="https://www.si.edu/object/louisiana-purchase-exposition-st-louis-missouri-1904:siris_arc_400893" target="_blank" rel="noopener noreferrer">SIA_000095_B62B_F21_006</a> (CC0).</li>
-					</ul>
-				</p>
 					</div>
 			<?php
 		}
