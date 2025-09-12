@@ -9,6 +9,15 @@ $sourcePage = array_key_exists("sourcepage", $_REQUEST) ? $_REQUEST["sourcepage"
 $schema = array_key_exists("schema", $_REQUEST) ? $_REQUEST["schema"] : "symbiota";
 $cSet = array_key_exists("cset", $_POST) ? $_POST["cset"] : '';
 
+$token = $_POST['downloadToken'] ?? null;
+if ($token) {
+	setcookie('downloadToken', $token, [
+		'expires' => time() + 60,
+		'path' => '/',
+		'samesite' => 'Lax'
+	]);
+}
+
 if ($schema == 'backup') {
 	$collid = $_POST['collid'];
 	if ($collid && is_numeric($collid)) {
@@ -45,7 +54,9 @@ if ($schema == 'backup') {
 				readfile($archiveFile);
 				unlink($archiveFile);
 			} else {
-				echo 'ERROR creating output file. Query probably did not include any records.';
+				$errMsg = $dwcaHandler->getErrorMessage();
+				if($errMsg) echo $errMsg;
+				else echo 'ERROR creating output file. Query probably did not include any records.';
 			}
 		}
 	}
@@ -259,7 +270,8 @@ if ($schema == 'backup') {
 		} else {
 			header("Content-type: text/plain");
 			header("Content-Disposition: attachment; filename=NoData.txt");
-			echo 'The query failed to return records. Please modify query criteria and try again.';
+			if($dwcaHandler->getErrorMessage()) echo $dwcaHandler->getErrorMessage();
+			else echo 'The query failed to return records. Please modify query criteria and try again.';
 		}
 	}
 }
