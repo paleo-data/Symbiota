@@ -10,5 +10,8 @@
 */
 
 $LANG['H_CLASSIC_SEARCH'] = 'Búsqueda Clásica';
+$LANG['H_DOCS'] = 'Documentación';
+$LANG['H_PALEOSTART'] = 'Comience a usar Symbiota';
+$LANG['H_PALEOKHUB'] = 'Paleo Data Knowledge Hub';
 
 ?>
