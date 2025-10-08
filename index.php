@@ -23,7 +23,23 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 			?>
 			<div>
 				<h1 class="headline">Bienvenidos</h1>
-				<p>Este portal de datos se ha establecido para promover la colaboración... Reemplazar con texto introductorio en inglés</p>
+				<p>
+				Este portal de datos basado en <a href="https://github.com/Symbiota/Symbiota" target="_blank" rel="noopener noreferrer">Symbiota</a> está siendo desarrollado como parte del proyecto <em>Mejoramiento comunitario de los ecosistemas de información para el descubrimiento y uso de datos de especímenes paleontológicos</em>, una colaboración entre el Centro de Asistencia de Symbiota (Universidad de Kansas), el Museo Nacional Smithsonian de Historia Natural y el Museo de Historia Natural de la Universidad de Colorado (Proyectos NSF <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324688" target="_blank" rel="noopener noreferrer">2324688</a>, <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324689" target="_blank" rel="noopener noreferrer">2324689</a>, and <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324690" target="_blank" rel="noopener noreferrer">2324690</a>/<a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2525603" target="_blank" rel="noopener noreferrer">2525603</a>). Durante el presente ciclo de financiamiento, los objetivos de este portal son 1) brindar a las colecciones paleontológicas una plataforma de fácil acceso para la movilización y manejo de sus datos, y 2) funcionar como una base para evaluar e implementar una gran parte del desarrollo en ciberinfraestructura identificada como parte del proyecto en cuestión.
+				</p>
+
+				<h2>Enfoque del portal</h2>
+				<p>
+				Este portal facilita el manejo y movilización de datos asociados a especímenes paleontológicos que están disponibles para investigaciones por medio de repositorios permanentes. Este enfoque se limita a organismos extintos y sus trazos (e.g. fósiles). Muestras geológicas, arqueológicas y materiales antropológicos, así como datos de especímenes neontológicos, se encuentran fuera del enfoque y no deben ser catalogados en este portal.
+				</p>
+
+				<h2>Contribuyendo con datos</h2>
+				<p>
+				Este portal es principalmente para colecciones de fósiles que tienen la intención de utilizarlo activamente para manejar sus registros de especímenes. <strong>Colecciones dedicadas a la investigación que estén accesibles públicamente y que no han sido beneficiadas directamente con proyectos del <a href="https://new.nsf.gov/funding/opportunities/advancing-digitization-biodiversity-collections/503559" target="_blank" rel="noopener noreferrer">esfuerzo Nacional de Digitalización en EEUU</a> o que no tengan acceso a ciberinfraestructura segura para mantener sus datos de especímenes son especialmente motivados a participar.</strong> Potenciales proveedores de datos deben revisar los  <a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php#providers" target="_blank" rel="noopener noreferrer">lineamientos de la comunidad</a> y <a href="https://paleo-data.github.io/how-to-guides/start-using-symbiota" target="_blank" rel="noopener noreferrer">documentación asociada</a> antes <a href="https://forms.gle/9hrYpRYxTN4pforz9" target="_blank" rel="noopener noreferrer">de aplicar para unirse</a>.
+				</p>
+
+				<p>
+				Para maximizar la interoperabilidad y utilidad para la investigación con los datos manejados en este portal, <strong>los proveedores de datos son invitados a participar en el <a href="https://paleo-data.github.io/community/about-pdwg" target="_blank" rel="noopener noreferrer">Grupo de Trabajo de Paleo Datos (PDWG)</a></strong>, una comunidad de práctica para colecciones paleontológicas y profesionales de informática que buscan desarrollar y promover buenas prácticas para manejar y digitalizar especímenes fósiles.
+				</p>
 			</div>
 			<?php
 		}
