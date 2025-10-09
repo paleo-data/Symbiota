@@ -89,7 +89,7 @@ $serverHost = GeneralUtil::getDomain();
 
 	<h3>Collections published to GBIF:</h3>
 		<blockquote>
-			Refer to <a href="https://www.gbif.org/citation-guidelines" target="_blank" rel="noopener noreferrer">GBIF's guidance</a> and include the GBIF-minted DOI in the citation. If a collection in this portal has also been published to GBIF, a <a href="https://docs.symbiota.org/assets/images/citation_widget-c86aee7955760684dbfd52851ea6d24d.png" target="_blank" rel="noopener noreferrer">green widget</a> may be present on its profile in this portal, as will a URL to the corresponding GBIF dataset.
+			Refer to <a href="https://www.gbif.org/citation-guidelines" target="_blank" rel="noopener noreferrer">GBIF's guidance</a> and include the GBIF-minted DOI in the citation. If a collection in this portal has also been published to GBIF, a <a href="https://docs.symbiota.org/assets/images/citation_widget-c86aee7955760684dbfd52851ea6d24d.png" target="_blank" rel="noopener noreferrer">green widget</a> may be present on its profile in this portal, as well as a URL to the corresponding GBIF dataset.
 		</blockquote>
 
 		<h1 id="collecting">Statement on Responsible Fossil Collecting</h1>
@@ -102,6 +102,7 @@ $serverHost = GeneralUtil::getDomain();
 				<ul style="line-height: 1.5;">
 					<li>This portal is made possible by funding from US National Science Foundation awards <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324688" target="_blank" rel="noopener noreferrer">2324688</a>, <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324689" target="_blank" rel="noopener noreferrer">2324689</a>, and <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2324690" target="_blank" rel="noopener noreferrer">2324690</a>/<a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2525603" target="_blank" rel="noopener noreferrer">2525603</a>.</li>	
 					<li> The “trilocorn” image included in the portal's footer and favicon was created by <a href="https://orcid.org/0000-0003-1568-4858" target="_blank" rel="noopener noreferrer">Molly Phillips</a>.</li>
+					<li> Spanish language translations were provided by <a href="https://orcid.org/0000-0002-4098-5823" target="_blank" rel="noopener noreferrer">Samanta Orellana</a>.</li>
 					<li> This portal's header image is from the Smithsonian Institution Archives, Record Unit 95, Box 62B, Folder 21, Image No. <a href="https://www.si.edu/object/louisiana-purchase-exposition-st-louis-missouri-1904:siris_arc_400893" target="_blank" rel="noopener noreferrer">SIA_000095_B62B_F21_006</a> (CC0).</li>
 				</ul>
 			</p>

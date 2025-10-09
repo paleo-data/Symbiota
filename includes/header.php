@@ -90,23 +90,23 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 						<a href="#">
 							<?= $LANG['H_DOCS'] ?>
 						</a>
-						<ul>
-                                                        <li>
-                                                                <a href="https://paleo-data.github.io" target="_blank" rel="noopener noreferrer">
-																<?= $LANG['H_PALEOKHUB'] ?>
-																</a>
-                                                        </li>
-														<li>
-                                                                <a href="https://paleo-data.github.io/how-to-guides/start-using-symbiota.html" target="_blank" rel="noopener noreferrer">
-																<?= $LANG['H_PALEOSTART'] ?>
-                                                				</a>
-                                                        </li>
-														<li>
-                                                                <a href="https://docs.symbiota.org/" target="_blank" rel="noopener noreferrer">
-																<?= $LANG['H_HELP'] ?>
-                                                				</a>
-                                                        </li>
-                                                </ul>
+							<ul>
+								<li>
+                                    <a href="https://paleo-data.github.io" target="_blank" rel="noopener noreferrer">
+									<?= $LANG['H_PALEOKHUB'] ?>
+									</a>
+                                </li>
+								<li>
+                                    <a href="https://paleo-data.github.io/tutorials/start-using-symbiota" target="_blank" rel="noopener noreferrer">
+									<?= $LANG['H_PALEOSTART'] ?>
+                                    </a>
+                                </li>
+								<li>
+                                    <a href="https://docs.symbiota.org/" target="_blank" rel="noopener noreferrer">
+									<?= $LANG['H_HELP'] ?>
+                                    </a>
+                                </li>
+                            </ul>
 					</li>
 					<li>
 						<a href="<?= $CLIENT_ROOT ?>/includes/usagepolicy.php">
