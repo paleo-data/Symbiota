@@ -10,5 +10,9 @@
 */
 
 $LANG['H_CLASSIC_SEARCH'] = 'Recherche Classique';
+$LANG['H_DOCS'] = 'Documentation';
+$LANG['H_PALEOSTART'] = 'Fournisseur de Données: Guide Rapide';
+$LANG['H_PALEOKHUB'] = 'Centre de Connaissances sur les Données Paléo';
+$LANG['H_PALEOMGMT'] = 'Guide de Gestion des Données';
 
 ?>
