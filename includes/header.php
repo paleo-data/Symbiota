@@ -102,6 +102,11 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
                                     </a>
                                 </li>
 								<li>
+                                    <a href="https://paleo-data.github.io/how-to-guides/manage-data-about-specimens-using-symbiota" target="_blank" rel="noopener noreferrer">
+									<?= $LANG['H_PALEOMGMT'] ?>
+                                    </a>
+                                </li>
+								<li>
                                     <a href="https://docs.symbiota.org/" target="_blank" rel="noopener noreferrer">
 									<?= $LANG['H_HELP'] ?>
                                     </a>
