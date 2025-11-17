@@ -97,10 +97,6 @@ class OccurrenceEditorManager {
 				$retArr = $propArr['editorProps'];
 				if(isset($retArr['modules-panel'])){
 					foreach($retArr['modules-panel'] as $module){
-						if(isset($module['paleo']['status'])){
-							if($module['paleo']['status']) $this->collMap['paleoActivated'] = true;
-							else $this->collMap['paleoActivated'] = false;
-						}
 						if(isset($module['matSample']['status'])){
 							if($module['matSample']['status']) $this->collMap['matSampleActivated'] = true;
 							else $this->collMap['matSampleActivated'] = false;
@@ -109,7 +105,7 @@ class OccurrenceEditorManager {
 				}
 			}
 		}
-		if(!isset($this->collMap['paleoActivated']) && !empty($GLOBALS['ACTIVATE_PALEO'])) $this->collMap['paleoActivated'] = 1;
+		if(!isset($this->collMap['paleoActivated']) && $this->collMap['colltype'] == 'Fossil Specimens') $this->collMap['paleoActivated'] = 1;
 	}
 
 	public function getDownloadQuery(): string {
@@ -1302,7 +1298,11 @@ class OccurrenceEditorManager {
 			$guid = UuidFactory::getUuidV4();
 			$sql = 'INSERT IGNORE INTO omoccurrences(collid, recordID, ' . implode(',', array_keys($this->fieldArr['omoccurrences'])) . ') VALUES (' . $postArr['collid'] . ', "' . $guid . '"';
 			if (!isset($postArr['dateentered']) || !$postArr['dateentered']) $postArr['dateentered'] = date('Y-m-d H:i:s');
-			if (!isset($postArr['basisofrecord']) || !$postArr['basisofrecord']) $postArr['basisofrecord'] = (strpos($this->collMap['colltype'], 'Observations') !== false ? 'HumanObservation' : 'PreservedSpecimen');
+			if (!isset($postArr['basisofrecord']) || !$postArr['basisofrecord']) {
+				if (isset($this->collMap['colltype']) && $this->collMap['colltype'] === 'Fossil Specimens') $postArr['basisofrecord'] = 'FossilSpecimen';
+				elseif (strpos($this->collMap['colltype'], 'Observations') !== false) $postArr['basisofrecord'] = 'HumanObservation';
+				else $postArr['basisofrecord'] = 'PreservedSpecimen';
+			}
 			if (isset($postArr['institutioncode']) && $postArr['institutioncode'] == $this->collMap['institutioncode']) $postArr['institutionCode'] = '';
 			if (isset($postArr['collectioncode']) && $postArr['collectioncode'] == $this->collMap['collectioncode']) $postArr['collectionCode'] = '';
 
@@ -2796,13 +2796,29 @@ class OccurrenceEditorManager {
 	}
 
 	public function getAttributeTraits($collid = ''){
+		$stateIds = [];
+
+		if($collid) {
+			$rs = QueryUtil::executeQuery($this->conn,
+				'SELECT DISTINCT a.stateid from omoccurrences o INNER JOIN tmattributes a ON a.occid = o.occid WHERE collid = ?',
+				[$collid]
+			);
+			$stateIds = [];
+
+			while($r = $rs->fetch_object()) {
+				array_push($stateIds, $r->stateid);
+			}
+		}
+
+		$sql = 'SELECT DISTINCT t.traitid, t.traitname, s.stateid, s.statename FROM tmtraits t
+		INNER JOIN tmstates s ON t.traitid = s.traitid';
+
+		if(count($stateIds) > 0) {
+			$sql .= ' where s.stateid in (' . str_repeat('?,', count($stateIds) - 1) . '?' . ')';
+		}
+		
 		$retArr = array();
-		$sql = 'SELECT DISTINCT t.traitid, t.traitname, s.stateid, s.statename '.
-			'FROM tmtraits t INNER JOIN tmstates s ON t.traitid = s.traitid '.
-			'INNER JOIN tmattributes a ON s.stateid = a.stateid '.
-			'INNER JOIN omoccurrences o ON a.occid = o.occid ';
-		if($collid) $sql .= 'WHERE o.collid = '.$collid;
-		$rs = $this->conn->query($sql);
+		$rs = QueryUtil::executeQuery($this->conn, $sql, $stateIds);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->traitid]['name'] = $r->traitname;
 			$retArr[$r->traitid]['state'][$r->stateid] = $r->statename;

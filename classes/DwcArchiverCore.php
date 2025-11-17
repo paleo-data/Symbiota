@@ -19,10 +19,9 @@ class DwcArchiverCore extends Manager{
 	private $ts;
 
 	protected $collArr;
+	protected $polygons;
 	private $customWhereSql;
-
 	private $paleoWithSql;
-
 	protected $conditionSql = '';
 	protected $conditionArr = array();
 	private $condAllowArr;
@@ -53,8 +52,7 @@ class DwcArchiverCore extends Manager{
 	protected $includeMaterialSample = 0;
 	protected $includeIdentifiers = 0;
 	protected $includeAssociations = 0;
-	private $hasPaleo = false;
-	private $includePaleo = null;
+	private $includePaleo = false;
 	private $includeAcceptedNameUsage = false;
 	private $redactLocalities = 1;
 	private $rareReaderArr = array();
@@ -179,17 +177,14 @@ class DwcArchiverCore extends Manager{
 					$this->collArr[$r->collid]['postalcode'] = $r->postalcode ?? '';
 					$this->collArr[$r->collid]['country'] = $r->country ?? '';
 					$this->collArr[$r->collid]['phone'] = $r->phone ?? '';
-					if(!$this->includePaleo) $this->includePaleo = null;
+					if(!$this->includePaleo) $this->includePaleo = false;
+					if ($this->collArr[$r->collid]['colltype'] == 'Fossil Specimens')
+						$this->includePaleo = true;
 					if ($r->dynamicproperties) {
 						if ($propArr = json_decode($r->dynamicproperties, true)) {
 							if (isset($propArr['editorProps']['modules-panel'])) {
 								foreach ($propArr['editorProps']['modules-panel'] as $k => $modArr) {
-									if (isset($modArr['paleo']['status'])){
-										//includePaleo = true if module is activated for any of the collections, and only false if all collections explicitly have module deactivated
-										if($modArr['paleo']['status']) $this->includePaleo = true;
-										elseif($this->includePaleo === null) $this->includePaleo = false;
-									}
-									elseif (isset($modArr['matSample']['status'])){
+									if (isset($modArr['matSample']['status'])){
 										$this->collArr[$r->collid]['matSample'] = 1;
 									}
 								}
@@ -209,10 +204,6 @@ class DwcArchiverCore extends Manager{
 			else{
 				echo 'error: '.$this->conn->error.'<br>';
 			}
-		}
-		if(!empty($GLOBALS['ACTIVATE_PALEO']) && $this->includePaleo === null){
-			//Paleo module is globally set as true AND all target portals have not explicitly set the paleo module to false
-			$this->includePaleo = 1;
 		}
 	}
 
@@ -255,6 +246,27 @@ class DwcArchiverCore extends Manager{
 
 	public function setPaleoWithSql($sql){
 		$this->paleoWithSql = $sql;
+	}
+
+	public function setPolygons($polygons) {
+        $this->polygons = $polygons;
+    }
+
+    public function getPolygons() {
+        return $this->polygons;
+    }
+
+	private function setIncludePaleo(){
+		if ((!empty($GLOBALS['ACTIVATE_PALEO'])) ||
+		(!empty($this->conditionSql) && (strpos($this->conditionSql, 'paleo.') !== false || strpos($this->conditionSql, 'early.myaStart') !== false)) ||
+		(!empty($this->customWhereSql) && (strpos($this->customWhereSql, 'paleo.') !== false || strpos($this->customWhereSql, 'early.myaStart') !== false)))
+			$this->includePaleo = true;
+		elseif (!empty($this->collArr)) {
+			foreach ($this->collArr as $coll) {
+				if (!empty($coll['colltype']) && $coll['colltype'] === 'Fossil Specimens')
+					$this->includePaleo = true;
+			}
+		}
 	}
 
 	public function addCondition($field, $cond, $value = ''){
@@ -416,9 +428,17 @@ class DwcArchiverCore extends Manager{
 			if (strpos($this->conditionSql, 'id.identifierValue')) {
 				$sql .= 'LEFT JOIN omoccuridentifiers id ON o.occid = id.occid ';
 			}
-			if($GLOBALS["ACTIVATE_PALEO"]){
+			if(strpos($this->conditionSql, 'gpoly.footprintPolygon')){
+				$polygonIDs = $this->getPolygons();
+				if (is_string($polygonIDs))
+					$polygonIDs = explode(',', $polygonIDs);
+				$polygonIDs = array_map('intval', $polygonIDs);
+				$sql .= 'INNER JOIN geographicpolygon gpoly ON gpoly.geothesid IN (' . implode(',', $polygonIDs) . ') ';
+				$sql .= 'INNER JOIN geographicthesaurus gth ON gpoly.geothesid = gth.geothesid ';
+			}
+			if ($this->includePaleo) {
 				$sql .= 'LEFT JOIN omoccurpaleo paleo ON o.occid = paleo.occid ';
-				if(strpos($this->conditionSql, 'early.myaStart')){
+				if (strpos($this->conditionSql, 'early.myaStart') !== false) {
 					$sql .= 'JOIN omoccurpaleogts early ON paleo.earlyInterval = early.gtsterm ';
 					$sql .= 'JOIN omoccurpaleogts late ON paleo.lateInterval = late.gtsterm ';
 					$sql .= 'CROSS JOIN searchRange search ';
@@ -703,13 +723,14 @@ class DwcArchiverCore extends Manager{
 		$dwcOccurManager = new DwcArchiverOccurrence($this->conn);
 		$dwcOccurManager->setSchemaType($this->schemaType);
 		$dwcOccurManager->setExtended($this->extended);
-		$dwcOccurManager->setIncludePaleo($this->includePaleo);
 		$dwcOccurManager->setIncludeAcceptedNameUsage($this->includeAcceptedNameUsage);
-
+		$this->setIncludePaleo();
+		$dwcOccurManager->setIncludePaleo($this->includePaleo);
 		if (!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
 		$this->applyConditions();
 
 		if (!$this->conditionSql) return false;
+		$this->setIncludePaleo();
 		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields']);
 		$sql .= $this->getTableJoins() . $this->conditionSql;
 		if (!$sql) return false;
@@ -1757,12 +1778,14 @@ class DwcArchiverCore extends Manager{
 		$dwcOccurManager->setExtended($this->extended);
 		$dwcOccurManager->setIncludeExsiccatae();
 		$dwcOccurManager->setIncludeAssociatedSequences();
-		$dwcOccurManager->setIncludePaleo($this->includePaleo);
 		$dwcOccurManager->setIncludeAcceptedNameUsage($this->includeAcceptedNameUsage);
+		$this->setIncludePaleo();
+		$dwcOccurManager->setIncludePaleo($this->includePaleo);
 		if (!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
 		//Output records
 		$this->applyConditions();
 		if (!$this->conditionSql) return false;
+		$this->setIncludePaleo();
 		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields']);
 		$sql .= $this->getTableJoins() . $this->conditionSql;
 		if ($this->paleoWithSql)
@@ -1778,6 +1801,8 @@ class DwcArchiverCore extends Manager{
 			unset($fieldArr['recordSecurity']);
 			unset($fieldArr['collID']);
 			unset($fieldArr['biota']);
+			unset($fieldArr['earlyInterval']);
+			unset($fieldArr['lateInterval']);
 		} elseif ($this->schemaType == 'backup') unset($fieldArr['collID']);
 		$fieldOutArr = array();
 		if ($this->schemaType == 'coge') {
@@ -1873,6 +1898,8 @@ class DwcArchiverCore extends Manager{
 					unset($r['recordSecurity']);
 					unset($r['collID']);
 					unset($r['biota']);
+					unset($r['earlyInterval']);
+					unset($r['lateInterval']);
 
 					//Format dates
 					if($r['eventDate']){
@@ -1922,6 +1949,7 @@ class DwcArchiverCore extends Manager{
 
 				if ($ocnStr = $dwcOccurManager->getAdditionalCatalogNumberStr($r['occid'])) $r['otherCatalogNumbers'] = $ocnStr;
 				if ($this->schemaType != 'coge') {
+					/*
 					if ($exsArr = $dwcOccurManager->getExsiccateArr($r['occid'])) {
 						$exsStr = $exsArr['exsStr'];
 						if (isset($r['occurrenceRemarks']) && $r['occurrenceRemarks']) {
@@ -1938,7 +1966,10 @@ class DwcArchiverCore extends Manager{
 						//$dynProp = $r['dynamicProperties'] . '; ' . $dynProp;
 						//$r['dynamicProperties'] = $dynProp;
 					}
+					*/
+					//if ($assocOccurStr = $dwcOccurManager->getAssociationStr($r['occid'])) $r['t_associatedOccurrences'] = $assocOccurStr;
 					if ($assocSeqStr = $dwcOccurManager->getAssociatedSequencesStr($r['occid'])) $r['t_associatedSequences'] = $assocSeqStr;
+					//if ($assocTaxa = $dwcOccurManager->getAssociationStr($r['occid'], 'observational')) $r['associatedTaxa'] = $assocTaxa;
 				}
 				//$dwcOccurManager->appendUpperTaxonomy($r);
 				$dwcOccurManager->appendUpperTaxonomy2($r);
@@ -2086,9 +2117,9 @@ class DwcArchiverCore extends Manager{
 		$headerArr = array_keys($this->imageFieldArr['fields']);
 		array_pop($headerArr);
 		$this->writeOutRecord($fh, $headerArr);
-
+		$tableJoins = $this->getTableJoins();
 		//Output records
-		$sql = DwcArchiverImage::getSqlImages($this->imageFieldArr['fields'], $this->conditionSql, $this->redactLocalities, $this->rareReaderArr);
+		$sql = DwcArchiverImage::getSqlImages($this->imageFieldArr['fields'], $this->conditionSql, $tableJoins,  $this->redactLocalities, $this->rareReaderArr);
 		if ($this->paleoWithSql)
 			$sql = $this->paleoWithSql . $sql;
 		if ($rs = $this->dataConn->query($sql, MYSQLI_USE_RESULT)) {
