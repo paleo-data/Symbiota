@@ -2,8 +2,10 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistManager.php');
 include_once($SERVER_ROOT.'/classes/MapSupport.php');
-if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/checklists/checklist.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/checklists/checklist.'.$LANG_TAG.'.php');
-else include_once($SERVER_ROOT.'/content/lang/checklists/checklist.en.php');
+include_once($SERVER_ROOT . '/classes/utilities/Language.php');
+
+Language::load('checklists/checklist');
+
 header('Content-Type: text/html; charset='.$CHARSET);
 
 $action = array_key_exists('submitaction',$_REQUEST) ? $_REQUEST['submitaction'] : '';
@@ -336,7 +338,8 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 						</div>
 					</div>
 					<hr />
-					<div class="printoff">
+					<div style="display:flex; justify-content:space-between;" class="printoff">
+						<div>
 						<?php
 						$taxaLimit = ($showImages?$clManager->getImageLimit():$clManager->getTaxaLimit());
 						$pageCount = ceil($clManager->getTaxaCount()/$taxaLimit);
@@ -350,7 +353,9 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 							if(($pageNumber) == $x) echo '</b>';
 							else echo '</a>';
 						}
-						if($showImages){
+						?>
+						</div>
+						<?php if($showImages){
 							?>
 							<div style="float:right;">
 								<?php echo $LANG['IMAGE_SRC']; ?>:
@@ -370,7 +375,7 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 							$u = (array_key_exists('url',$sppArr) ? $sppArr['url'] : '');
 							$imgSrc = ($tu?$tu:$u);
 							?>
-							<div class="tndiv">
+							<div class="tndiv bottom-breathing-room-rel-sm">
 								<div class="tnimg" style="<?php echo ($imgSrc?'' : 'border:1px solid black;'); ?>">
 									<?php
 									$spUrl = "../taxa/index.php?taxauthid=1&taxon=$tid&clid=".$clid;

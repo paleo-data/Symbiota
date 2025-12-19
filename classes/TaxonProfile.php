@@ -386,8 +386,8 @@ class TaxonProfile extends Manager {
 					}
 					if(!isset($retArr[$indexKey]) || !array_key_exists($rowArr['tdbid'],$retArr[$indexKey])){
 						$retArr[$indexKey][$rowArr['tdbid']]['caption'] = htmlspecialchars($rowArr['caption'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE);
-						$retArr[$indexKey][$rowArr['tdbid']]['source'] = htmlspecialchars($rowArr['source'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE);
-						$retArr[$indexKey][$rowArr['tdbid']]['url'] = htmlspecialchars($rowArr['sourceurl'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE);
+						$retArr[$indexKey][$rowArr['tdbid']]['source'] = htmlspecialchars($rowArr['source']??'', ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE);
+						$retArr[$indexKey][$rowArr['tdbid']]['url'] = htmlspecialchars($rowArr['sourceurl']??'', ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE);
 					}
 					$stmtStr = $rowArr['statement'];
 					if($rowArr['displayheader'] && $rowArr['heading']) $stmtStr = '<b>' . htmlspecialchars($rowArr['heading'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '</b>: ' . $stmtStr;
@@ -785,7 +785,9 @@ class TaxonProfile extends Manager {
 	//Misc functions
 	private function getChildrenClid($clid){
 		$clidArr = array($clid);
-		$sqlBase = 'SELECT clidchild FROM fmchklstchildren WHERE clid != clidchild AND clid IN(';
+		$sqlBase = 'SELECT ch.clidchild
+			FROM fmchklstchildren ch INNER JOIN fmchecklists cl ON ch.clidchild = cl.clid
+			WHERE (cl.type != "excludespp") AND (ch.clid != ch.clidchild) AND ch.clid IN(';
 		$sql = $sqlBase.$clid.')';
 		do{
 			$childStr = '';
