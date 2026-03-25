@@ -5,7 +5,7 @@ if($GLOBALS['HTTPS_ONLY'] ?? true) {
 	header('strict-transport-security: max-age=600');
 }
 date_default_timezone_set('America/Phoenix');
-$CODE_VERSION = '3.4';
+$CODE_VERSION = '3.4.2';
 
 set_include_path(get_include_path() . PATH_SEPARATOR . $SERVER_ROOT . PATH_SEPARATOR . $SERVER_ROOT.'/config/' . PATH_SEPARATOR . $SERVER_ROOT.'/classes/');
 
@@ -123,8 +123,12 @@ $CSS_VERSION = '16';
 
 // Used for what media is allowed to be uploaded. Does not restrict external links
 $ALLOWED_MEDIA_MIME_TYPES = [
+	// Supported Image Types
 	"image/jpeg", "image/png", "image/gif", 'image/bmp',
-	"audio/mpeg", "audio/wav", "audio/ogg"
+	// Supported Audio Types
+	"audio/mpeg", "audio/wav", "audio/ogg",
+	// Supported Other Types
+	"application/pdf"
 ];
 
 $MIME_FALL_BACK = 'image/jpeg';

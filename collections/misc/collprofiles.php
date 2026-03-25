@@ -46,6 +46,8 @@ if ($SYMB_UID) {
 	?>
 	<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-3.7.1.min.js" type="text/javascript"></script>
 	<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.min.js" type="text/javascript"></script>
+	<script src="<?= $CLIENT_ROOT ?>/js/symb/searchform.js?ver=3" type="text/javascript"></script>
+	<script src="<?php echo $CLIENT_ROOT; ?>/js/symb/collections.list.js?ver=2" type="text/javascript"></script>
 	<script>
 
 		function toggleById(target) {
@@ -238,8 +240,8 @@ if ($SYMB_UID) {
 			}
 		}
 	</style>
-	<link href="<?php echo $CLIENT_ROOT ?>/collections/search/css/searchStyles.css?ver=1" type="text/css" rel="stylesheet" />
-	<link href="<?php echo $CLIENT_ROOT ?>/collections/search/css/searchStylesInner.css" type="text/css" rel="stylesheet" />
+	<link href="<?php echo $CLIENT_ROOT ?>/css/searchStyles.css?ver=1" type="text/css" rel="stylesheet" />
+	<link href="<?php echo $CLIENT_ROOT ?>/css/searchStylesInner.css" type="text/css" rel="stylesheet" />
 </head>
 <body>
 	<?php
@@ -251,6 +253,9 @@ if ($SYMB_UID) {
 		<b><?= $LANG['COLL_PROFILE'] ?></b>
 	</div>
 	<div role="main" id="innertext" style="padding-top:0">
+		<div id="all_collections_parent_container" data-config='<?= json_encode([
+		'CURRENT_URL' => $_SERVER['REQUEST_URI'],
+		]) ?>'></div>
 		<?php
 		if ($collid && !$collid == 0){
 			?>
@@ -406,7 +411,7 @@ if ($SYMB_UID) {
 										<a href="javascript:void(0)" onclick="showItemsList('traitItem')">
 											<?= $LANG['TRAIT_CODING_TOOLS'] ?>
 										</a>
-										<a onclick="showItemsList('traitItem')"> 
+										<a onclick="showItemsList('traitItem')">
 											<img class = seemore-icon src="../../images/tochild.png">
 										</a>
 									</li>
@@ -460,31 +465,6 @@ if ($SYMB_UID) {
 										<?= $LANG['EDIT_META'] ?>
 									</a>
 								</li>
-								<!--
-								<li>
-									<a href="javascript:void(0)" onclick="showItemsList('metadataItem')"  >
-										<?= $LANG['OPEN_META'] ?>
-									</a>
-									<a onclick="showItemsList('metadataItem')"> 
-										<img class="seemore-icon" src="../../images/tochild.png">
-									</a>
-								</li>
-								<li class="metadataItem" style="margin-left:10px;display:none;">
-									<a href="collmetadata.php?collid=<?= $collid ?>">
-										<?= $LANG['EDIT_META'] ?>
-									</a>
-								</li>
-								<li class="metadataItem" style="margin-left:10px;display:none;">
-									<a href="colladdress.php?collid=<?= $collid ?>">
-										<?= $LANG['EDIT_ADDRESS'] ?>
-									</a>
-								</li>
-								<li class="metadataItem" style="margin-left:10px;display:none;">
-									<a href="collproperties.php?collid=<?= $collid ?>">
-										<?= $LANG['EDIT_COLL_PROPS'] ?>
-									</a>
-								</li>
-								 -->
 								<li>
 									<a href="collpermissions.php?collid=<?= $collid ?>">
 										<?= $LANG['MANAGE_PERMISSIONS'] ?>
@@ -497,7 +477,7 @@ if ($SYMB_UID) {
 									<a id="importinfo" class="link-icon" href="https://docs.symbiota.org/Collection_Manager_Guide/Importing_Uploading/" target="_blank" title="<?php echo $LANG['MORE_INFO']; ?>" aria-label="<?php echo $LANG['MORE_INFO']; ?>">
 											<img src="../../images/info.png" style="width:13px;" alt="<?= $LANG['INFO_ALT'] ?>" />
 									</a>
-									<a onclick="showItemsList('importItem')"> 
+									<a onclick="showItemsList('importItem')">
 										<img class="seemore-icon" src="../../images/tochild.png"">
 									</a>
 								</li>
@@ -817,7 +797,6 @@ if ($SYMB_UID) {
 						//if($extrastatsArr&&$extrastatsArr['TypeCount']) echo '<li>'.number_format($extrastatsArr['TypeCount']) . ' ' . $LANG['TYPE_SPECIMENS'] . '</li>';
 						?>
 					</ul>
-					<p style="margin-left:3em"><?= '(' . $LANG['LAST_UPDATED'] . ' ' . $statsArr['datelastmodified'] . ')'?></p>
 				</div>
 			</section>
 			<section class="fieldset-like no-left-margin">
@@ -853,11 +832,17 @@ if ($SYMB_UID) {
 							}
 							?>
 						</div>
+						<?php if($collData['managementtype'] == 'Live Data'): ?>
+							<div class="bottom-breathing-room-rel">
+								<span class="label"><?= $LANG['LAST_MODIFIED'] ?>:</span>
+								<?= $statsArr['datelastmodified'] ?>
+							</div>
+						<?php endif ?>
 						<?php if($collData['managementtype'] != 'Live Data'): ?>
-						<div class="bottom-breathing-room-rel">
-							<span class="label"><?= $LANG['LAST_UPDATE'] ?>:</span>
-							<?= $collData['uploaddate'] ?>
-						</div>
+							<div class="bottom-breathing-room-rel">
+								<span class="label"><?= $LANG['LAST_UPDATE'] ?>:</span>
+								<?= $collData['uploaddate'] ?>
+							</div>
 						<?php endif ?>
 						<?php
 						if($collData['managementtype'] == 'Live Data'){
@@ -881,6 +866,7 @@ if ($SYMB_UID) {
 						</div>
 						<?php
 						if($collData['managementtype'] == 'Live Data'){
+							/*  In abundance of cautions, temporarily removing access of this option, with potential full removal in future
 							if($GLOBALS['SYMB_UID']){
 								?>
 								<div class="bottom-breathing-room-rel">
@@ -889,6 +875,7 @@ if ($SYMB_UID) {
 								</div>
 								<?php
 							}
+							*/
 						}
 						elseif($collData['managementtype'] == 'Snapshot'){
 							if($pathArr = $collManager->getDwcaPath($collid)){
@@ -910,7 +897,7 @@ if ($SYMB_UID) {
 							$rightsHtml = GeneralUtil::getRightsHtml($collData['rights']);
 							?>
 							<div class="bottom-breathing-room-rel">
-								<span class="label"><?= $LANG['USAGE_RIGHTS'] ?>:</span>
+								<span class="label"><?= $LANG['LICENSE'] ?>:</span>
 								<?= $rightsHtml ?>
 							</div>
 							<?php
@@ -952,7 +939,7 @@ if ($SYMB_UID) {
 			}
 			?>
 			<div style="margin-bottom: 2rem;">
-				<form name="coll-search-form" action="<?= $actionPage ?>" method="get">
+				<form id="coll-search-form" name="coll-search-form" action="<?= $actionPage ?>" method="get" onsubmit="submitAdvancedSearchForm(event, '<?= $actionPage ?>')">
 					<input name="db" value="<?= $collid ?>" type="hidden">
 					<button type="submit" class="button button-primary">
 						<?= $LANG['ADVANCED_SEARCH_THIS_COLLECTION'] ?>

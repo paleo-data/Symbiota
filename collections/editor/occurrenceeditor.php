@@ -4,6 +4,21 @@ include_once($SERVER_ROOT . '/classes/utilities/Language.php');
 
 Language::load('collections/editor/occurrenceeditor');
 
+//file upload handle
+include_once $SERVER_ROOT . "/classes/Media.php";
+if (isset($_SERVER['CONTENT_LENGTH']) && $_SERVER['CONTENT_LENGTH'] > UploadUtil::getMaximumPostSize() && empty($_POST) && empty($_FILES)) {
+	$max_size = UploadUtil::formatBytes(UploadUtil::getMaximumFileUploadSize());
+	$ex = new MediaException(MediaException::ExceedMaxSize, $max_size);
+	$_SESSION['upload_error'] = $ex->getMessage();
+
+	if($_SESSION['occurrenceEditorFallbackUrl']) {
+		header('Location: ' . $_SESSION['occurrenceEditorFallbackUrl']);
+	} else {
+		header('Location: ' . $_SERVER['HTTP_REFERER']);
+	}
+    exit;
+}
+
 header('Content-Type: text/html; charset=' . $CHARSET);
 
 $occId = array_key_exists('occid', $_REQUEST) ? filter_var($_REQUEST['occid'], FILTER_SANITIZE_NUMBER_INT) : '';
@@ -22,9 +37,6 @@ if(strpos($action,'Determination') || strpos($action,'Verification')){
 	include_once($SERVER_ROOT.'/classes/OccurrenceEditorDeterminations.php');
 	$occManager = new OccurrenceEditorDeterminations();
 } else{
-	if(strpos($action,'Image')) {
-		include_once($SERVER_ROOT . "/classes/Media.php");
-	}
 	include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
 	$occManager = new OccurrenceEditorManager();
 }
@@ -52,6 +64,9 @@ $CATNUM_DUPE_CHECK = true;
 $OTHER_CATNUM_DUPE_CHECK = true;
 if($SYMB_UID){
 	//Set variables
+	if($occId && $collId) {
+		$_SESSION['occurrenceEditorFallbackUrl'] = GeneralUtil::getDomain() . '/collections/editor/occurrenceeditor.php?occid=' . $occId . '&collid=' . $collId;
+	}
 	$occManager->setOccId($occId);
 	$occManager->setCollId($collId);
 	$collMap = $occManager->getCollMap();
@@ -70,6 +85,12 @@ if($SYMB_UID){
 		if(!empty($collMap['paleoActivated'])){
 			$collType = 'paleo';
 		}
+	}
+
+	//Check for session errors
+	if (!empty($_SESSION['upload_error'])) {
+		$statusStr = 'ERROR: '. $_SESSION['upload_error'];
+		unset($_SESSION['upload_error']);
 	}
 
 	//Set default option variables, will rework later
@@ -487,7 +508,6 @@ if($SYMB_UID){
 
 	$isLocked = false;
 	if($occId) $isLocked = $occManager->getLock();
-
 }
 else{
 	header('Location: ../../profile/index.php?refurl=../collections/editor/occurrenceeditor.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
@@ -524,7 +544,9 @@ else{
 		}
 	}
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
+	$filename = file_exists($SERVER_ROOT . '/js/symb/' . $LANG_TAG . '.js') ? $CLIENT_ROOT . '/js/symb/' . $LANG_TAG . '.js' : $CLIENT_ROOT . '/js/symb/en.js';
 	?>
+	<script src="<?php echo $filename ?>" type="text/javascript"></script>
 	<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-3.7.1.min.js" type="text/javascript"></script>
 	<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.min.js" type="text/javascript"></script>
 	<script src="<?= $CLIENT_ROOT ?>/js/symb/mapAidUtils.js" type="text/javascript"></script>
@@ -805,7 +827,7 @@ else{
 																		<input class="idNameInput" name="idname[]" type="text" value="<?php echo $idArr['name']; ?>" onchange="fieldChanged('idname');" autocomplete="off" />
 																	</div>
 																	<div class="divTableCell">
-																		<input class="idValueInput" name="idvalue[]" type="text" value="<?php echo $idArr['value']; ?>" onchange="fieldChanged('idvalue');" autocomplete="off" /><a href="#" onclick="deleteIdentifier(<?php echo "'".$idKey."',".$occId; ?>);return false" tabindex="-1"><img src="../../images/del.png" /></a>
+																		<input class="idValueInput" name="idvalue[]" type="text" value="<?php echo $idArr['value']; ?>" onchange="fieldChanged('idvalue');" autocomplete="off" /><a href="#" onclick="confirmDeleteIdentifier(<?php echo "'".$idKey."',".$occId; ?>);return false" tabindex="-1"><img src="../../images/del.png" /></a>
 																	</div>
 																</div>
 																<?php
@@ -877,6 +899,15 @@ else{
 												</div>
 												<input type="text" name="verbatimeventdate" maxlength="255" value="<?php echo array_key_exists('verbatimeventdate',$occArr)?$occArr['verbatimeventdate']:''; ?>" onchange="verbatimEventDateChanged(this)" />
 											</div>
+											<div id="eventTimeToggleDiv" onclick="toggle('eventTimeDiv');" title="<?= $LANG['TOGG_ADD_FIELDS'] ?>">
+												<img class="seemore" src="../../images/tochild.png" style="width:1.3em;height:1.3em">
+											</div>
+											<div id="eventTimeDiv" class="field-div" style="<?= !empty($occArr['eventtime']) ?: 'display:none' ?>" title="Event Time">
+												<?= $LANG['EVENT_TIME']; ?>
+												<a href="#" onclick="return dwcDoc('event-time')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a>
+												<br/>
+												<input type="text" name="eventtime" value="<?= array_key_exists('eventtime',$occArr)?$occArr['eventtime']:''; ?>" onchange="fieldChanged('eventtime');" >
+											</div>
 											<?php
 											if($loanArr = $occManager->getLoanData()){
 												?>
@@ -896,7 +927,7 @@ else{
 										</div>
 										<?php
 										if(isset($ACTIVATE_EXSICCATI) && $ACTIVATE_EXSICCATI){
-											$exsArr = $occManager->getExsiccati();
+											$exsArr = $occManager->getExsiccati($occId);
 											?>
 											<div id="exsDiv">
 												<div id="ometidDiv" class="field-div">
@@ -1487,7 +1518,7 @@ else{
 										<div style="padding:3px;clear:both;">
 											<div id="storageLocationDiv" class="field-div" title="<?php echo $LANG['STORAGELOCATION_EXPLAIN']; ?>">
 												<?php echo $LANG['STORAGELOCATION_CODE']; ?>
-												<a href="#" onclick="return dwcDoc('storageLocation')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
+												<a href="#" onclick="return dwcDoc('storage-location')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
 												<input type="text" name="storagelocation" maxlength="32" value="<?php echo array_key_exists('storagelocation',$occArr)?$occArr['storagelocation']:''; ?>" onchange="fieldChanged('storagelocation');" />
 											</div>
 											<div id="basisOfRecordDiv" class="field-div">
@@ -1663,7 +1694,7 @@ else{
 														<?php
 														$targetArr = $occManager->getCollectionList(true);
 														unset($targetArr[$collId]);
-														if(count($targetArr) > 1){
+														if($targetArr){
 															?>
 															<div class="fieldGroup-div">
 																<label><?php echo $LANG['TARGET_COLL']; ?>:</label>

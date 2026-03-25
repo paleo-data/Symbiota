@@ -15,7 +15,6 @@
 | https://github.com/DarkaOnLine/SwaggerLume
 | Run to regenerate docs: php artisan swagger-lume:generate
 |
-|
 */
 
 $router->get('/', function () use ($router) {
@@ -37,6 +36,9 @@ $router->group(['prefix' => 'v2'], function () use ($router) {
 	//$router->patch('occurrence/{id}', ['uses' => 'OccurrenceController@update']);
 	//$router->delete('occurrence/{id}', ['uses' => 'OccurrenceController@delete']);
 	$router->get('occurrence/annotation', ['uses' => 'OccurrenceAnnotationController@showAllAnnotations']);
+	$router->get('occurrence/dataset', ['uses' => 'OccurrenceDatasetController@showAllDatasets']);
+	$router->get('occurrence/dataset/{id}', ['uses' => 'OccurrenceDatasetController@showOneDataset']);
+	$router->get('occurrence/dataset/{id}/occurrence', ['uses' => 'OccurrenceDatasetController@showDatasetOccurrences']);
 	$router->get('occurrence/duplicate', ['uses' => 'OccurrenceDuplicateController@showDuplicateMatches']);
 	$router->get('occurrence/{id}', ['uses' => 'OccurrenceController@showOneOccurrence']);
 	$router->get('occurrence/{id}/media', ['uses' => 'OccurrenceController@showOneOccurrenceMedia']);
@@ -73,10 +75,8 @@ $router->group(['prefix' => 'v2'], function () use ($router) {
 	//$router->get('taxonomy/{id}/description/{identifier}',  ['uses' => 'TaxonomyDescriptionController@showOneDescription']);
 
 	$router->get('exsiccata', ['uses' => 'ExsiccataController@showAllExsiccata']);
-	$router->get('exsiccata/{identifier}', ['uses' => 'ExsiccataController@showExsiccata']);
-	$router->get('exsiccata/{identifier}/number', ['uses' => 'ExsiccataController@showOneExsiccataNumbers']);
-	$router->get('exsiccata/{identifier}/number/{numberIdentifier}', ['uses' => 'ExsiccataController@showOneExsiccataNumbersIdentifier']);
-	$router->get('exsiccati/{identifier}/number/{numberIdentifier}/occurrence', ['uses' => 'ExsiccataController@showOccurrencesByExsiccataNumber']);
-
+	$router->get('exsiccata/{identifier}', ['uses' => 'ExsiccataController@showOneExsiccata']);
+	$router->get('exsiccata/{identifier}/number', ['uses' => 'ExsiccataController@showExsiccataNumbers']);
+	$router->get('exsiccata/{identifier}/number/{numberIdentifier}', ['uses' => 'ExsiccataController@showOccurrencesByExsiccataNumber']);
 
 });
