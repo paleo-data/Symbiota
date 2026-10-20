@@ -2,4 +2,32 @@
 Place your CSS customizations here.
 This stylesheet is defined last and will override all previously loaded sheets. You may reference variables defined in variables.css 
  */
+
+ /* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Alata&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+/* Global */
+
+a {
+    text-decoration: none;
+}
+  
+strong {
+    font-weight: 900;
+}
+
+@media (min-width: 768px) {
+    .brand-name{
+        padding-left: 4rem;
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+    }
  
+    /* First level drop-down menu */
+    nav.top-menu > ul > li > a:hover > ul,
+    nav.top-menu > ul > li > a:focus > ul,
+    nav.top-menu > ul > li:hover > ul,
+    nav.top-menu > ul > li:focus-within > ul {
+      background-color: #353472;
+    }
+}

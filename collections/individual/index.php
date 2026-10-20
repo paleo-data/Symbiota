@@ -984,7 +984,6 @@ $traitArr = $indManager->getTraitArr();
 								if($occArr['taxonEnvironment']) echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>'.$LANG['TAXON_ENVIR'].':</label> '.$occArr['taxonEnvironment'].'</div>';
 								if($occArr['geologicalContextID']) echo '<div class="paleofield-div bottom-breathing-room-rel-sm"><label>'.$LANG['CONTEXT_ID'].':</label> '.$occArr['geologicalContextID'].'</div>';
 								?>
-
 							<?php
 						}
 						if (isset ($collMetadata['colltype']) && $collMetadata['colltype'] == "Fossil Specimens")

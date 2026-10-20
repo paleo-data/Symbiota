@@ -9,6 +9,11 @@
  e.g. override: $LANG['H_COLLECTIONS'] = 'Search Lichen Collections';
 */
 
-
+$LANG['H_CLASSIC_SEARCH'] = 'Classic Search';
+$LANG['H_HELP'] = 'Symbiota Docs';
+$LANG['H_DOCS'] = 'Documentation';
+$LANG['H_PALEOKHUB'] = 'Paleo Data Knowledge Hub';
+$LANG['H_PALEOSTART'] = 'Data Provider Quick Start';
+$LANG['H_PALEOMGMT'] = 'Data Management Guide';
 
 ?>
